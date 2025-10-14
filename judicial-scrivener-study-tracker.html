@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="ko">
+<!--
+    법무사 시험 전략적 학습 시스템
+    Version: 2.0.0
+    Last Updated: 2025-10-14
+
+    Changes in v2.0.0:
+    - Added support for 2차 (secondary) exam subjects
+    - Fixed subject progress editing functionality
+    - Fixed mock exam score delete functionality (always visible now)
+    - Fixed study strategy (time blocks) edit/delete functionality
+    - Improved event handlers to use proper onclick bindings
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>법무사 시험 전략적 학습 시스템 (1차/2차) v2.0.0 | D-318</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #4A5568;
+            --primary-dark: #2D3748;
+            --accent: #3182CE;
+            --success: #48BB78;
+            --warning: #F6AD55;
+            --danger: #F56565;
+            --bg-light: #F7FAFC;
+            --text-primary: #1A202C;
+            --text-secondary: #718096;
+            --border: #E2E8F0;
+        }
+        
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 헤더 스타일 */
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+        
+        .d-day-badge {
+            background: var(--danger);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .study-mode-selector {
+            display: flex;
+            gap: 10px;
+            background: var(--bg-light);
+            padding: 5px;
+            border-radius: 8px;
+        }
+        
+        .mode-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .mode-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+        
+        /* 대시보드 그리드 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: var(--bg-light);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .action-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .action-btn.edit:hover {
+            background: var(--warning);
+        }
+        
+        .action-btn.delete:hover {
+            background: var(--danger);
+        }
+        
+        /* 오늘의 학습 계획 */
+        .today-plan {
+            grid-column: span 2;
+        }
+        
+        .time-blocks {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .time-block {
+            background: var(--bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .time-block.completed {
+            background: #E6FFFA;
+            border-left-color: var(--success);
+        }
+        
+        .time-block:hover {
+            transform: translateX(5px);
+        }
+        
+        .time-block-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .time-block-btn {
+            width: 20px;
+            height: 20px;
+            border: none;
+            background: rgba(255,255,255,0.8);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.3s;
+        }
+        
+        .time-block-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .time-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        
+        .time-subject {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .time-detail {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .check-btn {
+            margin-top: 10px;
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .check-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .check-btn.checked {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+        
+        /* 기출문제 회독 트래커 */
+        .rotation-tracker {
+            margin-top: 15px;
+        }
+        
+        .subject-rotation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--bg-light);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .subject-name {
+            font-weight: 600;
+            flex: 1;
+            cursor: pointer;
+        }
+        
+        .rotation-circles {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .rotation-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .rotation-circle.completed {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+        
+        .rotation-circle.current {
+            background: var(--warning);
+            color: white;
+            border-color: var(--warning);
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        /* 학습 타이머 */
+        .timer-display {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            font-family: 'SF Mono', monospace;
+            color: var(--primary-dark);
+        }
+        
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .timer-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .timer-btn.start {
+            background: var(--success);
+            color: white;
+        }
+        
+        .timer-btn.pause {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .timer-btn.reset {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .timer-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        /* 주간 학습 통계 */
+        .weekly-stats {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .day-stat {
+            text-align: center;
+            padding: 10px;
+            background: var(--bg-light);
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .day-stat.today {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .day-stat.completed {
+            background: var(--success);
+            color: white;
+        }
+        
+        .day-name {
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+        
+        .day-hours {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        /* 과목별 진도 */
+        .subject-progress {
+            margin-top: 15px;
+        }
+        
+        .progress-item {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        .progress-label {
+            font-weight: 600;
+        }
+        
+        .progress-value {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: var(--bg-light);
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        /* 모의고사 점수 트래커 */
+        .mock-scores {
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--bg-light);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .score-date {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .score-value {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: white;
+        }
+        
+        .score-value.pass {
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+        
+        .score-value.fail {
+            color: var(--danger);
+            border: 2px solid var(--danger);
+        }
+        
+        .score-actions {
+            position: absolute;
+            right: 80px;
+            display: flex;
+            gap: 5px;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .score-action-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .score-action-btn:hover {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal.show {
+            display: block;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: var(--bg-light);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .modal-close:hover {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .modal-btn.cancel {
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+        
+        .modal-btn.save {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .modal-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        /* 노트 섹션 */
+        .notes-section {
+            margin-top: 20px;
+        }
+        
+        .notes-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .notes-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+        
+        .notes-toolbar {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .notes-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .notes-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .today-plan {
+                grid-column: span 1;
+            }
+            
+            .timer-display {
+                font-size: 2.5rem;
+            }
+            
+            .weekly-stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .time-blocks {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 토스트 알림 */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-dark);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: slideInToast 0.3s ease;
+        }
+        
+        @keyframes slideInToast {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="header">
+            <div class="header-top">
+                <h1 class="title">🎯 법무사 시험 전략적 학습 시스템</h1>
+                <div class="d-day-badge" id="dday">D-318</div>
+            </div>
+            <div class="study-mode-selector">
+                <button class="mode-btn" onclick="setExamType('1차')">1차 시험</button>
+                <button class="mode-btn" onclick="setExamType('2차')">2차 시험</button>
+            </div>
+            <div class="study-mode-selector" style="margin-top: 10px;">
+                <button class="mode-btn active" onclick="setMode('직장인')">직장인 모드</button>
+                <button class="mode-btn" onclick="setMode('전업')">전업 모드</button>
+                <button class="mode-btn" onclick="setMode('주말전사')">주말전사 모드</button>
+            </div>
+        </div>
+        
+        <!-- 대시보드 그리드 -->
+        <div class="dashboard-grid">
+            <!-- 오늘의 학습 계획 -->
+            <div class="card today-plan">
+                <div class="card-header">
+                    <h2 class="card-title">📚 오늘의 학습 전략</h2>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="addTimeBlock()">➕</button>
+                    </div>
+                </div>
+                <div class="time-blocks" id="time-blocks-container">
+                    <!-- 동적으로 생성됩니다 -->
+                </div>
+                <div style="background: #FFF5F5; padding: 15px; border-radius: 8px; border-left: 4px solid var(--danger); margin-top: 15px;">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: var(--danger);">💡 합격자 평균 (직장병행 기준)</div>
+                    <div style="font-size: 0.9rem; line-height: 1.6;">
+                        • 일일 학습시간: 평일 4-5시간<br>
+                        • 기출문제 회독: 과목당 6-7회<br>
+                        • 1차 준비기간: 12-18개월
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 기출문제 회독 트래커 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🔄 기출문제 회독 현황</h2>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="resetRotations()">🔄</button>
+                    </div>
+                </div>
+                <div class="rotation-tracker" id="rotation-tracker">
+                    <!-- 동적으로 생성됩니다 -->
+                </div>
+            </div>
+            
+            <!-- 학습 타이머 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">⏱️ 오늘의 학습 시간</h2>
+                </div>
+                <div class="timer-display" id="timer">00:00:00</div>
+                <div class="timer-controls">
+                    <button class="timer-btn start" onclick="startTimer()">시작</button>
+                    <button class="timer-btn pause" onclick="pauseTimer()">일시정지</button>
+                    <button class="timer-btn reset" onclick="resetTimer()">리셋</button>
+                </div>
+                <div class="weekly-stats" id="weekly-stats">
+                    <!-- 동적으로 생성됩니다 -->
+                </div>
+            </div>
+            
+            <!-- 과목별 진도 현황 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📊 과목별 진도율</h2>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="updateAllProgress()">✏️</button>
+                    </div>
+                </div>
+                <div class="subject-progress" id="subject-progress">
+                    <!-- 동적으로 생성됩니다 -->
+                </div>
+            </div>
+            
+            <!-- 모의고사 점수 트래커 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📝 모의고사 점수 추이</h2>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="showScoreModal()">➕</button>
+                    </div>
+                </div>
+                <div class="mock-scores" id="mock-scores">
+                    <!-- 동적으로 생성됩니다 -->
+                </div>
+            </div>
+            
+            <!-- 동기부여 카드 -->
+            <div class="card">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 1.1rem; font-style: italic; margin-bottom: 10px;" id="motivation-quote">
+                        "포기하지 않으면 반드시 합격한다. 시험은 끝까지 버티는 것입니다."
+                    </div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">- 29회 합격자 -</div>
+                </div>
+                <div style="background: #FFF5F5; padding: 15px; border-radius: 8px; border-left: 4px solid var(--danger); margin-top: 15px;">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: var(--danger);">🏆 합격자 조언</div>
+                    <div style="font-size: 0.9rem; line-height: 1.6;">
+                        • 기출문제 6-7회독이 핵심<br>
+                        • 최신판례는 반드시 체크<br>
+                        • 모의고사 점수에 연연하지 말 것<br>
+                        • 매일 꾸준히가 답입니다
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 학습 노트 섹션 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📝 오늘의 학습 노트</h2>
+            </div>
+            <div class="notes-section">
+                <textarea class="notes-input" placeholder="오늘 학습한 핵심 내용, 틀린 문제, 헷갈리는 개념을 정리하세요..." id="study-notes"></textarea>
+                <div class="notes-toolbar">
+                    <button class="notes-btn" onclick="saveNotes()">저장</button>
+                    <button class="notes-btn" onclick="showPreviousNotes()">이전 노트</button>
+                    <button class="notes-btn" onclick="exportNotes()">내보내기</button>
+                    <button class="notes-btn" onclick="addErrorNote()">오답노트 추가</button>
+                    <button class="notes-btn" onclick="clearNotes()">초기화</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
+            법무사 시험 전략적 학습 시스템 v2.0.0 | 1차/2차 시험 지원
+        </div>
+    </div>
+    
+    <!-- 모달들 -->
+    <div id="scoreModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">모의고사 점수 추가</h3>
+                <button class="modal-close" onclick="closeModal('scoreModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">시험 날짜</label>
+                    <input type="date" class="form-input" id="scoreDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">점수</label>
+                    <input type="number" step="0.5" class="form-input" id="scoreValue" placeholder="예: 58.5">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">메모 (선택)</label>
+                    <input type="text" class="form-input" id="scoreMemo" placeholder="예: 3차 모의고사">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('scoreModal')">취소</button>
+                <button class="modal-btn save" onclick="saveScore()">저장</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="timeBlockModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">학습 시간 블록 추가</h3>
+                <button class="modal-close" onclick="closeModal('timeBlockModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">시간대</label>
+                    <input type="text" class="form-input" id="blockTime" placeholder="예: 06:00-08:00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">과목</label>
+                    <select class="form-select" id="blockSubject">
+                        <optgroup label="1차 시험">
+                            <option value="헌법">헌법</option>
+                            <option value="민법">민법</option>
+                            <option value="상법">상법</option>
+                            <option value="민사집행법">민사집행법</option>
+                            <option value="부동산등기법">부동산등기법</option>
+                            <option value="상업등기법">상업등기법</option>
+                            <option value="공탁법">공탁법</option>
+                        </optgroup>
+                        <optgroup label="2차 시험">
+                            <option value="민법 (2차)">민법 (2차)</option>
+                            <option value="부동산등기법 (2차)">부동산등기법 (2차)</option>
+                            <option value="상업등기법 (2차)">상업등기법 (2차)</option>
+                            <option value="민사집행법 (2차)">민사집행법 (2차)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">학습 내용</label>
+                    <input type="text" class="form-input" id="blockDetail" placeholder="예: 기출문제 #201-250">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('timeBlockModal')">취소</button>
+                <button class="modal-btn save" onclick="saveTimeBlock()">저장</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 데이터 초기화
+        let studyData = {
+            mode: localStorage.getItem('studyMode') || '직장인',
+            examType: localStorage.getItem('examType') || '1차',
+            timer: {
+                seconds: 0,
+                isRunning: false,
+                interval: null
+            },
+            subjects1st: [
+                { name: '헌법', total: 500, completed: 320, rotations: [true, true, false, false, false, false, false] },
+                { name: '민법', total: 800, completed: 580, rotations: [true, true, true, false, false, false, false] },
+                { name: '상법', total: 500, completed: 280, rotations: [true, true, false, false, false, false, false] },
+                { name: '민사집행법', total: 400, completed: 180, rotations: [true, false, false, false, false, false, false] },
+                { name: '부동산등기법', total: 500, completed: 420, rotations: [true, true, true, true, false, false, false] },
+                { name: '상업등기법', total: 300, completed: 150, rotations: [true, false, false, false, false, false, false] },
+                { name: '공탁법', total: 300, completed: 200, rotations: [true, true, false, false, false, false, false] }
+            ],
+            subjects2nd: [
+                { name: '민법 (2차)', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '부동산등기법 (2차)', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '상업등기법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '민사집행법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] }
+            ],
+            subjects: [],  // Will be set dynamically based on examType
+            timeBlocks: [],
+            mockScores: [],
+            weeklyHours: {},
+            notes: {}
+        };
+        
+        // 로컬 스토리지에서 데이터 로드
+        function loadData() {
+            const saved = localStorage.getItem('studyData');
+            if (saved) {
+                const loadedData = JSON.parse(saved);
+                studyData = { ...studyData, ...loadedData };
+
+                // 2차 과목이 없으면 기본값 설정
+                if (!studyData.subjects2nd) {
+                    studyData.subjects2nd = [
+                        { name: '민법 (2차)', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '부동산등기법 (2차)', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '상업등기법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '민사집행법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] }
+                    ];
+                }
+
+                // 1차 과목이 없으면 기본값 설정 (구버전 호환성)
+                if (!studyData.subjects1st && studyData.subjects) {
+                    studyData.subjects1st = studyData.subjects;
+                }
+            }
+
+            // 시험 타입에 따라 과목 설정
+            updateSubjectsByExamType();
+
+            // 오늘 타이머 데이터 로드
+            const today = new Date().toISOString().split('T')[0];
+            const todayTimer = localStorage.getItem(`timer_${today}`);
+            if (todayTimer) {
+                studyData.timer.seconds = parseInt(todayTimer);
+            }
+        }
+
+        // 시험 타입에 따라 과목 설정
+        function updateSubjectsByExamType() {
+            if (studyData.examType === '2차') {
+                studyData.subjects = studyData.subjects2nd;
+            } else {
+                studyData.subjects = studyData.subjects1st;
+            }
+        }
+        
+        // 데이터 저장
+        function saveData() {
+            localStorage.setItem('studyData', JSON.stringify(studyData));
+            
+            // 오늘 타이머 별도 저장
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem(`timer_${today}`, studyData.timer.seconds);
+        }
+        
+        // 초기화 함수
+        function init() {
+            loadData();
+            updateDDay();
+            renderTimeBlocks();
+            renderRotationTracker();
+            renderWeeklyStats();
+            renderSubjectProgress();
+            renderMockScores();
+            updateTimerDisplay();
+            loadTodayNotes();
+            rotateMotivation();
+
+            // 시험 타입 및 모드 설정
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                const btnText = btn.textContent.trim();
+                // 시험 타입 버튼
+                if (btnText === '1차 시험' || btnText === '2차 시험') {
+                    btn.classList.remove('active');
+                    if (btnText === studyData.examType + ' 시험') {
+                        btn.classList.add('active');
+                    }
+                }
+                // 학습 모드 버튼
+                else {
+                    btn.classList.remove('active');
+                    if(btnText.includes(studyData.mode)) {
+                        btn.classList.add('active');
+                    }
+                }
+            });
+            
+            // 기본 시간 블록이 없으면 추가
+            if (studyData.timeBlocks.length === 0) {
+                studyData.timeBlocks = [
+                    { id: Date.now(), time: '05:00-07:00', subject: '민법', detail: '기출문제 #201-250', completed: false },
+                    { id: Date.now() + 1, time: '19:00-22:00', subject: '헌법', detail: '최신판례 + 기출 회독', completed: false }
+                ];
+                saveData();
+                renderTimeBlocks();
+            }
+            
+            // 기본 점수가 없으면 추가
+            if (studyData.mockScores.length === 0) {
+                studyData.mockScores = [
+                    { id: Date.now(), date: '2024-09-29', score: 52.5, memo: '1차 모의' },
+                    { id: Date.now() + 1, date: '2024-10-06', score: 55.0, memo: '2차 모의' },
+                    { id: Date.now() + 2, date: '2024-10-13', score: 58.5, memo: '3차 모의' }
+                ];
+                saveData();
+                renderMockScores();
+            }
+        }
+        
+        // D-Day 계산
+        function updateDDay() {
+            const today = new Date();
+            const examDate = new Date('2026-08-29');
+            const diffTime = examDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            document.getElementById('dday').textContent = `D-${diffDays}`;
+        }
+        
+        // 시험 타입 설정
+        function setExamType(type) {
+            studyData.examType = type;
+            localStorage.setItem('examType', type);
+
+            // 과목 업데이트
+            updateSubjectsByExamType();
+
+            saveData();
+
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                if (btn.textContent.includes('시험')) {
+                    btn.classList.remove('active');
+                    if (btn.textContent === type + ' 시험') {
+                        btn.classList.add('active');
+                    }
+                }
+            });
+
+            // UI 업데이트
+            renderRotationTracker();
+            renderSubjectProgress();
+
+            showToast(`${type} 시험 모드로 변경되었습니다`);
+        }
+
+        // 학습 모드 설정
+        function setMode(mode) {
+            studyData.mode = mode;
+            localStorage.setItem('studyMode', mode);
+            saveData();
+
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                if (!btn.textContent.includes('시험')) {
+                    btn.classList.remove('active');
+                    if (btn.textContent.includes(mode)) {
+                        btn.classList.add('active');
+                    }
+                }
+            });
+
+            showToast(`${mode} 모드로 변경되었습니다`);
+        }
+        
+        // 시간 블록 렌더링
+        function renderTimeBlocks() {
+            const container = document.getElementById('time-blocks-container');
+            container.innerHTML = '';
+
+            studyData.timeBlocks.forEach(block => {
+                const blockEl = document.createElement('div');
+                blockEl.className = `time-block ${block.completed ? 'completed' : ''}`;
+
+                // 액션 버튼 컨테이너
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'time-block-actions';
+
+                // 수정 버튼
+                const editBtn = document.createElement('button');
+                editBtn.className = 'time-block-btn';
+                editBtn.textContent = '✏️';
+                editBtn.onclick = () => editTimeBlock(block.id);
+
+                // 삭제 버튼
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'time-block-btn';
+                deleteBtn.textContent = '🗑️';
+                deleteBtn.onclick = () => deleteTimeBlock(block.id);
+
+                actionsDiv.appendChild(editBtn);
+                actionsDiv.appendChild(deleteBtn);
+
+                // 시간 라벨
+                const timeLabel = document.createElement('div');
+                timeLabel.className = 'time-label';
+                timeLabel.textContent = `⏰ ${block.time}`;
+
+                // 과목명
+                const subjectDiv = document.createElement('div');
+                subjectDiv.className = 'time-subject';
+                subjectDiv.textContent = block.subject;
+
+                // 상세 내용
+                const detailDiv = document.createElement('div');
+                detailDiv.className = 'time-detail';
+                detailDiv.textContent = block.detail;
+
+                // 완료 버튼
+                const checkBtn = document.createElement('button');
+                checkBtn.className = `check-btn ${block.completed ? 'checked' : ''}`;
+                checkBtn.textContent = block.completed ? '완료✓' : '완료';
+                checkBtn.onclick = () => toggleTimeBlock(block.id);
+
+                // 모두 추가
+                blockEl.appendChild(actionsDiv);
+                blockEl.appendChild(timeLabel);
+                blockEl.appendChild(subjectDiv);
+                blockEl.appendChild(detailDiv);
+                blockEl.appendChild(checkBtn);
+
+                container.appendChild(blockEl);
+            });
+        }
+        
+        // 시간 블록 토글
+        function toggleTimeBlock(id) {
+            const block = studyData.timeBlocks.find(b => b.id === id);
+            if (block) {
+                block.completed = !block.completed;
+                if (block.completed) {
+                    // 2시간 추가
+                    studyData.timer.seconds += 7200;
+                    updateTimerDisplay();
+                    showToast('학습 완료! 2시간이 추가되었습니다 👏');
+                } else {
+                    studyData.timer.seconds = Math.max(0, studyData.timer.seconds - 7200);
+                    updateTimerDisplay();
+                }
+                saveData();
+                renderTimeBlocks();
+            }
+        }
+        
+        // 시간 블록 추가
+        function addTimeBlock() {
+            document.getElementById('timeBlockModal').classList.add('show');
+        }
+        
+        // 시간 블록 저장
+        function saveTimeBlock() {
+            const time = document.getElementById('blockTime').value;
+            const subject = document.getElementById('blockSubject').value;
+            const detail = document.getElementById('blockDetail').value;
+            
+            if (time && subject && detail) {
+                studyData.timeBlocks.push({
+                    id: Date.now(),
+                    time,
+                    subject,
+                    detail,
+                    completed: false
+                });
+                saveData();
+                renderTimeBlocks();
+                closeModal('timeBlockModal');
+                showToast('학습 블록이 추가되었습니다');
+            }
+        }
+        
+        // 시간 블록 삭제
+        function deleteTimeBlock(id) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                studyData.timeBlocks = studyData.timeBlocks.filter(b => b.id !== id);
+                saveData();
+                renderTimeBlocks();
+                showToast('삭제되었습니다');
+            }
+        }
+        
+        // 시간 블록 수정 (간단 구현)
+        function editTimeBlock(id) {
+            const block = studyData.timeBlocks.find(b => b.id === id);
+            if (block) {
+                const newTime = prompt('시간대:', block.time);
+                const newSubject = prompt('과목:', block.subject);
+                const newDetail = prompt('내용:', block.detail);
+                
+                if (newTime && newSubject && newDetail) {
+                    block.time = newTime;
+                    block.subject = newSubject;
+                    block.detail = newDetail;
+                    saveData();
+                    renderTimeBlocks();
+                    showToast('수정되었습니다');
+                }
+            }
+        }
+        
+        // 회독 트래커 렌더링
+        function renderRotationTracker() {
+            const container = document.getElementById('rotation-tracker');
+            container.innerHTML = '';
+            
+            studyData.subjects.forEach((subject, idx) => {
+                const div = document.createElement('div');
+                div.className = 'subject-rotation';
+                
+                let circlesHtml = '';
+                subject.rotations.forEach((completed, i) => {
+                    const isCurrentjsxjs = completed && !subject.rotations[i + 1];
+                    circlesHtml += `
+                        <div class="rotation-circle ${completed ? 'completed' : ''} ${isCurrentjsxjs ? 'current' : ''}" 
+                             onclick="toggleRotation(${idx}, ${i})">
+                            ${i + 1}
+                        </div>
+                    `;
+                });
+                
+                div.innerHTML = `
+                    <span class="subject-name">${subject.name}</span>
+                    <div class="rotation-circles">${circlesHtml}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        // 회독 토글
+        function toggleRotation(subjectIdx, rotationIdx) {
+            const subject = studyData.subjects[subjectIdx];
+            subject.rotations[rotationIdx] = !subject.rotations[rotationIdx];
+            
+            // 이전 회독이 완료되지 않았으면 완료 처리
+            for (let i = 0; i < rotationIdx; i++) {
+                subject.rotations[i] = true;
+            }
+            
+            saveData();
+            renderRotationTracker();
+            
+            if (subject.rotations[rotationIdx]) {
+                showToast(`${subject.name} ${rotationIdx + 1}회독 완료! 🎉`);
+            }
+        }
+        
+        // 회독 초기화
+        function resetRotations() {
+            if (confirm('모든 회독 기록을 초기화하시겠습니까?')) {
+                studyData.subjects.forEach(subject => {
+                    subject.rotations = [false, false, false, false, false, false, false];
+                });
+                saveData();
+                renderRotationTracker();
+                showToast('회독 기록이 초기화되었습니다');
+            }
+        }
+        
+        // 타이머 기능
+        function startTimer() {
+            if (!studyData.timer.isRunning) {
+                studyData.timer.isRunning = true;
+                studyData.timer.interval = setInterval(() => {
+                    studyData.timer.seconds++;
+                    updateTimerDisplay();
+                    
+                    // 30분마다 자동 저장
+                    if (studyData.timer.seconds % 1800 === 0) {
+                        saveData();
+                        showToast('학습 진도가 자동 저장되었습니다');
+                    }
+                }, 1000);
+            }
+        }
+        
+        function pauseTimer() {
+            studyData.timer.isRunning = false;
+            clearInterval(studyData.timer.interval);
+            saveData();
+        }
+        
+        function resetTimer() {
+            if (confirm('정말 리셋하시겠습니까?')) {
+                studyData.timer.isRunning = false;
+                clearInterval(studyData.timer.interval);
+                studyData.timer.seconds = 0;
+                updateTimerDisplay();
+                saveData();
+            }
+        }
+        
+        function updateTimerDisplay() {
+            const hours = Math.floor(studyData.timer.seconds / 3600);
+            const minutes = Math.floor((studyData.timer.seconds % 3600) / 60);
+            const secs = studyData.timer.seconds % 60;
+            
+            document.getElementById('timer').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+        
+        // 주간 통계 렌더링
+        function renderWeeklyStats() {
+            const container = document.getElementById('weekly-stats');
+            container.innerHTML = '';
+            
+            const days = ['월', '화', '수', '목', '금', '토', '일'];
+            const today = new Date().getDay();
+            const adjustedToday = today === 0 ? 6 : today - 1;
+            
+            days.forEach((day, idx) => {
+                const hours = studyData.weeklyHours[day] || 0;
+                const isToday = idx === adjustedToday;
+                const isCompleted = hours >= 4;
+                
+                const div = document.createElement('div');
+                div.className = `day-stat ${isToday ? 'today' : ''} ${isCompleted ? 'completed' : ''}`;
+                div.innerHTML = `
+                    <div class="day-name">${day}</div>
+                    <div class="day-hours">${hours}h</div>
+                `;
+                div.onclick = () => updateDayHours(day);
+                container.appendChild(div);
+            });
+        }
+        
+        // 일일 시간 업데이트
+        function updateDayHours(day) {
+            const hours = prompt(`${day}요일 학습 시간 (시간):`, studyData.weeklyHours[day] || 0);
+            if (hours !== null && !isNaN(hours)) {
+                studyData.weeklyHours[day] = parseFloat(hours);
+                saveData();
+                renderWeeklyStats();
+            }
+        }
+        
+        // 과목별 진도 렌더링
+        function renderSubjectProgress() {
+            const container = document.getElementById('subject-progress');
+            container.innerHTML = '';
+
+            studyData.subjects.forEach((subject, idx) => {
+                const percent = Math.round((subject.completed / subject.total) * 100);
+                const div = document.createElement('div');
+                div.className = 'progress-item';
+
+                // 헤더 생성
+                const header = document.createElement('div');
+                header.className = 'progress-header';
+                header.innerHTML = `
+                    <span class="progress-label">${subject.name}</span>
+                    <span class="progress-value">${subject.completed}/${subject.total} 문제</span>
+                `;
+                header.onclick = () => updateProgress(idx);
+
+                // 프로그레스 바 생성
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress-bar';
+                progressBar.innerHTML = `
+                    <div class="progress-fill" style="width: ${percent}%">${percent}%</div>
+                `;
+                progressBar.onclick = () => updateProgress(idx);
+
+                div.appendChild(header);
+                div.appendChild(progressBar);
+                container.appendChild(div);
+            });
+        }
+
+        // 진도 업데이트
+        function updateProgress(idx) {
+            const subject = studyData.subjects[idx];
+            const completed = prompt(`${subject.name} 완료 문제수:`, subject.completed);
+
+            if (completed !== null && !isNaN(completed)) {
+                subject.completed = Math.min(parseInt(completed), subject.total);
+
+                // 실제 데이터 소스에도 반영
+                if (studyData.examType === '2차') {
+                    studyData.subjects2nd[idx] = subject;
+                } else {
+                    studyData.subjects1st[idx] = subject;
+                }
+
+                saveData();
+                renderSubjectProgress();
+                showToast(`${subject.name} 진도가 업데이트되었습니다`);
+            }
+        }
+        
+        // 전체 진도 업데이트
+        function updateAllProgress() {
+            showToast('각 과목을 클릭하여 진도를 업데이트하세요');
+        }
+        
+        // 모의고사 점수 렌더링
+        function renderMockScores() {
+            const container = document.getElementById('mock-scores');
+            container.innerHTML = '';
+
+            studyData.mockScores.forEach(score => {
+                const isPass = score.score >= 60;
+                const div = document.createElement('div');
+                div.className = 'score-entry';
+
+                // 날짜 및 메모 표시
+                const dateSpan = document.createElement('span');
+                dateSpan.className = 'score-date';
+                dateSpan.textContent = `${score.date} ${score.memo ? `(${score.memo})` : ''}`;
+
+                // 액션 버튼 컨테이너
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'score-actions';
+
+                // 수정 버튼
+                const editBtn = document.createElement('button');
+                editBtn.className = 'score-action-btn';
+                editBtn.textContent = '✏️';
+                editBtn.onclick = () => editScore(score.id);
+
+                // 삭제 버튼
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'score-action-btn';
+                deleteBtn.textContent = '🗑️';
+                deleteBtn.onclick = () => deleteScore(score.id);
+
+                actionsDiv.appendChild(editBtn);
+                actionsDiv.appendChild(deleteBtn);
+
+                // 점수 표시
+                const scoreSpan = document.createElement('span');
+                scoreSpan.className = `score-value ${isPass ? 'pass' : 'fail'}`;
+                scoreSpan.textContent = `${score.score}점`;
+
+                div.appendChild(dateSpan);
+                div.appendChild(actionsDiv);
+                div.appendChild(scoreSpan);
+
+                container.appendChild(div);
+            });
+
+            // 목표 점수 표시
+            const targetDiv = document.createElement('div');
+            targetDiv.className = 'score-entry';
+            targetDiv.innerHTML = `
+                <span class="score-date">목표 점수</span>
+                <span class="score-value pass">65.0점↑</span>
+            `;
+            container.appendChild(targetDiv);
+        }
+        
+        // 점수 모달 표시
+        function showScoreModal() {
+            document.getElementById('scoreDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('scoreValue').value = '';
+            document.getElementById('scoreMemo').value = '';
+            document.getElementById('scoreModal').classList.add('show');
+        }
+        
+        // 점수 저장
+        function saveScore() {
+            const date = document.getElementById('scoreDate').value;
+            const score = parseFloat(document.getElementById('scoreValue').value);
+            const memo = document.getElementById('scoreMemo').value;
+            
+            if (date && !isNaN(score)) {
+                studyData.mockScores.push({
+                    id: Date.now(),
+                    date,
+                    score,
+                    memo
+                });
+                
+                // 날짜순 정렬
+                studyData.mockScores.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                saveData();
+                renderMockScores();
+                closeModal('scoreModal');
+                showToast(`${score}점이 기록되었습니다`);
+            }
+        }
+        
+        // 점수 삭제
+        function deleteScore(id) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                studyData.mockScores = studyData.mockScores.filter(s => s.id !== id);
+                saveData();
+                renderMockScores();
+                showToast('삭제되었습니다');
+            }
+        }
+        
+        // 점수 수정
+        function editScore(id) {
+            const score = studyData.mockScores.find(s => s.id === id);
+            if (score) {
+                const newScore = prompt('점수:', score.score);
+                const newMemo = prompt('메모:', score.memo || '');
+                
+                if (newScore !== null && !isNaN(newScore)) {
+                    score.score = parseFloat(newScore);
+                    score.memo = newMemo;
+                    saveData();
+                    renderMockScores();
+                    showToast('수정되었습니다');
+                }
+            }
+        }
+        
+        // 모달 닫기
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        // 노트 기능
+        function saveNotes() {
+            const notes = document.getElementById('study-notes').value;
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (!studyData.notes) studyData.notes = {};
+            studyData.notes[today] = {
+                content: notes,
+                timestamp: new Date().toISOString()
+            };
+            
+            saveData();
+            showToast('노트가 저장되었습니다 📝');
+        }
+        
+        function loadTodayNotes() {
+            const today = new Date().toISOString().split('T')[0];
+            if (studyData.notes && studyData.notes[today]) {
+                document.getElementById('study-notes').value = studyData.notes[today].content;
+            }
+        }
+        
+        function showPreviousNotes() {
+            if (!studyData.notes) {
+                showToast('저장된 노트가 없습니다');
+                return;
+            }
+            
+            const dates = Object.keys(studyData.notes).sort().reverse();
+            if (dates.length === 0) {
+                showToast('저장된 노트가 없습니다');
+                return;
+            }
+            
+            let notesList = '📚 최근 학습 노트\n\n';
+            dates.slice(0, 7).forEach(date => {
+                const content = studyData.notes[date].content;
+                notesList += `📅 ${date}\n${content.substring(0, 100)}...\n\n`;
+            });
+            
+            alert(notesList);
+        }
+        
+        function exportNotes() {
+            const dataStr = JSON.stringify(studyData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `study_data_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast('데이터가 내보내졌습니다 💾');
+        }
+        
+        function addErrorNote() {
+            const subject = prompt('과목명:');
+            const question = prompt('틀린 문제 번호 또는 내용:');
+            const reason = prompt('틀린 이유:');
+            
+            if (subject && question && reason) {
+                const errorNote = `\n\n[오답노트]\n과목: ${subject}\n문제: ${question}\n이유: ${reason}\n`;
+                document.getElementById('study-notes').value += errorNote;
+                showToast('오답노트가 추가되었습니다');
+            }
+        }
+        
+        function clearNotes() {
+            if (confirm('오늘 노트를 초기화하시겠습니까?')) {
+                document.getElementById('study-notes').value = '';
+                showToast('노트가 초기화되었습니다');
+            }
+        }
+        
+        // 동기부여 문구 로테이션
+        function rotateMotivation() {
+            const quotes = [
+                "포기하지 않으면 반드시 합격한다. 시험은 끝까지 버티는 것입니다.",
+                "머리보다 중요한 것은 엉덩이를 오래 붙이고 있을 수 있는 것.",
+                "직장병행이라도 매일 꾸준히 하면 합격할 수 있습니다.",
+                "모의고사 점수가 낮아도 포기하지 마세요. 끝까지 가면 됩니다.",
+                "기출문제를 완전히 내 것으로 만드는 것이 합격의 지름길입니다.",
+                "오늘 못한 공부는 내일 두 배가 됩니다. 오늘 할 일은 오늘!",
+                "1년 반의 노력이 평생의 자격증이 됩니다.",
+                "시험은 잘 모르는 상태에서 붙는 거다.",
+                "남들도 어렵습니다. 나만 어려운 것이 아닙니다.",
+                "버티면 합격한다. 끝까지 버티는 것입니다."
+            ];
+            
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('motivation-quote').textContent = randomQuote;
+        }
+        
+        // 토스트 메시지
+        function showToast(message) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // 키보드 단축키
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 's':
+                        e.preventDefault();
+                        saveNotes();
+                        break;
+                    case ' ':
+                        e.preventDefault();
+                        if (studyData.timer.isRunning) pauseTimer();
+                        else startTimer();
+                        break;
+                }
+            }
+        });
+        
+        // 페이지 종료 시 자동 저장
+        window.addEventListener('beforeunload', function() {
+            saveData();
+            if (document.getElementById('study-notes').value) {
+                saveNotes();
+            }
+        });
+        
+        // 5분마다 동기부여 문구 변경
+        setInterval(rotateMotivation, 300000);
+        
+        // 초기화 실행
+        init();
+    </script>
+</body>
+</html>
