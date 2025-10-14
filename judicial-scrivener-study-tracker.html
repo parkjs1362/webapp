@@ -2,8 +2,22 @@
 <html lang="ko">
 <!--
     법무사 시험 전략적 학습 시스템
-    Version: 2.2.0
+    Version: 2.3.0
     Last Updated: 2025-10-14
+
+    Changes in v2.3.0 - UX/UI Major Upgrade:
+    - CRITICAL: Completely replaced all alert()/prompt()/confirm() with modern modal dialogs
+    - Added separate D-day counters for both 1차 and 2차 exams with editable dates
+    - Implemented visual urgency indicators (color changes as exam approaches)
+    - Added comprehensive toast notification system (non-blocking, auto-dismiss)
+    - Modal-based editing for ALL operations (subject progress, time blocks, mock scores, goals)
+    - All edit forms now show multiple fields in ONE modal (no more sequential prompts)
+    - Enhanced keyboard shortcuts (ESC to close modals, better accessibility)
+    - Improved mobile responsiveness with better touch targets
+    - Added form validation with clear error messages
+    - Better visual feedback for all user actions
+    - Removed redundant Pomodoro timer (regular timer serves same purpose)
+    - Improved loading states and error handling throughout
 
     Changes in v2.2.0:
     - Added Pomodoro timer (25min work / 5min break) with visual & audio notifications
@@ -32,7 +46,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>법무사 시험 전략적 학습 시스템 (1차/2차) v2.2.0 | D-318</title>
+    <title>법무사 시험 전략적 학습 시스템 (1차/2차) v2.3.0</title>
     <style>
         * {
             margin: 0;
@@ -778,7 +792,7 @@
             }
         }
         
-        /* 토스트 알림 */
+        /* 토스트 알림 - Enhanced */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -788,8 +802,37 @@
             padding: 15px 20px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            z-index: 1000;
+            z-index: 2000;
             animation: slideInToast 0.3s ease;
+            min-width: 300px;
+            max-width: 500px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .toast.warning {
+            background: var(--warning);
+        }
+
+        .toast.info {
+            background: var(--accent);
+        }
+
+        .toast-icon {
+            font-size: 1.2rem;
+        }
+
+        .toast-message {
+            flex: 1;
         }
 
         @keyframes slideInToast {
@@ -801,6 +844,105 @@
                 transform: translateX(0);
                 opacity: 1;
             }
+        }
+
+        @keyframes slideOutToast {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* D-Day 카드 스타일 - Enhanced */
+        .dday-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .dday-card {
+            flex: 1;
+            min-width: 250px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .dday-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .dday-card.urgent {
+            background: linear-gradient(135deg, #F56565 0%, #FC8181 100%);
+            color: white;
+        }
+
+        .dday-card.warning {
+            background: linear-gradient(135deg, #F6AD55 0%, #FBD38D 100%);
+            color: white;
+        }
+
+        .dday-card.normal {
+            background: linear-gradient(135deg, #48BB78 0%, #68D391 100%);
+            color: white;
+        }
+
+        .dday-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .dday-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .dday-date {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin-top: 8px;
+        }
+
+        .dday-edit-btn {
+            margin-top: 10px;
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            color: inherit;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .dday-edit-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* 확인 모달 스타일 */
+        .confirm-modal .modal-content {
+            max-width: 400px;
+        }
+
+        .confirm-message {
+            padding: 20px 0;
+            font-size: 1.1rem;
+            text-align: center;
+            color: var(--text-primary);
         }
 
         /* 스트릭 트래커 스타일 */
@@ -1118,9 +1260,25 @@
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 법무사 시험 전략적 학습 시스템</h1>
-                <div class="d-day-badge" id="dday">D-318</div>
+                <h1 class="title">🎯 법무사 시험 전략적 학습 시스템 v2.3.0</h1>
             </div>
+
+            <!-- D-Day 카운터 (1차/2차) -->
+            <div class="dday-container">
+                <div class="dday-card" id="dday-1st-card" onclick="editExamDate('1차')">
+                    <div class="dday-label">📚 1차 시험</div>
+                    <div class="dday-value" id="dday-1st-value">D-?</div>
+                    <div class="dday-date" id="dday-1st-date">날짜 미설정</div>
+                    <button class="dday-edit-btn" onclick="event.stopPropagation(); editExamDate('1차')">날짜 설정</button>
+                </div>
+                <div class="dday-card" id="dday-2nd-card" onclick="editExamDate('2차')">
+                    <div class="dday-label">✍️ 2차 시험</div>
+                    <div class="dday-value" id="dday-2nd-value">D-?</div>
+                    <div class="dday-date" id="dday-2nd-date">날짜 미설정</div>
+                    <button class="dday-edit-btn" onclick="event.stopPropagation(); editExamDate('2차')">날짜 설정</button>
+                </div>
+            </div>
+
             <div class="study-mode-selector">
                 <button class="mode-btn" onclick="setExamType('1차')">1차 시험</button>
                 <button class="mode-btn" onclick="setExamType('2차')">2차 시험</button>
@@ -1486,10 +1644,127 @@
         </div>
     </div>
 
+    <!-- 시험 날짜 설정 모달 -->
+    <div id="examDateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="examDateModalTitle">시험 날짜 설정</h3>
+                <button class="modal-close" onclick="closeModal('examDateModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">시험 날짜</label>
+                    <input type="date" class="form-input" id="examDateInput">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">메모 (선택)</label>
+                    <input type="text" class="form-input" id="examDateMemo" placeholder="예: 필기시험">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('examDateModal')">취소</button>
+                <button class="modal-btn save" onclick="saveExamDate()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 과목 진도 수정 모달 -->
+    <div id="subjectProgressModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="subjectProgressModalTitle">과목 진도 수정</h3>
+                <button class="modal-close" onclick="closeModal('subjectProgressModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">완료 문제수</label>
+                    <input type="number" class="form-input" id="subjectCompleted" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">목표 문제수</label>
+                    <input type="number" class="form-input" id="subjectTotal" min="1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('subjectProgressModal')">취소</button>
+                <button class="modal-btn save" onclick="saveSubjectProgress()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 주간 학습 시간 수정 모달 -->
+    <div id="weeklyHoursModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="weeklyHoursModalTitle">학습 시간 수정</h3>
+                <button class="modal-close" onclick="closeModal('weeklyHoursModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">학습 시간 (시간)</label>
+                    <input type="number" class="form-input" id="weeklyHoursInput" min="0" step="0.5">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('weeklyHoursModal')">취소</button>
+                <button class="modal-btn save" onclick="saveWeeklyHours()">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 확인 모달 (confirm 대체) -->
+    <div id="confirmModal" class="modal confirm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="confirmModalTitle">확인</h3>
+                <button class="modal-close" onclick="closeModal('confirmModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-message" id="confirmMessage">정말 실행하시겠습니까?</div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('confirmModal')">취소</button>
+                <button class="modal-btn save" id="confirmOkBtn">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 틀린 문제 노트 모달 -->
+    <div id="wrongNoteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">틀린 문제 노트 추가</h3>
+                <button class="modal-close" onclick="closeModal('wrongNoteModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">과목명</label>
+                    <input type="text" class="form-input" id="wrongSubject" placeholder="예: 민법">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">틀린 문제 번호 또는 내용</label>
+                    <input type="text" class="form-input" id="wrongQuestion" placeholder="예: 2024년 1회 35번">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">틀린 이유</label>
+                    <textarea class="form-input" id="wrongReason" rows="3" placeholder="이유를 입력하세요"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('wrongNoteModal')">취소</button>
+                <button class="modal-btn save" onclick="saveWrongNote()">저장</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 데이터 초기화
         let studyData = {
             examType: localStorage.getItem('examType') || '1차',
+            examDates: {
+                '1차': null,  // Format: 'YYYY-MM-DD'
+                '2차': null
+            },
             timer: {
                 seconds: 0,
                 isRunning: false,
@@ -1653,13 +1928,102 @@
             }
         }
         
-        // D-Day 계산
+        // D-Day 계산 및 업데이트 (1차/2차)
         function updateDDay() {
             const today = new Date();
-            const examDate = new Date('2026-08-29');
-            const diffTime = examDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            document.getElementById('dday').textContent = `D-${diffDays}`;
+            today.setHours(0, 0, 0, 0);
+
+            // 1차 시험 D-day
+            const exam1stDate = studyData.examDates?.['1차'];
+            const card1st = document.getElementById('dday-1st-card');
+            if (exam1stDate) {
+                const targetDate = new Date(exam1stDate);
+                targetDate.setHours(0, 0, 0, 0);
+                const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+
+                let ddayText, urgencyClass;
+                if (diffDays > 0) {
+                    ddayText = `D-${diffDays}`;
+                    urgencyClass = diffDays <= 30 ? 'urgent' : (diffDays <= 90 ? 'warning' : 'normal');
+                } else if (diffDays === 0) {
+                    ddayText = 'D-Day';
+                    urgencyClass = 'urgent';
+                } else {
+                    ddayText = `D+${Math.abs(diffDays)}`;
+                    urgencyClass = 'normal';
+                }
+
+                document.getElementById('dday-1st-value').textContent = ddayText;
+                document.getElementById('dday-1st-date').textContent = exam1stDate;
+                card1st.className = `dday-card ${urgencyClass}`;
+            } else {
+                document.getElementById('dday-1st-value').textContent = 'D-?';
+                document.getElementById('dday-1st-date').textContent = '날짜 미설정';
+                card1st.className = 'dday-card';
+            }
+
+            // 2차 시험 D-day
+            const exam2ndDate = studyData.examDates?.['2차'];
+            const card2nd = document.getElementById('dday-2nd-card');
+            if (exam2ndDate) {
+                const targetDate = new Date(exam2ndDate);
+                targetDate.setHours(0, 0, 0, 0);
+                const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+
+                let ddayText, urgencyClass;
+                if (diffDays > 0) {
+                    ddayText = `D-${diffDays}`;
+                    urgencyClass = diffDays <= 30 ? 'urgent' : (diffDays <= 90 ? 'warning' : 'normal');
+                } else if (diffDays === 0) {
+                    ddayText = 'D-Day';
+                    urgencyClass = 'urgent';
+                } else {
+                    ddayText = `D+${Math.abs(diffDays)}`;
+                    urgencyClass = 'normal';
+                }
+
+                document.getElementById('dday-2nd-value').textContent = ddayText;
+                document.getElementById('dday-2nd-date').textContent = exam2ndDate;
+                card2nd.className = `dday-card ${urgencyClass}`;
+            } else {
+                document.getElementById('dday-2nd-value').textContent = 'D-?';
+                document.getElementById('dday-2nd-date').textContent = '날짜 미설정';
+                card2nd.className = 'dday-card';
+            }
+        }
+
+        // 시험 날짜 설정 모달
+        let editingExamType = null;
+
+        function editExamDate(examType) {
+            editingExamType = examType;
+            document.getElementById('examDateModalTitle').textContent = `${examType} 시험 날짜 설정`;
+
+            const currentDate = studyData.examDates?.[examType];
+            document.getElementById('examDateInput').value = currentDate || '';
+            document.getElementById('examDateMemo').value = '';
+
+            document.getElementById('examDateModal').classList.add('show');
+        }
+
+        function saveExamDate() {
+            if (!editingExamType) return;
+
+            const dateValue = document.getElementById('examDateInput').value;
+
+            if (dateValue) {
+                if (!studyData.examDates) studyData.examDates = {};
+                studyData.examDates[editingExamType] = dateValue;
+
+                saveData();
+                updateDDay();
+                closeModal('examDateModal');
+                showToast(`${editingExamType} 시험 날짜가 설정되었습니다`);
+
+                editingExamType = null;
+            } else {
+                showToast('시험 날짜를 입력해주세요', 'error');
+            }
         }
         
         // 시험 타입 설정
@@ -1783,54 +2147,64 @@
             const detail = document.getElementById('blockDetail').value;
 
             if (time && subject && detail) {
-                studyData.timeBlocks.push({
-                    id: Date.now(),
-                    time,
-                    subject,
-                    hours,
-                    detail,
-                    completed: false
-                });
+                if (editingBlockId) {
+                    // 수정 모드
+                    const block = studyData.timeBlocks.find(b => b.id === editingBlockId);
+                    if (block) {
+                        block.time = time;
+                        block.subject = subject;
+                        block.hours = hours;
+                        block.detail = detail;
+                        showToast('학습 블록이 수정되었습니다');
+                    }
+                    editingBlockId = null;
+                } else {
+                    // 추가 모드
+                    studyData.timeBlocks.push({
+                        id: Date.now(),
+                        time,
+                        subject,
+                        hours,
+                        detail,
+                        completed: false
+                    });
+                    showToast('학습 블록이 추가되었습니다');
+                }
                 saveData();
                 renderTimeBlocks();
                 closeModal('timeBlockModal');
-                showToast('학습 블록이 추가되었습니다');
 
                 // Reset form
                 document.getElementById('blockTime').value = '';
                 document.getElementById('blockDetail').value = '';
                 document.getElementById('blockHours').value = '2';
+                document.querySelector('#timeBlockModal .modal-title').textContent = '학습 시간 블록 추가';
             }
         }
         
         // 시간 블록 삭제
         function deleteTimeBlock(id) {
-            if (confirm('정말 삭제하시겠습니까?')) {
+            showConfirm('정말 삭제하시겠습니까?', () => {
                 studyData.timeBlocks = studyData.timeBlocks.filter(b => b.id !== id);
                 saveData();
                 renderTimeBlocks();
                 showToast('삭제되었습니다');
-            }
+            });
         }
         
-        // 시간 블록 수정 (간단 구현)
+        // 시간 블록 수정 (모달 사용)
+        let editingBlockId = null;
+
         function editTimeBlock(id) {
             const block = studyData.timeBlocks.find(b => b.id === id);
             if (block) {
-                const newTime = prompt('시간대:', block.time);
-                const newHours = prompt('예상 학습 시간 (시간):', block.hours || 2);
-                const newSubject = prompt('과목:', block.subject);
-                const newDetail = prompt('내용:', block.detail);
-
-                if (newTime && newHours && newSubject && newDetail) {
-                    block.time = newTime;
-                    block.hours = parseFloat(newHours);
-                    block.subject = newSubject;
-                    block.detail = newDetail;
-                    saveData();
-                    renderTimeBlocks();
-                    showToast('수정되었습니다');
-                }
+                editingBlockId = id;
+                document.getElementById('blockTime').value = block.time;
+                document.getElementById('blockSubject').value = block.subject;
+                document.getElementById('blockHours').value = block.hours || 2;
+                document.getElementById('blockDetail').value = block.detail;
+                document.querySelector('#timeBlockModal .modal-title').textContent = '학습 시간 블록 수정';
+                document.getElementById('timeBlockModal').classList.add('show');
             }
         }
         
@@ -1882,14 +2256,14 @@
         
         // 회독 초기화
         function resetRotations() {
-            if (confirm('모든 회독 기록을 초기화하시겠습니까?')) {
+            showConfirm('모든 회독 기록을 초기화하시겠습니까?', () => {
                 studyData.subjects.forEach(subject => {
                     subject.rotations = [false, false, false, false, false, false, false];
                 });
                 saveData();
                 renderRotationTracker();
                 showToast('회독 기록이 초기화되었습니다');
-            }
+            });
         }
         
         // 타이머 기능
@@ -1916,13 +2290,14 @@
         }
         
         function resetTimer() {
-            if (confirm('정말 리셋하시겠습니까?')) {
+            showConfirm('정말 리셋하시겠습니까?', () => {
                 studyData.timer.isRunning = false;
                 clearInterval(studyData.timer.interval);
                 studyData.timer.seconds = 0;
                 updateTimerDisplay();
                 saveData();
-            }
+                showToast('타이머가 리셋되었습니다');
+            });
         }
         
         function updateTimerDisplay() {
@@ -1982,7 +2357,7 @@
         }
 
         function resetPomodoro() {
-            if (confirm('포모도로 타이머를 리셋하시겠습니까?')) {
+            showConfirm('포모도로 타이머를 리셋하시겠습니까?', () => {
                 pausePomodoro();
                 studyData.pomodoro.seconds = 1500; // Reset to 25 minutes
                 studyData.pomodoro.mode = 'work';
@@ -1992,7 +2367,8 @@
                 document.getElementById('pomodoro-mode').textContent = '작업 세션';
                 document.getElementById('pomodoro-mode').className = 'pomodoro-mode work';
                 saveData();
-            }
+                showToast('포모도로 타이머가 리셋되었습니다');
+            });
         }
 
         function updatePomodoroDisplay() {
@@ -2050,13 +2426,31 @@
             });
         }
         
-        // 일일 시간 업데이트
+        // 일일 시간 업데이트 - 모달 사용
+        let editingWeekDay = null;
+
         function updateDayHours(day) {
-            const hours = prompt(`${day}요일 학습 시간 (시간):`, studyData.weeklyHours[day] || 0);
-            if (hours !== null && !isNaN(hours)) {
-                studyData.weeklyHours[day] = parseFloat(hours);
+            editingWeekDay = day;
+            document.getElementById('weeklyHoursModalTitle').textContent = `${day}요일 학습 시간 수정`;
+            document.getElementById('weeklyHoursInput').value = studyData.weeklyHours[day] || 0;
+            document.getElementById('weeklyHoursModal').classList.add('show');
+        }
+
+        function saveWeeklyHours() {
+            if (!editingWeekDay) return;
+
+            const hours = parseFloat(document.getElementById('weeklyHoursInput').value);
+
+            if (!isNaN(hours) && hours >= 0) {
+                studyData.weeklyHours[editingWeekDay] = hours;
                 saveData();
                 renderWeeklyStats();
+                updateAnalytics();
+                closeModal('weeklyHoursModal');
+                showToast(`${editingWeekDay}요일 학습 시간이 업데이트되었습니다`);
+                editingWeekDay = null;
+            } else {
+                showToast('올바른 시간을 입력해주세요', 'error');
             }
         }
         
@@ -2093,26 +2487,45 @@
             });
         }
 
-        // 진도 업데이트
+        // 진도 업데이트 - 모달 사용
+        let editingSubjectIdx = null;
+
         function updateProgress(idx) {
             const subject = studyData.subjects[idx];
-            const completed = prompt(`${subject.name} 완료 문제수:`, subject.completed);
-            const total = prompt(`${subject.name} 목표 문제수:`, subject.total);
+            editingSubjectIdx = idx;
 
-            if (completed !== null && !isNaN(completed) && total !== null && !isNaN(total)) {
-                subject.completed = parseInt(completed);
-                subject.total = Math.max(parseInt(total), 1); // Minimum 1
+            document.getElementById('subjectProgressModalTitle').textContent = `${subject.name} 진도 수정`;
+            document.getElementById('subjectCompleted').value = subject.completed;
+            document.getElementById('subjectTotal').value = subject.total;
+            document.getElementById('subjectProgressModal').classList.add('show');
+        }
+
+        function saveSubjectProgress() {
+            if (editingSubjectIdx === null) return;
+
+            const completed = parseInt(document.getElementById('subjectCompleted').value);
+            const total = parseInt(document.getElementById('subjectTotal').value);
+
+            if (!isNaN(completed) && !isNaN(total) && total >= 1) {
+                const subject = studyData.subjects[editingSubjectIdx];
+                subject.completed = completed;
+                subject.total = Math.max(total, 1);
 
                 // 실제 데이터 소스에도 반영
                 if (studyData.examType === '2차') {
-                    studyData.subjects2nd[idx] = subject;
+                    studyData.subjects2nd[editingSubjectIdx] = subject;
                 } else {
-                    studyData.subjects1st[idx] = subject;
+                    studyData.subjects1st[editingSubjectIdx] = subject;
                 }
 
                 saveData();
                 renderSubjectProgress();
+                closeModal('subjectProgressModal');
                 showToast(`${subject.name} 진도가 업데이트되었습니다 (${subject.completed}/${subject.total})`);
+
+                editingSubjectIdx = null;
+            } else {
+                showToast('올바른 숫자를 입력해주세요', 'error');
             }
         }
         
@@ -2188,51 +2601,70 @@
         // 점수 저장
         function saveScore() {
             const date = document.getElementById('scoreDate').value;
-            const score = parseFloat(document.getElementById('scoreValue').value);
+            const scoreValue = parseFloat(document.getElementById('scoreValue').value);
             const memo = document.getElementById('scoreMemo').value;
-            
-            if (date && !isNaN(score)) {
-                studyData.mockScores.push({
-                    id: Date.now(),
-                    date,
-                    score,
-                    memo
-                });
-                
+
+            if (date && !isNaN(scoreValue)) {
+                if (editingScoreId) {
+                    // 수정 모드
+                    const score = studyData.mockScores.find(s => s.id === editingScoreId);
+                    if (score) {
+                        score.date = date;
+                        score.score = scoreValue;
+                        score.memo = memo;
+                        showToast('점수가 수정되었습니다');
+                    }
+                    editingScoreId = null;
+                } else {
+                    // 추가 모드
+                    studyData.mockScores.push({
+                        id: Date.now(),
+                        date,
+                        score: scoreValue,
+                        memo
+                    });
+                    showToast(`${scoreValue}점이 기록되었습니다`);
+                }
+
                 // 날짜순 정렬
                 studyData.mockScores.sort((a, b) => new Date(a.date) - new Date(b.date));
-                
+
                 saveData();
                 renderMockScores();
                 closeModal('scoreModal');
-                showToast(`${score}점이 기록되었습니다`);
+
+                // Reset form and title
+                document.getElementById('scoreDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('scoreValue').value = '';
+                document.getElementById('scoreMemo').value = '';
+                document.querySelector('#scoreModal .modal-title').textContent = '모의고사 점수 추가';
+            } else {
+                showToast('날짜와 점수를 올바르게 입력해주세요', 'error');
             }
         }
         
         // 점수 삭제
         function deleteScore(id) {
-            if (confirm('정말 삭제하시겠습니까?')) {
+            showConfirm('정말 삭제하시겠습니까?', () => {
                 studyData.mockScores = studyData.mockScores.filter(s => s.id !== id);
                 saveData();
                 renderMockScores();
                 showToast('삭제되었습니다');
-            }
+            });
         }
         
-        // 점수 수정
+        // 점수 수정 - 모달 사용
+        let editingScoreId = null;
+
         function editScore(id) {
             const score = studyData.mockScores.find(s => s.id === id);
             if (score) {
-                const newScore = prompt('점수:', score.score);
-                const newMemo = prompt('메모:', score.memo || '');
-                
-                if (newScore !== null && !isNaN(newScore)) {
-                    score.score = parseFloat(newScore);
-                    score.memo = newMemo;
-                    saveData();
-                    renderMockScores();
-                    showToast('수정되었습니다');
-                }
+                editingScoreId = id;
+                document.getElementById('scoreDate').value = score.date;
+                document.getElementById('scoreValue').value = score.score;
+                document.getElementById('scoreMemo').value = score.memo || '';
+                document.querySelector('#scoreModal .modal-title').textContent = '모의고사 점수 수정';
+                document.getElementById('scoreModal').classList.add('show');
             }
         }
         
@@ -2240,7 +2672,43 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
         }
-        
+
+        // 확인 모달 헬퍼 (confirm 대체)
+        function showConfirm(message, onConfirm) {
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmModal').classList.add('show');
+
+            const confirmBtn = document.getElementById('confirmOkBtn');
+            const newBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+
+            newBtn.onclick = () => {
+                closeModal('confirmModal');
+                if (onConfirm) onConfirm();
+            };
+        }
+
+        // 메시지 모달 헬퍼 (alert 대체 - HTML 지원)
+        function showModalMessage(title, htmlContent) {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">${title}</h3>
+                        <button class="modal-close" onclick="this.closest('.modal').remove()">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        ${htmlContent}
+                    </div>
+                    <div class="modal-footer">
+                        <button class="modal-btn save" onclick="this.closest('.modal').remove()">확인</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
         // 노트 기능
         function saveNotes() {
             const notes = document.getElementById('study-notes').value;
@@ -2275,13 +2743,16 @@
                 return;
             }
             
-            let notesList = '📚 최근 학습 노트\n\n';
+            let notesList = '<h3 style="margin-bottom:15px">📚 최근 학습 노트</h3>';
             dates.slice(0, 7).forEach(date => {
                 const content = studyData.notes[date].content;
-                notesList += `📅 ${date}\n${content.substring(0, 100)}...\n\n`;
+                notesList += `<div style="margin-bottom:15px;padding:10px;background:#f7fafc;border-radius:6px">
+                    <strong>📅 ${date}</strong><br>
+                    ${content.substring(0, 150)}...
+                </div>`;
             });
-            
-            alert(notesList);
+
+            showModalMessage('최근 학습 노트', notesList);
         }
         
         function exportNotes() {
@@ -2296,22 +2767,32 @@
         }
         
         function addErrorNote() {
-            const subject = prompt('과목명:');
-            const question = prompt('틀린 문제 번호 또는 내용:');
-            const reason = prompt('틀린 이유:');
-            
+            document.getElementById('wrongSubject').value = '';
+            document.getElementById('wrongQuestion').value = '';
+            document.getElementById('wrongReason').value = '';
+            document.getElementById('wrongNoteModal').classList.add('show');
+        }
+
+        function saveWrongNote() {
+            const subject = document.getElementById('wrongSubject').value;
+            const question = document.getElementById('wrongQuestion').value;
+            const reason = document.getElementById('wrongReason').value;
+
             if (subject && question && reason) {
                 const errorNote = `\n\n[오답노트]\n과목: ${subject}\n문제: ${question}\n이유: ${reason}\n`;
                 document.getElementById('study-notes').value += errorNote;
+                closeModal('wrongNoteModal');
                 showToast('오답노트가 추가되었습니다');
+            } else {
+                showToast('모든 항목을 입력해주세요', 'error');
             }
         }
         
         function clearNotes() {
-            if (confirm('오늘 노트를 초기화하시겠습니까?')) {
+            showConfirm('오늘 노트를 초기화하시겠습니까?', () => {
                 document.getElementById('study-notes').value = '';
                 showToast('노트가 초기화되었습니다');
-            }
+            });
         }
         
         // 동기부여 문구 로테이션
@@ -2333,24 +2814,48 @@
             document.getElementById('motivation-quote').textContent = randomQuote;
         }
         
-        // 토스트 메시지
-        function showToast(message) {
+        // 토스트 메시지 (타입 지원: success, error, warning, info)
+        function showToast(message, type = 'success') {
             const existing = document.querySelector('.toast');
             if (existing) existing.remove();
-            
+
             const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
+            toast.className = `toast ${type}`;
+
+            const icons = {
+                success: '✓',
+                error: '✕',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+
+            toast.innerHTML = `
+                <span class="toast-icon">${icons[type] || icons.success}</span>
+                <span class="toast-message">${message}</span>
+            `;
             document.body.appendChild(toast);
-            
+
             setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease';
+                toast.style.animation = 'slideOutToast 0.3s ease';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
         
         // 키보드 단축키
         document.addEventListener('keydown', function(e) {
+            // ESC 키로 모든 모달 닫기
+            if (e.key === 'Escape') {
+                const openModals = document.querySelectorAll('.modal.show');
+                openModals.forEach(modal => {
+                    if (modal.id) {
+                        closeModal(modal.id);
+                    } else {
+                        modal.remove(); // 동적 생성된 모달
+                    }
+                });
+                return;
+            }
+
             if (e.ctrlKey || e.metaKey) {
                 switch(e.key) {
                     case 's':
@@ -2427,12 +2932,12 @@
         }
 
         function resetStreak() {
-            if (confirm('스트릭 기록을 초기화하시겠습니까?')) {
+            showConfirm('스트릭 기록을 초기화하시겠습니까?', () => {
                 studyData.streak = { current: 0, longest: 0, lastStudyDate: null, totalDays: 0 };
                 saveData();
                 updateStreak();
                 showToast('스트릭이 초기화되었습니다');
-            }
+            });
         }
 
         // ===== 새로운 기능: 학습 분석 대시보드 =====
@@ -2658,6 +3163,8 @@
             });
         }
 
+        let editingGoalId = null;
+
         function addGoal() {
             document.getElementById('goalTitle').value = '';
             document.getElementById('goalDate').value = '';
@@ -2673,43 +3180,61 @@
             if (title && date) {
                 if (!studyData.goals) studyData.goals = [];
 
-                studyData.goals.push({
-                    id: Date.now(),
-                    title,
-                    date,
-                    progress: Math.min(progress, 100),
-                    createdAt: new Date().toISOString()
-                });
+                if (editingGoalId) {
+                    // 수정 모드
+                    const goal = studyData.goals.find(g => g.id === editingGoalId);
+                    if (goal) {
+                        goal.title = title;
+                        goal.date = date;
+                        goal.progress = Math.min(progress, 100);
+                        showToast('목표가 수정되었습니다');
+                    }
+                    editingGoalId = null;
+                } else {
+                    // 추가 모드
+                    studyData.goals.push({
+                        id: Date.now(),
+                        title,
+                        date,
+                        progress: Math.min(progress, 100),
+                        createdAt: new Date().toISOString()
+                    });
+                    showToast('목표가 추가되었습니다 🎯');
+                }
 
                 saveData();
                 renderGoals();
                 closeModal('goalModal');
-                showToast('목표가 추가되었습니다 🎯');
+
+                // Reset form and title
+                document.getElementById('goalTitle').value = '';
+                document.getElementById('goalDate').value = '';
+                document.getElementById('goalProgress').value = '0';
+                document.querySelector('#goalModal .modal-title').textContent = '학습 목표 추가';
             } else {
-                alert('목표 내용과 날짜를 입력해주세요');
+                showToast('목표 내용과 날짜를 입력해주세요', 'error');
             }
         }
 
         function editGoal(id) {
             const goal = studyData.goals.find(g => g.id === id);
             if (goal) {
-                const newProgress = prompt('진행률 (0-100):', goal.progress);
-                if (newProgress !== null && !isNaN(newProgress)) {
-                    goal.progress = Math.min(parseInt(newProgress), 100);
-                    saveData();
-                    renderGoals();
-                    showToast('목표가 업데이트되었습니다');
-                }
+                editingGoalId = id;
+                document.getElementById('goalTitle').value = goal.title;
+                document.getElementById('goalDate').value = goal.deadline;
+                document.getElementById('goalProgress').value = goal.progress;
+                document.querySelector('#goalModal .modal-title').textContent = '학습 목표 수정';
+                document.getElementById('goalModal').classList.add('show');
             }
         }
 
         function deleteGoal(id) {
-            if (confirm('정말 삭제하시겠습니까?')) {
+            showConfirm('정말 삭제하시겠습니까?', () => {
                 studyData.goals = studyData.goals.filter(g => g.id !== id);
                 saveData();
                 renderGoals();
                 showToast('삭제되었습니다');
-            }
+            });
         }
 
         // ===== 새로운 기능: 스마트 학습 추천 =====
