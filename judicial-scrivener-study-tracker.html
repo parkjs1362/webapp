@@ -2,8 +2,16 @@
 <html lang="ko">
 <!--
     법무사 시험 전략적 학습 시스템
-    Version: 2.0.0
+    Version: 2.1.0
     Last Updated: 2025-10-14
+
+    Changes in v2.1.0:
+    - Added comprehensive Study Analytics Dashboard with visual charts
+    - Added Goal Setting & Milestone tracking system
+    - Added Weak Subject Identifier with priority recommendations
+    - Added Study Streak Tracker with gamification elements
+    - Added Smart Study Recommendations based on patterns
+    - Enhanced UI with collapsible sections and improved data visualization
 
     Changes in v2.0.0:
     - Added support for 2차 (secondary) exam subjects
@@ -15,7 +23,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>법무사 시험 전략적 학습 시스템 (1차/2차) v2.0.0 | D-318</title>
+    <title>법무사 시험 전략적 학습 시스템 (1차/2차) v2.1.0 | D-318</title>
     <style>
         * {
             margin: 0;
@@ -741,7 +749,7 @@
             z-index: 1000;
             animation: slideInToast 0.3s ease;
         }
-        
+
         @keyframes slideInToast {
             from {
                 transform: translateX(100%);
@@ -751,6 +759,315 @@
                 transform: translateX(0);
                 opacity: 1;
             }
+        }
+
+        /* 스트릭 트래커 스타일 */
+        .streak-display {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FFD93D 100%);
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .streak-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .streak-label {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .streak-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .streak-stat-item {
+            text-align: center;
+        }
+
+        .streak-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .streak-stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        /* 분석 대시보드 스타일 */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .analytics-stat {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid var(--accent);
+            transition: transform 0.3s;
+        }
+
+        .analytics-stat:hover {
+            transform: translateY(-3px);
+        }
+
+        .analytics-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 10px 0;
+        }
+
+        .analytics-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* 차트 스타일 */
+        .chart-container {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 200px;
+            padding: 10px;
+        }
+
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 5px;
+        }
+
+        .bar {
+            width: 100%;
+            background: linear-gradient(to top, var(--accent), var(--success));
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+            transform: scaleY(1.05);
+        }
+
+        .bar-label {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        /* 목표 설정 스타일 */
+        .goal-item {
+            background: var(--bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--warning);
+            transition: all 0.3s;
+        }
+
+        .goal-item.achieved {
+            border-left-color: var(--success);
+            background: #E6FFFA;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .goal-title {
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .goal-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-right: 10px;
+        }
+
+        .goal-progress-bar {
+            height: 8px;
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .goal-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--warning), var(--success));
+            transition: width 0.5s ease;
+        }
+
+        .goal-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .goal-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .goal-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* 약점 과목 스타일 */
+        .weak-subject {
+            background: #FFF5F5;
+            border: 2px solid var(--danger);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .weak-subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .weak-subject-name {
+            font-weight: 600;
+            color: var(--danger);
+            font-size: 1.1rem;
+        }
+
+        .priority-badge {
+            background: var(--danger);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .weak-subject-info {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .recommendation {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            border-left: 3px solid var(--warning);
+        }
+
+        /* 추천 사항 스타일 */
+        .recommendation-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .recommendation-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .recommendation-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendation-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .recommendation-list li:before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* 접을 수 있는 섹션 */
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .collapse-icon {
+            transition: transform 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
         }
     </style>
 </head>
@@ -773,6 +1090,120 @@
             </div>
         </div>
         
+        <!-- 학습 스트릭 & 추천 (최상단 강조) -->
+        <div class="dashboard-grid">
+            <!-- 학습 스트릭 트래커 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🔥 학습 스트릭</h2>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="resetStreak()">🔄</button>
+                    </div>
+                </div>
+                <div class="streak-display">
+                    <div class="streak-label">현재 연속 학습일</div>
+                    <div class="streak-number" id="current-streak">0</div>
+                    <div class="streak-label">일 연속 🔥</div>
+                    <div class="streak-stats">
+                        <div class="streak-stat-item">
+                            <div class="streak-stat-value" id="longest-streak">0</div>
+                            <div class="streak-stat-label">최장 기록</div>
+                        </div>
+                        <div class="streak-stat-item">
+                            <div class="streak-stat-value" id="total-study-days">0</div>
+                            <div class="streak-stat-label">총 학습일</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 스마트 학습 추천 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">💡 오늘의 학습 추천</h2>
+                </div>
+                <div class="recommendation-card">
+                    <div class="recommendation-title">
+                        <span>🎯</span>
+                        <span>맞춤 학습 전략</span>
+                    </div>
+                    <ul class="recommendation-list" id="smart-recommendations">
+                        <!-- 동적으로 생성됩니다 -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 학습 분석 대시보드 -->
+        <div class="card">
+            <div class="card-header collapsible-header" onclick="toggleCollapse('analytics-section')">
+                <h2 class="card-title">📊 학습 분석 대시보드</h2>
+                <span class="collapse-icon" id="analytics-icon">▼</span>
+            </div>
+            <div class="collapsible-content" id="analytics-section">
+                <div class="analytics-grid">
+                    <div class="analytics-stat">
+                        <div class="analytics-label">총 학습 시간</div>
+                        <div class="analytics-value" id="total-study-hours">0h</div>
+                    </div>
+                    <div class="analytics-stat">
+                        <div class="analytics-label">일평균 학습</div>
+                        <div class="analytics-value" id="avg-daily-hours">0h</div>
+                    </div>
+                    <div class="analytics-stat">
+                        <div class="analytics-label">전체 진도율</div>
+                        <div class="analytics-value" id="overall-progress">0%</div>
+                    </div>
+                    <div class="analytics-stat">
+                        <div class="analytics-label">모의고사 평균</div>
+                        <div class="analytics-value" id="avg-mock-score">0점</div>
+                    </div>
+                </div>
+
+                <!-- 과목별 학습 시간 차트 -->
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 15px; font-size: 1rem;">과목별 학습 시간 분포</h3>
+                    <div class="bar-chart" id="subject-time-chart">
+                        <!-- 동적으로 생성됩니다 -->
+                    </div>
+                </div>
+
+                <!-- 모의고사 점수 추이 차트 -->
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 15px; font-size: 1rem;">모의고사 점수 추이</h3>
+                    <div class="bar-chart" id="mock-score-chart">
+                        <!-- 동적으로 생성됩니다 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 약점 과목 & 목표 관리 -->
+        <div class="dashboard-grid">
+            <!-- 약점 과목 식별 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">⚠️ 집중 필요 과목</h2>
+                </div>
+                <div id="weak-subjects-container">
+                    <!-- 동적으로 생성됩니다 -->
+                </div>
+            </div>
+
+            <!-- 목표 설정 & 마일스톤 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🎯 학습 목표</h2>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="addGoal()">➕</button>
+                    </div>
+                </div>
+                <div id="goals-container">
+                    <!-- 동적으로 생성됩니다 -->
+                </div>
+            </div>
+        </div>
+
         <!-- 대시보드 그리드 -->
         <div class="dashboard-grid">
             <!-- 오늘의 학습 계획 -->
@@ -890,7 +1321,7 @@
 
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
-            법무사 시험 전략적 학습 시스템 v2.0.0 | 1차/2차 시험 지원
+            법무사 시험 전략적 학습 시스템 v2.1.0 | 1차/2차 시험 지원 | 학습 분석 & 목표 관리 기능 추가
         </div>
     </div>
     
@@ -964,7 +1395,34 @@
             </div>
         </div>
     </div>
-    
+
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">학습 목표 추가</h3>
+                <button class="modal-close" onclick="closeModal('goalModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">목표 내용</label>
+                    <input type="text" class="form-input" id="goalTitle" placeholder="예: 민법 3회독 완료">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">목표 날짜</label>
+                    <input type="date" class="form-input" id="goalDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">현재 진도 (%)</label>
+                    <input type="number" min="0" max="100" class="form-input" id="goalProgress" placeholder="0-100" value="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('goalModal')">취소</button>
+                <button class="modal-btn save" onclick="saveGoal()">저장</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 데이터 초기화
         let studyData = {
@@ -994,7 +1452,17 @@
             timeBlocks: [],
             mockScores: [],
             weeklyHours: {},
-            notes: {}
+            notes: {},
+            // New features data
+            streak: {
+                current: 0,
+                longest: 0,
+                lastStudyDate: null,
+                totalDays: 0
+            },
+            goals: [],
+            subjectTimeSpent: {},  // Track time spent per subject
+            studyHistory: []  // Daily study records
         };
         
         // 로컬 스토리지에서 데이터 로드
@@ -1053,6 +1521,7 @@
         function init() {
             loadData();
             updateDDay();
+            updateStreak();
             renderTimeBlocks();
             renderRotationTracker();
             renderWeeklyStats();
@@ -1061,6 +1530,10 @@
             updateTimerDisplay();
             loadTodayNotes();
             rotateMotivation();
+            renderAnalytics();
+            renderWeakSubjects();
+            renderGoals();
+            renderSmartRecommendations();
 
             // 시험 타입 및 모드 설정
             document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -1739,7 +2212,435 @@
         
         // 5분마다 동기부여 문구 변경
         setInterval(rotateMotivation, 300000);
-        
+
+        // ===== 새로운 기능: 스트릭 트래커 =====
+        function updateStreak() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastStudy = studyData.streak.lastStudyDate;
+
+            // 초기화
+            if (!studyData.streak) {
+                studyData.streak = { current: 0, longest: 0, lastStudyDate: null, totalDays: 0 };
+            }
+
+            // 오늘 학습 기록이 있는지 확인 (타이머 시간 or 완료된 타임블록)
+            const hasStudiedToday = studyData.timer.seconds > 0 ||
+                                   studyData.timeBlocks.some(b => b.completed);
+
+            if (hasStudiedToday && lastStudy !== today) {
+                if (lastStudy) {
+                    const lastDate = new Date(lastStudy);
+                    const todayDate = new Date(today);
+                    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+
+                    if (diffDays === 1) {
+                        // 연속 학습
+                        studyData.streak.current++;
+                    } else if (diffDays > 1) {
+                        // 스트릭 끊김
+                        studyData.streak.current = 1;
+                    }
+                } else {
+                    // 첫 학습
+                    studyData.streak.current = 1;
+                }
+
+                studyData.streak.lastStudyDate = today;
+                studyData.streak.totalDays++;
+
+                // 최장 기록 갱신
+                if (studyData.streak.current > studyData.streak.longest) {
+                    studyData.streak.longest = studyData.streak.current;
+                }
+
+                saveData();
+            }
+
+            // UI 업데이트
+            document.getElementById('current-streak').textContent = studyData.streak.current || 0;
+            document.getElementById('longest-streak').textContent = studyData.streak.longest || 0;
+            document.getElementById('total-study-days').textContent = studyData.streak.totalDays || 0;
+        }
+
+        function resetStreak() {
+            if (confirm('스트릭 기록을 초기화하시겠습니까?')) {
+                studyData.streak = { current: 0, longest: 0, lastStudyDate: null, totalDays: 0 };
+                saveData();
+                updateStreak();
+                showToast('스트릭이 초기화되었습니다');
+            }
+        }
+
+        // ===== 새로운 기능: 학습 분석 대시보드 =====
+        function renderAnalytics() {
+            // 총 학습 시간 계산
+            let totalHours = studyData.timer.seconds / 3600;
+            Object.values(studyData.weeklyHours).forEach(h => totalHours += h);
+            document.getElementById('total-study-hours').textContent = Math.round(totalHours) + 'h';
+
+            // 일평균 학습 시간
+            const studyDays = studyData.streak.totalDays || 1;
+            const avgHours = totalHours / studyDays;
+            document.getElementById('avg-daily-hours').textContent = avgHours.toFixed(1) + 'h';
+
+            // 전체 진도율
+            let totalCompleted = 0;
+            let totalProblems = 0;
+            studyData.subjects.forEach(s => {
+                totalCompleted += s.completed;
+                totalProblems += s.total;
+            });
+            const overallProgress = totalProblems > 0 ? Math.round((totalCompleted / totalProblems) * 100) : 0;
+            document.getElementById('overall-progress').textContent = overallProgress + '%';
+
+            // 모의고사 평균
+            if (studyData.mockScores.length > 0) {
+                const avgScore = studyData.mockScores.reduce((sum, s) => sum + s.score, 0) / studyData.mockScores.length;
+                document.getElementById('avg-mock-score').textContent = avgScore.toFixed(1) + '점';
+            } else {
+                document.getElementById('avg-mock-score').textContent = '-';
+            }
+
+            // 과목별 학습 시간 차트
+            renderSubjectTimeChart();
+
+            // 모의고사 점수 추이 차트
+            renderMockScoreChart();
+        }
+
+        function renderSubjectTimeChart() {
+            const container = document.getElementById('subject-time-chart');
+            container.innerHTML = '';
+
+            // 과목별 시간 계산 (간단한 시뮬레이션 - 진도율 기반)
+            const maxTime = 100;
+            studyData.subjects.slice(0, 7).forEach(subject => {
+                const timeSpent = Math.round((subject.completed / subject.total) * maxTime);
+                const height = (timeSpent / maxTime) * 100;
+
+                const barItem = document.createElement('div');
+                barItem.className = 'bar-item';
+
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = height + '%';
+
+                const barValue = document.createElement('div');
+                barValue.className = 'bar-value';
+                barValue.textContent = timeSpent + 'h';
+
+                bar.appendChild(barValue);
+
+                const label = document.createElement('div');
+                label.className = 'bar-label';
+                label.textContent = subject.name.replace(' (2차)', '');
+
+                barItem.appendChild(bar);
+                barItem.appendChild(label);
+                container.appendChild(barItem);
+            });
+        }
+
+        function renderMockScoreChart() {
+            const container = document.getElementById('mock-score-chart');
+            container.innerHTML = '';
+
+            if (studyData.mockScores.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary);">모의고사 점수를 추가해주세요</div>';
+                return;
+            }
+
+            // 최근 7개 점수 표시
+            const recentScores = studyData.mockScores.slice(-7);
+            const maxScore = 100;
+
+            recentScores.forEach((score, idx) => {
+                const height = (score.score / maxScore) * 100;
+
+                const barItem = document.createElement('div');
+                barItem.className = 'bar-item';
+
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = height + '%';
+                if (score.score >= 60) {
+                    bar.style.background = 'linear-gradient(to top, var(--success), #48BB78)';
+                } else {
+                    bar.style.background = 'linear-gradient(to top, var(--danger), #F56565)';
+                }
+
+                const barValue = document.createElement('div');
+                barValue.className = 'bar-value';
+                barValue.textContent = score.score;
+
+                bar.appendChild(barValue);
+
+                const label = document.createElement('div');
+                label.className = 'bar-label';
+                label.textContent = score.date.substring(5);
+
+                barItem.appendChild(bar);
+                barItem.appendChild(label);
+                container.appendChild(barItem);
+            });
+        }
+
+        // ===== 새로운 기능: 약점 과목 식별 =====
+        function renderWeakSubjects() {
+            const container = document.getElementById('weak-subjects-container');
+            container.innerHTML = '';
+
+            // 약점 과목 판단 기준: 진도율 < 50% 또는 회독 횟수 < 2
+            const weakSubjects = studyData.subjects.filter(subject => {
+                const progress = (subject.completed / subject.total) * 100;
+                const rotations = subject.rotations.filter(r => r).length;
+                return progress < 50 || rotations < 2;
+            });
+
+            // 우선순위 정렬 (진도율이 낮을수록 우선)
+            weakSubjects.sort((a, b) => {
+                const progressA = (a.completed / a.total) * 100;
+                const progressB = (b.completed / b.total) * 100;
+                return progressA - progressB;
+            });
+
+            if (weakSubjects.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--success);">모든 과목이 순조롭게 진행 중입니다! 👍</div>';
+                return;
+            }
+
+            // 상위 3개 약점 과목만 표시
+            weakSubjects.slice(0, 3).forEach((subject, idx) => {
+                const progress = Math.round((subject.completed / subject.total) * 100);
+                const rotations = subject.rotations.filter(r => r).length;
+
+                const div = document.createElement('div');
+                div.className = 'weak-subject';
+
+                const priority = idx === 0 ? '최우선' : idx === 1 ? '우선' : '주의';
+                const priorityColor = idx === 0 ? 'var(--danger)' : idx === 1 ? 'var(--warning)' : '#F6AD55';
+
+                div.innerHTML = `
+                    <div class="weak-subject-header">
+                        <div class="weak-subject-name">${subject.name}</div>
+                        <div class="priority-badge" style="background: ${priorityColor}">${priority}</div>
+                    </div>
+                    <div class="weak-subject-info">
+                        진도율: ${progress}% | 회독: ${rotations}회
+                    </div>
+                    <div class="recommendation">
+                        ${getSubjectRecommendation(subject, progress, rotations)}
+                    </div>
+                `;
+
+                container.appendChild(div);
+            });
+        }
+
+        function getSubjectRecommendation(subject, progress, rotations) {
+            if (progress < 30 && rotations < 1) {
+                return `매일 ${subject.name} 30분 이상 투자 권장. 기초부터 차근차근 진행하세요.`;
+            } else if (progress < 50) {
+                return `진도를 빠르게 올리는 것이 급선무입니다. 하루 1-2시간 집중 학습을 권장합니다.`;
+            } else if (rotations < 2) {
+                return `진도는 양호하지만 회독이 부족합니다. 복습 시간을 늘려주세요.`;
+            } else {
+                return `현재 진도를 유지하면서 꾸준히 회독을 진행하세요.`;
+            }
+        }
+
+        // ===== 새로운 기능: 목표 설정 & 마일스톤 =====
+        function renderGoals() {
+            const container = document.getElementById('goals-container');
+            container.innerHTML = '';
+
+            if (!studyData.goals) studyData.goals = [];
+
+            if (studyData.goals.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">목표를 설정하여 학습 동기를 높이세요! 🎯</div>';
+                return;
+            }
+
+            studyData.goals.forEach(goal => {
+                const today = new Date();
+                const goalDate = new Date(goal.date);
+                const isAchieved = goal.progress >= 100;
+                const isOverdue = goalDate < today && !isAchieved;
+
+                const daysLeft = Math.ceil((goalDate - today) / (1000 * 60 * 60 * 24));
+                const daysText = isOverdue ? `${Math.abs(daysLeft)}일 경과` : `${daysLeft}일 남음`;
+
+                const div = document.createElement('div');
+                div.className = `goal-item ${isAchieved ? 'achieved' : ''}`;
+
+                div.innerHTML = `
+                    <div class="goal-header">
+                        <div class="goal-title">${isAchieved ? '✓ ' : ''}${goal.title}</div>
+                        <div class="goal-date" style="color: ${isOverdue ? 'var(--danger)' : 'var(--text-secondary)'}">${daysText}</div>
+                        <div class="goal-actions">
+                            <button class="goal-btn" onclick="editGoal(${goal.id})">✏️</button>
+                            <button class="goal-btn" onclick="deleteGoal(${goal.id})">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="goal-progress-bar">
+                        <div class="goal-progress-fill" style="width: ${Math.min(goal.progress, 100)}%"></div>
+                    </div>
+                    <div style="text-align: right; font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
+                        ${goal.progress}% 완료
+                    </div>
+                `;
+
+                container.appendChild(div);
+            });
+        }
+
+        function addGoal() {
+            document.getElementById('goalTitle').value = '';
+            document.getElementById('goalDate').value = '';
+            document.getElementById('goalProgress').value = '0';
+            document.getElementById('goalModal').classList.add('show');
+        }
+
+        function saveGoal() {
+            const title = document.getElementById('goalTitle').value;
+            const date = document.getElementById('goalDate').value;
+            const progress = parseInt(document.getElementById('goalProgress').value) || 0;
+
+            if (title && date) {
+                if (!studyData.goals) studyData.goals = [];
+
+                studyData.goals.push({
+                    id: Date.now(),
+                    title,
+                    date,
+                    progress: Math.min(progress, 100),
+                    createdAt: new Date().toISOString()
+                });
+
+                saveData();
+                renderGoals();
+                closeModal('goalModal');
+                showToast('목표가 추가되었습니다 🎯');
+            } else {
+                alert('목표 내용과 날짜를 입력해주세요');
+            }
+        }
+
+        function editGoal(id) {
+            const goal = studyData.goals.find(g => g.id === id);
+            if (goal) {
+                const newProgress = prompt('진행률 (0-100):', goal.progress);
+                if (newProgress !== null && !isNaN(newProgress)) {
+                    goal.progress = Math.min(parseInt(newProgress), 100);
+                    saveData();
+                    renderGoals();
+                    showToast('목표가 업데이트되었습니다');
+                }
+            }
+        }
+
+        function deleteGoal(id) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                studyData.goals = studyData.goals.filter(g => g.id !== id);
+                saveData();
+                renderGoals();
+                showToast('삭제되었습니다');
+            }
+        }
+
+        // ===== 새로운 기능: 스마트 학습 추천 =====
+        function renderSmartRecommendations() {
+            const container = document.getElementById('smart-recommendations');
+            container.innerHTML = '';
+
+            const recommendations = generateRecommendations();
+
+            recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                container.appendChild(li);
+            });
+        }
+
+        function generateRecommendations() {
+            const recs = [];
+            const today = new Date();
+            const examDate = new Date('2026-08-29');
+            const daysLeft = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24));
+
+            // 시험일 기반 추천
+            if (daysLeft < 30) {
+                recs.push('시험이 한 달도 남지 않았습니다! 기출문제 최종 정리에 집중하세요.');
+            } else if (daysLeft < 90) {
+                recs.push('모의고사를 주 2-3회 실시하여 실전 감각을 익히세요.');
+            } else if (daysLeft < 180) {
+                recs.push('전체 회독 마무리와 취약점 보완에 집중하세요.');
+            }
+
+            // 약점 과목 기반 추천
+            const weakSubjects = studyData.subjects.filter(s => {
+                const progress = (s.completed / s.total) * 100;
+                return progress < 50;
+            });
+
+            if (weakSubjects.length > 0) {
+                recs.push(`${weakSubjects[0].name} 과목의 진도가 부족합니다. 오늘은 이 과목에 집중하세요.`);
+            }
+
+            // 스트릭 기반 추천
+            if (studyData.streak.current >= 7) {
+                recs.push(`대단합니다! ${studyData.streak.current}일 연속 학습 중입니다. 이 페이스를 유지하세요!`);
+            } else if (studyData.streak.current === 0) {
+                recs.push('오늘부터 다시 시작하세요! 꾸준함이 합격의 비결입니다.');
+            }
+
+            // 모의고사 점수 기반 추천
+            if (studyData.mockScores.length > 0) {
+                const recentScores = studyData.mockScores.slice(-3);
+                const avgRecent = recentScores.reduce((sum, s) => sum + s.score, 0) / recentScores.length;
+
+                if (avgRecent < 55) {
+                    recs.push('모의고사 점수가 낮습니다. 기본 개념 복습을 권장합니다.');
+                } else if (avgRecent >= 60) {
+                    recs.push('모의고사 점수가 합격권입니다! 실수 방지에 집중하세요.');
+                }
+            }
+
+            // 일반 추천
+            if (recs.length < 3) {
+                recs.push('하루 4-5시간 이상 학습을 목표로 하세요.');
+                recs.push('매일 기출문제 50문제 이상을 풀이하는 것을 추천합니다.');
+            }
+
+            return recs.slice(0, 5);
+        }
+
+        // ===== 유틸리티: 접을 수 있는 섹션 =====
+        function toggleCollapse(sectionId) {
+            const section = document.getElementById(sectionId);
+            const icon = document.getElementById(sectionId.replace('-section', '-icon'));
+
+            section.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+        }
+
+        // 타이머 시작 시 스트릭 업데이트
+        const originalStartTimer = startTimer;
+        startTimer = function() {
+            originalStartTimer();
+            updateStreak();
+            renderAnalytics();
+        };
+
+        // 타임블록 완료 시 분석 업데이트
+        const originalToggleTimeBlock = toggleTimeBlock;
+        toggleTimeBlock = function(id) {
+            originalToggleTimeBlock(id);
+            updateStreak();
+            renderAnalytics();
+            renderSmartRecommendations();
+        };
+
         // 초기화 실행
         init();
     </script>
