@@ -2,8 +2,17 @@
 <html lang="ko">
 <!--
     법무사 시험 전략적 학습 시스템
-    Version: 2.1.0
+    Version: 2.2.0
     Last Updated: 2025-10-14
+
+    Changes in v2.2.0:
+    - Added Pomodoro timer (25min work / 5min break) with visual & audio notifications
+    - Enhanced time block completion to use actual hours instead of hardcoded 2 hours
+    - Added customizable target problem count per subject
+    - Added hours field to time blocks for accurate time tracking
+    - Corrected 2차 exam subjects based on official 법무사 exam structure
+    - Removed study mode selector (직장인/전업/주말전사 modes)
+    - Improved UX with better time tracking and progress customization
 
     Changes in v2.1.0:
     - Added comprehensive Study Analytics Dashboard with visual charts
@@ -23,7 +32,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>법무사 시험 전략적 학습 시스템 (1차/2차) v2.1.0 | D-318</title>
+    <title>법무사 시험 전략적 학습 시스템 (1차/2차) v2.2.0 | D-318</title>
     <style>
         * {
             margin: 0;
@@ -278,7 +287,40 @@
             color: white;
             border-color: var(--success);
         }
-        
+
+        /* 포모도로 타이머 */
+        .pomodoro-display {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .pomodoro-mode {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .pomodoro-mode.break {
+            color: var(--success);
+        }
+
+        .pomodoro-mode.work {
+            color: var(--danger);
+        }
+
+        .pomodoro-session-count {
+            margin-top: 15px;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .pomodoro-session-count span {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
         /* 기출문제 회독 트래커 */
         .rotation-tracker {
             margin-top: 15px;
@@ -1083,11 +1125,6 @@
                 <button class="mode-btn" onclick="setExamType('1차')">1차 시험</button>
                 <button class="mode-btn" onclick="setExamType('2차')">2차 시험</button>
             </div>
-            <div class="study-mode-selector" style="margin-top: 10px;">
-                <button class="mode-btn active" onclick="setMode('직장인')">직장인 모드</button>
-                <button class="mode-btn" onclick="setMode('전업')">전업 모드</button>
-                <button class="mode-btn" onclick="setMode('주말전사')">주말전사 모드</button>
-            </div>
         </div>
         
         <!-- 학습 스트릭 & 추천 (최상단 강조) -->
@@ -1256,6 +1293,25 @@
                 </div>
             </div>
             
+            <!-- 포모도로 타이머 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🍅 포모도로 타이머</h2>
+                </div>
+                <div class="pomodoro-display">
+                    <div class="pomodoro-mode" id="pomodoro-mode">작업 세션</div>
+                    <div class="timer-display" id="pomodoro-timer">25:00</div>
+                    <div class="pomodoro-session-count">
+                        완료된 세션: <span id="pomodoro-count">0</span>개
+                    </div>
+                </div>
+                <div class="timer-controls">
+                    <button class="timer-btn start" id="pomodoro-start" onclick="startPomodoro()">시작</button>
+                    <button class="timer-btn pause" id="pomodoro-pause" onclick="pausePomodoro()" style="display:none;">일시정지</button>
+                    <button class="timer-btn reset" onclick="resetPomodoro()">리셋</button>
+                </div>
+            </div>
+
             <!-- 과목별 진도 현황 -->
             <div class="card">
                 <div class="card-header">
@@ -1378,11 +1434,18 @@
                         </optgroup>
                         <optgroup label="2차 시험">
                             <option value="민법 (2차)">민법 (2차)</option>
+                            <option value="형법 (2차)">형법 (2차)</option>
+                            <option value="형사소송법 (2차)">형사소송법 (2차)</option>
+                            <option value="민사소송법 (2차)">민사소송법 (2차)</option>
+                            <option value="민사사건서류작성 (2차)">민사사건서류작성 (2차)</option>
                             <option value="부동산등기법 (2차)">부동산등기법 (2차)</option>
-                            <option value="상업등기법 (2차)">상업등기법 (2차)</option>
-                            <option value="민사집행법 (2차)">민사집행법 (2차)</option>
+                            <option value="등기신청서류작성 (2차)">등기신청서류작성 (2차)</option>
                         </optgroup>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">예상 학습 시간 (시간)</label>
+                    <input type="number" class="form-input" id="blockHours" placeholder="예: 2" min="0.5" step="0.5" value="2">
                 </div>
                 <div class="form-group">
                     <label class="form-label">학습 내용</label>
@@ -1426,12 +1489,18 @@
     <script>
         // 데이터 초기화
         let studyData = {
-            mode: localStorage.getItem('studyMode') || '직장인',
             examType: localStorage.getItem('examType') || '1차',
             timer: {
                 seconds: 0,
                 isRunning: false,
                 interval: null
+            },
+            pomodoro: {
+                seconds: 1500, // 25 minutes
+                isRunning: false,
+                interval: null,
+                mode: 'work', // 'work' or 'break'
+                completedSessions: 0
             },
             subjects1st: [
                 { name: '헌법', total: 500, completed: 320, rotations: [true, true, false, false, false, false, false] },
@@ -1444,9 +1513,12 @@
             ],
             subjects2nd: [
                 { name: '민법 (2차)', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                { name: '부동산등기법 (2차)', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                { name: '상업등기법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                { name: '민사집행법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] }
+                { name: '형법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '형사소송법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '민사소송법 (2차)', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '민사사건서류작성 (2차)', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '부동산등기법 (2차)', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '등기신청서류작성 (2차)', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] }
             ],
             subjects: [],  // Will be set dynamically based on examType
             timeBlocks: [],
@@ -1472,13 +1544,16 @@
                 const loadedData = JSON.parse(saved);
                 studyData = { ...studyData, ...loadedData };
 
-                // 2차 과목이 없으면 기본값 설정
-                if (!studyData.subjects2nd) {
+                // 2차 과목이 없거나 구버전인 경우 새로운 기본값 설정
+                if (!studyData.subjects2nd || studyData.subjects2nd.length === 4) {
                     studyData.subjects2nd = [
                         { name: '민법 (2차)', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                        { name: '부동산등기법 (2차)', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                        { name: '상업등기법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                        { name: '민사집행법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] }
+                        { name: '형법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '형사소송법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '민사소송법 (2차)', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '민사사건서류작성 (2차)', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '부동산등기법 (2차)', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '등기신청서류작성 (2차)', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] }
                     ];
                 }
 
@@ -1528,6 +1603,8 @@
             renderSubjectProgress();
             renderMockScores();
             updateTimerDisplay();
+            updatePomodoroDisplay();
+            document.getElementById('pomodoro-count').textContent = studyData.pomodoro.completedSessions || 0;
             loadTodayNotes();
             rotateMotivation();
             renderAnalytics();
@@ -1611,24 +1688,6 @@
             showToast(`${type} 시험 모드로 변경되었습니다`);
         }
 
-        // 학습 모드 설정
-        function setMode(mode) {
-            studyData.mode = mode;
-            localStorage.setItem('studyMode', mode);
-            saveData();
-
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                if (!btn.textContent.includes('시험')) {
-                    btn.classList.remove('active');
-                    if (btn.textContent.includes(mode)) {
-                        btn.classList.add('active');
-                    }
-                }
-            });
-
-            showToast(`${mode} 모드로 변경되었습니다`);
-        }
-        
         // 시간 블록 렌더링
         function renderTimeBlocks() {
             const container = document.getElementById('time-blocks-container');
@@ -1660,7 +1719,8 @@
                 // 시간 라벨
                 const timeLabel = document.createElement('div');
                 timeLabel.className = 'time-label';
-                timeLabel.textContent = `⏰ ${block.time}`;
+                const hours = block.hours || 2;
+                timeLabel.textContent = `⏰ ${block.time} (${hours}h)`;
 
                 // 과목명
                 const subjectDiv = document.createElement('div');
@@ -1694,13 +1754,15 @@
             const block = studyData.timeBlocks.find(b => b.id === id);
             if (block) {
                 block.completed = !block.completed;
+                const hours = block.hours || 2; // Default to 2 hours if not set (legacy compatibility)
+                const seconds = hours * 3600;
+
                 if (block.completed) {
-                    // 2시간 추가
-                    studyData.timer.seconds += 7200;
+                    studyData.timer.seconds += seconds;
                     updateTimerDisplay();
-                    showToast('학습 완료! 2시간이 추가되었습니다 👏');
+                    showToast(`학습 완료! ${hours}시간이 추가되었습니다 👏`);
                 } else {
-                    studyData.timer.seconds = Math.max(0, studyData.timer.seconds - 7200);
+                    studyData.timer.seconds = Math.max(0, studyData.timer.seconds - seconds);
                     updateTimerDisplay();
                 }
                 saveData();
@@ -1717,13 +1779,15 @@
         function saveTimeBlock() {
             const time = document.getElementById('blockTime').value;
             const subject = document.getElementById('blockSubject').value;
+            const hours = parseFloat(document.getElementById('blockHours').value) || 2;
             const detail = document.getElementById('blockDetail').value;
-            
+
             if (time && subject && detail) {
                 studyData.timeBlocks.push({
                     id: Date.now(),
                     time,
                     subject,
+                    hours,
                     detail,
                     completed: false
                 });
@@ -1731,6 +1795,11 @@
                 renderTimeBlocks();
                 closeModal('timeBlockModal');
                 showToast('학습 블록이 추가되었습니다');
+
+                // Reset form
+                document.getElementById('blockTime').value = '';
+                document.getElementById('blockDetail').value = '';
+                document.getElementById('blockHours').value = '2';
             }
         }
         
@@ -1749,11 +1818,13 @@
             const block = studyData.timeBlocks.find(b => b.id === id);
             if (block) {
                 const newTime = prompt('시간대:', block.time);
+                const newHours = prompt('예상 학습 시간 (시간):', block.hours || 2);
                 const newSubject = prompt('과목:', block.subject);
                 const newDetail = prompt('내용:', block.detail);
-                
-                if (newTime && newSubject && newDetail) {
+
+                if (newTime && newHours && newSubject && newDetail) {
                     block.time = newTime;
+                    block.hours = parseFloat(newHours);
                     block.subject = newSubject;
                     block.detail = newDetail;
                     saveData();
@@ -1858,11 +1929,102 @@
             const hours = Math.floor(studyData.timer.seconds / 3600);
             const minutes = Math.floor((studyData.timer.seconds % 3600) / 60);
             const secs = studyData.timer.seconds % 60;
-            
-            document.getElementById('timer').textContent = 
+
+            document.getElementById('timer').textContent =
                 `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
-        
+
+        // 포모도로 타이머 기능
+        function startPomodoro() {
+            if (!studyData.pomodoro.isRunning) {
+                studyData.pomodoro.isRunning = true;
+                document.getElementById('pomodoro-start').style.display = 'none';
+                document.getElementById('pomodoro-pause').style.display = 'inline-block';
+
+                studyData.pomodoro.interval = setInterval(() => {
+                    if (studyData.pomodoro.seconds > 0) {
+                        studyData.pomodoro.seconds--;
+                        updatePomodoroDisplay();
+                    } else {
+                        // Timer finished
+                        playNotificationSound();
+                        if (studyData.pomodoro.mode === 'work') {
+                            // Work session completed
+                            studyData.pomodoro.completedSessions++;
+                            studyData.pomodoro.mode = 'break';
+                            studyData.pomodoro.seconds = 300; // 5 minutes break
+                            showToast('작업 세션 완료! 5분 휴식 시작 🎉');
+                            document.getElementById('pomodoro-mode').textContent = '휴식 시간';
+                            document.getElementById('pomodoro-mode').className = 'pomodoro-mode break';
+                        } else {
+                            // Break completed
+                            studyData.pomodoro.mode = 'work';
+                            studyData.pomodoro.seconds = 1500; // 25 minutes work
+                            showToast('휴식 완료! 새로운 작업 세션 시작 💪');
+                            document.getElementById('pomodoro-mode').textContent = '작업 세션';
+                            document.getElementById('pomodoro-mode').className = 'pomodoro-mode work';
+                        }
+                        updatePomodoroDisplay();
+                        document.getElementById('pomodoro-count').textContent = studyData.pomodoro.completedSessions;
+                        pausePomodoro(); // Auto pause after completion
+                        saveData();
+                    }
+                }, 1000);
+            }
+        }
+
+        function pausePomodoro() {
+            studyData.pomodoro.isRunning = false;
+            clearInterval(studyData.pomodoro.interval);
+            document.getElementById('pomodoro-start').style.display = 'inline-block';
+            document.getElementById('pomodoro-pause').style.display = 'none';
+            saveData();
+        }
+
+        function resetPomodoro() {
+            if (confirm('포모도로 타이머를 리셋하시겠습니까?')) {
+                pausePomodoro();
+                studyData.pomodoro.seconds = 1500; // Reset to 25 minutes
+                studyData.pomodoro.mode = 'work';
+                studyData.pomodoro.completedSessions = 0;
+                updatePomodoroDisplay();
+                document.getElementById('pomodoro-count').textContent = '0';
+                document.getElementById('pomodoro-mode').textContent = '작업 세션';
+                document.getElementById('pomodoro-mode').className = 'pomodoro-mode work';
+                saveData();
+            }
+        }
+
+        function updatePomodoroDisplay() {
+            const minutes = Math.floor(studyData.pomodoro.seconds / 60);
+            const secs = studyData.pomodoro.seconds % 60;
+            document.getElementById('pomodoro-timer').textContent =
+                `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function playNotificationSound() {
+            // Create a simple beep sound using Web Audio API
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+                console.log('Audio notification not supported');
+            }
+        }
+
         // 주간 통계 렌더링
         function renderWeeklyStats() {
             const container = document.getElementById('weekly-stats');
@@ -1935,9 +2097,11 @@
         function updateProgress(idx) {
             const subject = studyData.subjects[idx];
             const completed = prompt(`${subject.name} 완료 문제수:`, subject.completed);
+            const total = prompt(`${subject.name} 목표 문제수:`, subject.total);
 
-            if (completed !== null && !isNaN(completed)) {
-                subject.completed = Math.min(parseInt(completed), subject.total);
+            if (completed !== null && !isNaN(completed) && total !== null && !isNaN(total)) {
+                subject.completed = parseInt(completed);
+                subject.total = Math.max(parseInt(total), 1); // Minimum 1
 
                 // 실제 데이터 소스에도 반영
                 if (studyData.examType === '2차') {
@@ -1948,7 +2112,7 @@
 
                 saveData();
                 renderSubjectProgress();
-                showToast(`${subject.name} 진도가 업데이트되었습니다`);
+                showToast(`${subject.name} 진도가 업데이트되었습니다 (${subject.completed}/${subject.total})`);
             }
         }
         
