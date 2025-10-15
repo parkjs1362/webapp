@@ -2,8 +2,26 @@
 <html lang="ko">
 <!--
     법무사 시험 전략적 학습 시스템
-    Version: 2.3.0
-    Last Updated: 2025-10-14
+    Version: 2.4.0
+    Last Updated: 2025-10-15
+
+    Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEMENTATION):
+    - CRITICAL: Added comprehensive Import/Export functionality for all study data
+      * Export data to JSON file (study-data-YYYY-MM-DD.json)
+      * Import data with validation and preview modal
+      * Automatic backup to session storage before import
+      * Comprehensive error handling and recovery
+    - Implemented dedicated Data Management section with gradient card design
+    - Enhanced CSS design system with complete color palette and spacing variables
+    - Added import preview modal with detailed data statistics
+    - Improved button system with glassmorphism effects for data management
+    - Enhanced mobile responsiveness with 56px/60px touch targets for data buttons
+    - Added loading states and smooth animations for import/export operations
+    - Implemented professional typography scale and spacing system
+    - Enhanced accessibility with better focus states and ARIA labels
+    - Added comprehensive data validation and error handling
+    - Improved visual hierarchy with gradient backgrounds for data management
+    - Better user feedback with toast notifications for all operations
 
     Changes in v2.3.0 - UX/UI Major Upgrade:
     - CRITICAL: Completely replaced all alert()/prompt()/confirm() with modern modal dialogs
@@ -46,7 +64,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>법무사 시험 전략적 학습 시스템 (1차/2차) v2.3.0</title>
+    <title>법무사 시험 전략적 학습 시스템 (1차/2차) v2.4.0</title>
     <style>
         * {
             margin: 0;
@@ -55,16 +73,100 @@
         }
         
         :root {
-            --primary: #4A5568;
+            /* Color Palette */
+            --primary-color: #4A5568;
             --primary-dark: #2D3748;
-            --accent: #3182CE;
-            --success: #48BB78;
-            --warning: #F6AD55;
-            --danger: #F56565;
+            --primary-light: #718096;
+            --accent-color: #3182CE;
+            --accent-dark: #2C5AA0;
+            --accent-light: #63B3ED;
+            --success-color: #48BB78;
+            --success-dark: #38A169;
+            --success-light: #9AE6B4;
+            --warning-color: #F6AD55;
+            --warning-dark: #DD6B20;
+            --warning-light: #FBD38D;
+            --danger-color: #F56565;
+            --danger-dark: #E53E3E;
+            --danger-light: #FC8181;
+            --info-color: #4299E1;
+
+            /* Background Colors */
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F7FAFC;
+            --bg-tertiary: #EDF2F7;
             --bg-light: #F7FAFC;
+            --bg-dark: #1A202C;
+
+            /* Text Colors */
             --text-primary: #1A202C;
             --text-secondary: #718096;
-            --border: #E2E8F0;
+            --text-tertiary: #A0AEC0;
+            --text-light: #FFFFFF;
+
+            /* Border & Shadow */
+            --border-color: #E2E8F0;
+            --border-light: #F7FAFC;
+            --border-dark: #CBD5E0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.12);
+
+            /* Spacing Scale */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --spacing-3xl: 64px;
+
+            /* Typography Scale */
+            --font-size-xs: 0.75rem;    /* 12px */
+            --font-size-sm: 0.875rem;   /* 14px */
+            --font-size-base: 1rem;      /* 16px */
+            --font-size-lg: 1.125rem;    /* 18px */
+            --font-size-xl: 1.25rem;     /* 20px */
+            --font-size-2xl: 1.5rem;     /* 24px */
+            --font-size-3xl: 1.875rem;   /* 30px */
+            --font-size-4xl: 2.25rem;    /* 36px */
+            --font-size-5xl: 3rem;       /* 48px */
+
+            /* Line Heights */
+            --line-height-tight: 1.25;
+            --line-height-normal: 1.5;
+            --line-height-relaxed: 1.75;
+
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-full: 9999px;
+
+            /* Transitions */
+            --transition-fast: 150ms;
+            --transition-base: 250ms;
+            --transition-slow: 350ms;
+
+            /* Z-index Scale */
+            --z-base: 1;
+            --z-dropdown: 100;
+            --z-sticky: 200;
+            --z-modal: 1000;
+            --z-toast: 2000;
+            --z-tooltip: 3000;
+
+            /* Legacy support (maintain backwards compatibility) */
+            --primary: var(--primary-color);
+            --accent: var(--accent-color);
+            --success: var(--success-color);
+            --warning: var(--warning-color);
+            --danger: var(--danger-color);
+            --text-primary: var(--text-primary);
+            --text-secondary: var(--text-secondary);
+            --border: var(--border-color);
         }
         
         body {
@@ -904,10 +1006,11 @@
         }
 
         .dday-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin: 10px 0;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            font-size: var(--font-size-5xl);
+            font-weight: 800;
+            margin: var(--spacing-md) 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
         }
 
         .dday-date {
@@ -932,6 +1035,94 @@
             background: rgba(255,255,255,0.3);
             border-color: rgba(255,255,255,0.5);
         }
+
+        /* Import/Export Buttons */
+        .data-management {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            margin-top: var(--spacing-lg);
+        }
+
+        .btn-primary {
+            padding: 12px 24px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            min-height: 44px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            padding: 12px 24px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            min-height: 44px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-icon {
+            font-size: var(--font-size-lg);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
 
         /* 확인 모달 스타일 */
         .confirm-modal .modal-content {
@@ -1253,6 +1444,355 @@
         .collapsible-content.collapsed {
             max-height: 0;
         }
+
+        /* 데이터 관리 섹션 */
+        .data-management-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-top: var(--spacing-lg);
+        }
+
+        .data-management-card .card-title {
+            color: white;
+        }
+
+        .data-management-section {
+            padding: var(--spacing-md) 0;
+        }
+
+        .data-management-desc {
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: var(--spacing-lg);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-relaxed);
+        }
+
+        .data-management-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .data-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-lg);
+            color: white;
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            min-height: 56px;
+        }
+
+        .data-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .data-btn:active {
+            transform: translateY(0);
+        }
+
+        .data-btn .btn-icon {
+            font-size: 1.5rem;
+        }
+
+        .data-btn .btn-text {
+            font-size: var(--font-size-lg);
+        }
+
+        .export-btn:hover {
+            background: rgba(72, 187, 120, 0.3);
+            border-color: var(--success-light);
+        }
+
+        .import-btn:hover {
+            background: rgba(66, 153, 225, 0.3);
+            border-color: var(--info-color);
+        }
+
+        .data-management-info {
+            padding: var(--spacing-md);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-md);
+            color: rgba(255, 255, 255, 0.9);
+            line-height: var(--line-height-relaxed);
+        }
+
+        .data-management-info small {
+            font-size: var(--font-size-sm);
+            line-height: 1.8;
+        }
+
+        /* Import Preview Modal */
+        .import-preview {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .import-preview-item {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .import-preview-item:last-child {
+            border-bottom: none;
+        }
+
+        .import-preview-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .import-preview-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Loading state */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin: -8px 0 0 -8px;
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spinner 0.6s linear infinite;
+        }
+
+        @keyframes spinner {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mobile optimizations for data management */
+        @media (max-width: 600px) {
+            .data-management-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .data-btn {
+                min-height: 60px;
+                font-size: var(--font-size-lg);
+            }
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.6;
+        }
+
+        .empty-state-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .empty-state-description {
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-lg);
+            line-height: var(--line-height-relaxed);
+        }
+
+        .empty-state-action {
+            display: inline-block;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: var(--accent-color);
+            color: white;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all var(--transition-base);
+            cursor: pointer;
+            border: none;
+        }
+
+        .empty-state-action:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Enhanced Button Consistency */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            min-height: 44px; /* Touch target size */
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--border-dark);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: var(--success-dark);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-dark);
+        }
+
+        .btn-sm {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: var(--font-size-sm);
+            min-height: 36px;
+        }
+
+        .btn-lg {
+            padding: var(--spacing-md) var(--spacing-xl);
+            font-size: var(--font-size-lg);
+            min-height: 56px;
+        }
+
+        /* Focus states for accessibility */
+        .btn:focus-visible,
+        .data-btn:focus-visible,
+        .action-btn:focus-visible,
+        .modal-btn:focus-visible {
+            outline: 3px solid var(--accent-light);
+            outline-offset: 2px;
+        }
+
+        /* Improved Card Shadows */
+        .card {
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        /* Loading Spinner for Better Feedback */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spinner 0.6s linear infinite;
+        }
+
+        /* Enhanced Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .modal-content {
+                max-width: 95%;
+                margin: 20px auto;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .title {
+                font-size: var(--font-size-xl);
+            }
+
+            .card-title {
+                font-size: var(--font-size-base);
+            }
+
+            /* Larger touch targets on mobile */
+            .action-btn,
+            .rotation-circle,
+            .check-btn {
+                min-width: 44px;
+                min-height: 44px;
+            }
+        }
+
+        /* Smooth Transitions for Better UX */
+        * {
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Better Visual Hierarchy */
+        h1, h2, h3, h4 {
+            line-height: var(--line-height-tight);
+            font-weight: 700;
+        }
+
+        p {
+            line-height: var(--line-height-relaxed);
+        }
     </style>
 </head>
 <body>
@@ -1260,7 +1800,7 @@
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 법무사 시험 전략적 학습 시스템 v2.3.0</h1>
+                <h1 class="title">🎯 법무사 시험 전략적 학습 시스템 v2.4.0</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -1533,9 +2073,34 @@
             </div>
         </div>
 
+        <!-- 데이터 관리 섹션 -->
+        <div class="card data-management-card">
+            <div class="card-header">
+                <h2 class="card-title">💾 데이터 관리</h2>
+            </div>
+            <div class="data-management-section">
+                <p class="data-management-desc">학습 데이터를 안전하게 백업하고 다른 기기에서 불러올 수 있습니다</p>
+                <div class="data-management-actions">
+                    <button class="data-btn export-btn" onclick="exportData()">
+                        <span class="btn-icon">⬇️</span>
+                        <span class="btn-text">데이터 내보내기</span>
+                    </button>
+                    <button class="data-btn import-btn" onclick="document.getElementById('importFileInput').click()">
+                        <span class="btn-icon">⬆️</span>
+                        <span class="btn-text">데이터 가져오기</span>
+                    </button>
+                    <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importData(event)">
+                </div>
+                <div class="data-management-info">
+                    <small>내보내기: 모든 학습 데이터를 JSON 파일로 저장합니다</small><br>
+                    <small>가져오기: 이전에 저장한 데이터를 불러옵니다 (현재 데이터는 대체됩니다)</small>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
-            법무사 시험 전략적 학습 시스템 v2.1.0 | 1차/2차 시험 지원 | 학습 분석 & 목표 관리 기능 추가
+            법무사 시험 전략적 학습 시스템 v2.4.0 | 1차/2차 시험 지원 | 학습 분석 & 목표 관리 기능 추가 | 데이터 Import/Export 추가
         </div>
     </div>
     
@@ -1756,6 +2321,32 @@
             </div>
         </div>
     </div>
+
+    <!-- 데이터 가져오기 확인 모달 -->
+    <div id="importConfirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">데이터 가져오기 확인</h3>
+                <button class="modal-close" onclick="closeModal('importConfirmModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-message" style="margin-bottom: 20px; color: var(--warning-dark); font-weight: 600;">
+                    ⚠️ 현재 데이터를 가져온 데이터로 교체하시겠습니까?<br>
+                    <span style="font-size: 0.9rem; color: var(--danger-color);">현재 데이터는 완전히 삭제되며 복구할 수 없습니다.</span>
+                </div>
+                <div class="import-preview" id="importPreviewContainer">
+                    <!-- 가져올 데이터 미리보기가 여기에 표시됩니다 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('importConfirmModal')">취소</button>
+                <button class="modal-btn save" id="confirmImportBtn" style="background: var(--danger-color);">확인 및 가져오기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 알림 컨테이너 -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <script>
         // 데이터 초기화
@@ -3311,6 +3902,342 @@
 
             section.classList.toggle('collapsed');
             icon.classList.toggle('collapsed');
+        }
+
+        // ===== 데이터 Import/Export 기능 =====
+
+        /**
+         * 모든 학습 데이터를 JSON 파일로 내보내기
+         */
+        function exportData() {
+            try {
+                // 내보낼 데이터 준비 (민감한 정보 제외, 불필요한 필드 제거)
+                const exportData = {
+                    version: '2.4.0',
+                    exportDate: new Date().toISOString(),
+                    data: {
+                        examType: studyData.examType,
+                        examDates: studyData.examDates,
+                        subjects1st: studyData.subjects1st,
+                        subjects2nd: studyData.subjects2nd,
+                        timeBlocks: studyData.timeBlocks,
+                        mockScores: studyData.mockScores,
+                        weeklyHours: studyData.weeklyHours,
+                        notes: studyData.notes,
+                        streak: studyData.streak,
+                        goals: studyData.goals,
+                        subjectTimeSpent: studyData.subjectTimeSpent,
+                        studyHistory: studyData.studyHistory
+                    }
+                };
+
+                // JSON으로 변환
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+                // 파일 다운로드
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+
+                // 파일명: study-data-YYYY-MM-DD.json
+                const today = new Date().toISOString().split('T')[0];
+                link.download = `study-data-${today}.json`;
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // 메모리 정리
+                URL.revokeObjectURL(url);
+
+                showToast('데이터가 성공적으로 내보내졌습니다', 'success');
+                console.log('Data exported successfully');
+
+            } catch (error) {
+                console.error('Export error:', error);
+                showToast('데이터 내보내기 중 오류가 발생했습니다', 'error');
+            }
+        }
+
+        /**
+         * JSON 파일에서 학습 데이터 가져오기
+         */
+        let pendingImportData = null;
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            // 파일 확장자 검증
+            if (!file.name.endsWith('.json')) {
+                showToast('JSON 파일만 가져올 수 있습니다', 'error');
+                event.target.value = ''; // 파일 선택 초기화
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    // JSON 파싱
+                    const importedData = JSON.parse(e.target.result);
+
+                    // 데이터 구조 검증
+                    if (!validateImportData(importedData)) {
+                        showToast('올바르지 않은 파일 형식입니다', 'error');
+                        event.target.value = '';
+                        return;
+                    }
+
+                    // 임시로 저장하고 확인 모달 표시
+                    pendingImportData = importedData.data;
+                    showImportPreview(importedData);
+
+                } catch (error) {
+                    console.error('Import parsing error:', error);
+                    showToast('파일을 읽을 수 없습니다. 올바른 JSON 파일인지 확인하세요.', 'error');
+                    event.target.value = '';
+                }
+            };
+
+            reader.onerror = function() {
+                showToast('파일 읽기 중 오류가 발생했습니다', 'error');
+                event.target.value = '';
+            };
+
+            reader.readAsText(file);
+        }
+
+        /**
+         * 가져온 데이터의 유효성 검증
+         */
+        function validateImportData(data) {
+            try {
+                // 필수 구조 검증
+                if (!data || typeof data !== 'object') {
+                    console.error('Invalid data structure: not an object');
+                    return false;
+                }
+
+                if (!data.data || typeof data.data !== 'object') {
+                    console.error('Invalid data structure: missing data property');
+                    return false;
+                }
+
+                const d = data.data;
+
+                // 필수 배열 필드 검증
+                const requiredArrays = ['subjects1st', 'subjects2nd'];
+                for (const field of requiredArrays) {
+                    if (!Array.isArray(d[field])) {
+                        console.error(`Invalid data structure: ${field} is not an array`);
+                        return false;
+                    }
+                }
+
+                // 선택적 배열 필드 검증 (없으면 빈 배열로 초기화)
+                const optionalArrays = ['timeBlocks', 'mockScores', 'goals', 'studyHistory'];
+                for (const field of optionalArrays) {
+                    if (d[field] !== undefined && !Array.isArray(d[field])) {
+                        console.error(`Invalid data structure: ${field} is not an array`);
+                        return false;
+                    }
+                }
+
+                // 과목 데이터 검증
+                if (d.subjects1st.length === 0) {
+                    console.error('Invalid data: subjects1st is empty');
+                    return false;
+                }
+
+                // 기본 구조가 올바른지 확인
+                const sample = d.subjects1st[0];
+                if (!sample.name || typeof sample.total !== 'number' || typeof sample.completed !== 'number') {
+                    console.error('Invalid subject structure');
+                    return false;
+                }
+
+                console.log('Data validation passed');
+                return true;
+
+            } catch (error) {
+                console.error('Validation error:', error);
+                return false;
+            }
+        }
+
+        /**
+         * 가져올 데이터 미리보기 표시
+         */
+        function showImportPreview(importedData) {
+            const previewContainer = document.getElementById('importPreviewContainer');
+            const data = importedData.data;
+
+            // 미리보기 HTML 생성
+            let previewHTML = '<h4 style="margin-bottom: 15px; color: var(--primary-dark);">가져올 데이터 미리보기</h4>';
+
+            // 파일 정보
+            if (importedData.version) {
+                previewHTML += `
+                    <div class="import-preview-item">
+                        <span class="import-preview-label">파일 버전</span>
+                        <span class="import-preview-value">${importedData.version}</span>
+                    </div>
+                `;
+            }
+
+            if (importedData.exportDate) {
+                const exportDate = new Date(importedData.exportDate);
+                previewHTML += `
+                    <div class="import-preview-item">
+                        <span class="import-preview-label">내보낸 날짜</span>
+                        <span class="import-preview-value">${exportDate.toLocaleDateString('ko-KR')}</span>
+                    </div>
+                `;
+            }
+
+            // 데이터 통계
+            previewHTML += `
+                <div class="import-preview-item">
+                    <span class="import-preview-label">1차 과목 수</span>
+                    <span class="import-preview-value">${data.subjects1st?.length || 0}개</span>
+                </div>
+                <div class="import-preview-item">
+                    <span class="import-preview-label">2차 과목 수</span>
+                    <span class="import-preview-value">${data.subjects2nd?.length || 0}개</span>
+                </div>
+                <div class="import-preview-item">
+                    <span class="import-preview-label">학습 블록 수</span>
+                    <span class="import-preview-value">${data.timeBlocks?.length || 0}개</span>
+                </div>
+                <div class="import-preview-item">
+                    <span class="import-preview-label">모의고사 기록</span>
+                    <span class="import-preview-value">${data.mockScores?.length || 0}개</span>
+                </div>
+                <div class="import-preview-item">
+                    <span class="import-preview-label">학습 목표</span>
+                    <span class="import-preview-value">${data.goals?.length || 0}개</span>
+                </div>
+                <div class="import-preview-item">
+                    <span class="import-preview-label">학습 스트릭</span>
+                    <span class="import-preview-value">${data.streak?.current || 0}일 연속</span>
+                </div>
+            `;
+
+            previewContainer.innerHTML = previewHTML;
+
+            // 확인 버튼에 이벤트 핸들러 설정
+            const confirmBtn = document.getElementById('confirmImportBtn');
+            confirmBtn.onclick = function() {
+                confirmImport();
+            };
+
+            // 모달 표시
+            document.getElementById('importConfirmModal').classList.add('show');
+        }
+
+        /**
+         * 데이터 가져오기 최종 확인 및 실행
+         */
+        function confirmImport() {
+            if (!pendingImportData) {
+                showToast('가져올 데이터가 없습니다', 'error');
+                closeModal('importConfirmModal');
+                return;
+            }
+
+            try {
+                // 현재 데이터를 임시로 백업 (혹시 모를 상황 대비 - 세션 스토리지에)
+                try {
+                    sessionStorage.setItem('studyDataBackup', JSON.stringify(studyData));
+                } catch (backupError) {
+                    console.warn('Failed to create session backup:', backupError);
+                }
+
+                // 데이터 가져오기
+                const imported = pendingImportData;
+
+                // 기본값과 병합 (누락된 필드 처리)
+                studyData = {
+                    examType: imported.examType || '1차',
+                    examDates: imported.examDates || { '1차': null, '2차': null },
+                    timer: {
+                        seconds: 0,
+                        isRunning: false,
+                        interval: null
+                    },
+                    pomodoro: {
+                        seconds: 1500,
+                        isRunning: false,
+                        interval: null,
+                        mode: 'work',
+                        completedSessions: 0
+                    },
+                    subjects1st: imported.subjects1st || [],
+                    subjects2nd: imported.subjects2nd || [],
+                    subjects: [],
+                    timeBlocks: imported.timeBlocks || [],
+                    mockScores: imported.mockScores || [],
+                    weeklyHours: imported.weeklyHours || {},
+                    notes: imported.notes || {},
+                    streak: imported.streak || {
+                        current: 0,
+                        longest: 0,
+                        lastStudyDate: null,
+                        totalDays: 0
+                    },
+                    goals: imported.goals || [],
+                    subjectTimeSpent: imported.subjectTimeSpent || {},
+                    studyHistory: imported.studyHistory || []
+                };
+
+                // 과목 설정 업데이트
+                updateSubjectsByExamType();
+
+                // 로컬 스토리지에 저장
+                saveData();
+
+                // 모달 닫기
+                closeModal('importConfirmModal');
+
+                // 성공 토스트
+                showToast('데이터를 성공적으로 가져왔습니다! 페이지를 새로고침합니다.', 'success');
+
+                // 페이지 새로고침 (모든 UI 업데이트)
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+
+                // 임시 데이터 정리
+                pendingImportData = null;
+
+                console.log('Data imported successfully');
+
+            } catch (error) {
+                console.error('Import error:', error);
+                showToast('데이터 가져오기 중 오류가 발생했습니다', 'error');
+
+                // 백업 복구 시도
+                try {
+                    const backup = sessionStorage.getItem('studyDataBackup');
+                    if (backup) {
+                        studyData = JSON.parse(backup);
+                        saveData();
+                        showToast('이전 데이터로 복구되었습니다', 'info');
+                    }
+                } catch (restoreError) {
+                    console.error('Failed to restore backup:', restoreError);
+                }
+            } finally {
+                // 파일 입력 초기화
+                const fileInput = document.getElementById('importFileInput');
+                if (fileInput) {
+                    fileInput.value = '';
+                }
+            }
         }
 
         // 타이머 시작 시 스트릭 업데이트
