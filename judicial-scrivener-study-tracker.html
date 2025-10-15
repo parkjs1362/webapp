@@ -5,7 +5,23 @@
     Version: 2.5.2
     Last Updated: 2025-10-15
 
-    
+    Changes in v2.5.2 - Font & Chart Visualization Improvements:
+    - Changed font to Noto Sans KR from Google Fonts for better Korean readability
+    - CRITICAL: Fixed chart visibility issues in analytics dashboard
+      * Added minimum height (20px) for small data values to ensure all bars are visible
+      * Increased chart height from 200px to 240px for better clarity
+      * Added grid lines at 25% intervals for easier reading
+      * Improved bar value label positioning (centered on bar, above for small bars)
+      * Added 3-tier color coding for mock exam scores (green 60+, orange 40-59, red <40)
+      * Implemented trend indicators showing score changes
+      * Added sequential animations with stagger timing (50ms for subjects, 80ms for scores)
+      * Enhanced tooltips with full subject names on hover
+    - Created comprehensive USER_GUIDE.md documentation with detailed logic explanations
+    - Improved chart accessibility with better contrast and text shadows
+    - Enhanced gradient colors for better visual differentiation
+    - Fixed empty state messages for charts when no data is available
+
+
     Changes in v2.5.1 - Analytics Enhancement, Dark Mode & UX Improvements:
     Changes in v2.5.1 - Dark Mode Critical Fix:
     - CRITICAL FIX: Added missing body selector that was breaking entire CSS cascade
@@ -96,10 +112,14 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v2.5.1</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v2.5.2</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+    <!-- Google Fonts - Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -282,7 +302,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg-light);
             color: var(--text-primary);
             line-height: 1.6;
@@ -1977,7 +1997,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v2.5.1</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v2.5.2</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -2277,7 +2297,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
-            시험 전략적 학습 시스템 v2.4.0 | 1차/2차 시험 지원 | 학습 분석 & 목표 관리 기능 추가 | 데이터 Import/Export 추가
+            시험 전략적 학습 시스템 v2.5.2 | 1차/2차 시험 지원 | 차트 시각화 개선 | 다크 모드 | 데이터 Import/Export
         </div>
     </div>
     
