@@ -2,7 +2,7 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 2.5.1
+    Version: 2.5.2
     Last Updated: 2025-10-15
 
     
@@ -1325,7 +1325,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             color: var(--text-secondary);
         }
 
-        /* 차트 스타일 */
+        /* 차트 스타일 - Enhanced for visibility */
         .chart-container {
             background: var(--bg-light);
             padding: 20px;
@@ -1337,8 +1337,19 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             display: flex;
             align-items: flex-end;
             justify-content: space-around;
-            height: 200px;
+            height: 240px;
             padding: 10px;
+            position: relative;
+            background-image:
+                linear-gradient(to right, transparent 0%, transparent 100%),
+                repeating-linear-gradient(
+                    to top,
+                    transparent,
+                    transparent calc(25% - 1px),
+                    var(--border) calc(25% - 1px),
+                    var(--border) 25%
+                );
+            background-size: 100% 100%;
         }
 
         .bar-item {
@@ -1347,35 +1358,59 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             flex-direction: column;
             align-items: center;
             margin: 0 5px;
+            position: relative;
+            z-index: 1;
         }
 
         .bar {
             width: 100%;
+            min-height: 20px;
+            max-width: 60px;
             background: linear-gradient(to top, var(--accent), var(--success));
             border-radius: 4px 4px 0 0;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
         }
 
         .bar:hover {
-            opacity: 0.8;
-            transform: scaleY(1.05);
+            opacity: 0.85;
+            transform: scaleY(1.05) scaleX(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .bar-label {
             margin-top: 8px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
+            text-align: center;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 70px;
         }
 
         .bar-value {
             position: absolute;
-            top: -25px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.75rem;
+            transform: translate(-50%, -50%);
+            font-size: 0.7rem;
             font-weight: bold;
-            color: var(--primary-dark);
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .bar[data-small="true"] .bar-value {
+            top: -20px;
+            color: var(--text-primary);
+            text-shadow: none;
+            font-size: 0.65rem;
         }
 
         /* 목표 설정 스타일 */
@@ -3798,17 +3833,29 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
             const maxTime = Math.max(...sortedSubjects.map(([_, time]) => time), 1);
 
-            sortedSubjects.forEach(([subjectName, timeSpent]) => {
+            sortedSubjects.forEach(([subjectName, timeSpent], idx) => {
                 const hours = Math.round(timeSpent * 10) / 10; // Round to 1 decimal
-                const height = (timeSpent / maxTime) * 100;
+                // Ensure minimum 10% height for visibility, max 100%
+                const rawHeight = (timeSpent / maxTime) * 100;
+                const height = Math.max(Math.min(rawHeight, 100), 10);
+                const isSmallBar = height < 30;
 
                 const barItem = document.createElement('div');
                 barItem.className = 'bar-item';
 
                 const bar = document.createElement('div');
                 bar.className = 'bar';
-                bar.style.height = height + '%';
+                bar.style.height = '0%'; // Start at 0 for animation
                 bar.style.background = 'linear-gradient(to top, var(--accent-color), var(--success-color))';
+
+                if (isSmallBar) {
+                    bar.setAttribute('data-small', 'true');
+                }
+
+                // Animate to final height
+                setTimeout(() => {
+                    bar.style.height = height + '%';
+                }, idx * 50);
 
                 const barValue = document.createElement('div');
                 barValue.className = 'bar-value';
@@ -3819,6 +3866,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const label = document.createElement('div');
                 label.className = 'bar-label';
                 label.textContent = subjectName.replace(' (2차)', '').substring(0, 8);
+                label.title = subjectName; // Full name on hover
 
                 barItem.appendChild(bar);
                 barItem.appendChild(label);
@@ -3841,28 +3889,39 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             const maxScore = 100;
 
             recentScores.forEach((score, idx) => {
-                const height = (score.score / maxScore) * 100;
+                // Ensure minimum 10% height for visibility
+                const rawHeight = (score.score / maxScore) * 100;
+                const height = Math.max(rawHeight, 10);
+                const isSmallBar = height < 30;
 
                 const barItem = document.createElement('div');
                 barItem.className = 'bar-item';
 
                 const bar = document.createElement('div');
                 bar.className = 'bar';
-                bar.style.height = height + '%';
+                bar.style.height = '0%'; // Start at 0 for animation
 
                 // Color based on pass/fail (60% passing grade)
                 if (score.score >= 60) {
                     bar.style.background = 'linear-gradient(to top, var(--success-color), #34D399)';
+                } else if (score.score >= 40) {
+                    bar.style.background = 'linear-gradient(to top, #F59E0B, #FCD34D)';
                 } else {
                     bar.style.background = 'linear-gradient(to top, var(--danger-color), #F87171)';
                 }
 
-                // Add transition for animation
-                bar.style.transition = 'height 0.5s ease ' + (idx * 0.05) + 's';
+                if (isSmallBar) {
+                    bar.setAttribute('data-small', 'true');
+                }
+
+                // Animate to final height with stagger effect
+                setTimeout(() => {
+                    bar.style.height = height + '%';
+                }, idx * 80);
 
                 const barValue = document.createElement('div');
                 barValue.className = 'bar-value';
-                barValue.textContent = score.score;
+                barValue.textContent = score.score + '점';
 
                 bar.appendChild(barValue);
 
@@ -3871,11 +3930,35 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 // Show date in MM/DD format
                 const dateStr = score.date.substring(5); // Remove year
                 label.textContent = dateStr;
+                label.title = score.date + ' - ' + score.score + '점'; // Full info on hover
 
                 barItem.appendChild(bar);
                 barItem.appendChild(label);
                 container.appendChild(barItem);
             });
+
+            // Add trend indicator if there are at least 2 scores
+            if (recentScores.length >= 2) {
+                const lastScore = recentScores[recentScores.length - 1].score;
+                const prevScore = recentScores[recentScores.length - 2].score;
+                const trend = lastScore - prevScore;
+
+                const trendDiv = document.createElement('div');
+                trendDiv.style.cssText = 'text-align: center; margin-top: 15px; font-size: 0.85rem; font-weight: 500;';
+
+                if (trend > 0) {
+                    trendDiv.style.color = 'var(--success-color)';
+                    trendDiv.textContent = '↑ 이전 대비 +' + trend + '점 상승';
+                } else if (trend < 0) {
+                    trendDiv.style.color = 'var(--danger-color)';
+                    trendDiv.textContent = '↓ 이전 대비 ' + trend + '점 하락';
+                } else {
+                    trendDiv.style.color = 'var(--text-secondary)';
+                    trendDiv.textContent = '→ 이전과 동일';
+                }
+
+                container.appendChild(trendDiv);
+            }
         }
 
         // ===== 새로운 기능: 약점 과목 식별 =====
@@ -4207,7 +4290,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             try {
                 // 내보낼 데이터 준비 (민감한 정보 제외, 불필요한 필드 제거)
                 const exportData = {
-                    version: '2.5.0',
+                    version: '2.5.2',
                     exportDate: new Date().toISOString(),
                     data: {
                         examType: studyData.examType,
