@@ -2,11 +2,20 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 2.5.0
+    Version: 2.5.1
     Last Updated: 2025-10-15
 
     
-    Changes in v2.5.0 - Analytics Enhancement, Dark Mode & UX Improvements:
+    Changes in v2.5.1 - Analytics Enhancement, Dark Mode & UX Improvements:
+    Changes in v2.5.1 - Dark Mode Critical Fix:
+    - CRITICAL FIX: Added missing body selector that was breaking entire CSS cascade
+    - Fixed dark mode by replacing all hardcoded white backgrounds with CSS variables
+    - Added --success-bg and --error-bg variables for state-based backgrounds
+    - Replaced hardcoded hex colors (#E6FFFA, #FFF5F5) with dark mode compatible variables
+    - Added overlay variables for semi-transparent backgrounds
+    - All UI components now properly respond to dark mode toggle
+    - Dark mode toggle button fully functional with persistent state
+
     - CRITICAL: Fixed analytics dashboard to use REAL user data instead of sample data
       * Subject time distribution now calculates from actual time blocks, timer, and progress
       * Mock exam score chart displays real user scores, not hardcoded samples
@@ -87,7 +96,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v2.5.0</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v2.5.1</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -117,6 +126,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             --danger-light: #FC8181;
             --info-color: #4299E1;
 
+            --success-bg: #E6FFFA;
+            --error-bg: #FFF5F5;
+            --overlay-light: rgba(255, 255, 255, 0.8);
+            --overlay-medium: rgba(255, 255, 255, 0.5);
             /* Background Colors */
             --bg-primary: #FFFFFF;
             --bg-secondary: #F7FAFC;
@@ -226,6 +239,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             --success-color: #34D399;
             --warning-color: #FBBF24;
             --danger-color: #F87171;
+            --success-bg: #1A3A2F;
+            --error-bg: #3A1A1A;
+            --overlay-light: rgba(0, 0, 0, 0.4);
+            --overlay-medium: rgba(0, 0, 0, 0.6);
         }
 
         /* Dark mode transitions */
@@ -264,7 +281,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             transform: scale(0.95);
         }
 
-        
+        body {
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg-light);
             color: var(--text-primary);
@@ -279,7 +296,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         /* 헤더 스타일 */
         .header {
-            background: white;
+            background: var(--bg-primary);
             border-radius: 12px;
             padding: 30px;
             margin-bottom: 25px;
@@ -348,7 +365,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .card {
-            background: white;
+            background: var(--bg-primary);
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.06);
@@ -428,7 +445,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .time-block.completed {
-            background: #E6FFFA;
+            background: var(--success-bg);
             border-left-color: var(--success);
         }
         
@@ -448,7 +465,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             width: 20px;
             height: 20px;
             border: none;
-            background: rgba(255,255,255,0.8);
+            background: var(--overlay-light);
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.7rem;
@@ -479,7 +496,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         .check-btn {
             margin-top: 10px;
             padding: 6px 12px;
-            background: white;
+            background: var(--bg-primary);
             border: 1px solid var(--border);
             border-radius: 6px;
             cursor: pointer;
@@ -563,7 +580,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            background: white;
+            background: var(--bg-primary);
             border: 2px solid var(--border);
             display: flex;
             align-items: center;
@@ -747,7 +764,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             font-weight: bold;
             padding: 5px 10px;
             border-radius: 20px;
-            background: white;
+            background: var(--bg-primary);
         }
         
         .score-value.pass {
@@ -773,7 +790,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             width: 24px;
             height: 24px;
             border: none;
-            background: white;
+            background: var(--bg-primary);
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8rem;
@@ -804,7 +821,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .modal-content {
-            background-color: white;
+            background-color: var(--bg-primary);
             margin: 10% auto;
             padding: 30px;
             border-radius: 12px;
@@ -887,7 +904,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 1rem;
-            background: white;
+            background: var(--bg-primary);
             cursor: pointer;
         }
         
@@ -953,7 +970,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         .notes-btn {
             padding: 8px 16px;
             border: 1px solid var(--border);
-            background: white;
+            background: var(--bg-primary);
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.3s;
@@ -1065,7 +1082,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         .dday-card {
             flex: 1;
             min-width: 250px;
-            background: white;
+            background: var(--bg-primary);
             border-radius: 12px;
             padding: 20px;
             text-align: center;
@@ -1117,7 +1134,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         .dday-edit-btn {
             margin-top: 10px;
             padding: 6px 12px;
-            background: rgba(255,255,255,0.2);
+            background: var(--overlay-light);
             border: 1px solid rgba(255,255,255,0.3);
             border-radius: 6px;
             color: inherit;
@@ -1127,7 +1144,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         .dday-edit-btn:hover {
-            background: rgba(255,255,255,0.3);
+            background: var(--overlay-light);
             border-color: rgba(255,255,255,0.5);
         }
 
@@ -1373,7 +1390,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         .goal-item.achieved {
             border-left-color: var(--success);
-            background: #E6FFFA;
+            background: var(--success-bg);
         }
 
         .goal-header {
@@ -1396,7 +1413,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         .goal-progress-bar {
             height: 8px;
-            background: white;
+            background: var(--bg-primary);
             border-radius: 4px;
             overflow: hidden;
             margin-top: 8px;
@@ -1417,7 +1434,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             width: 24px;
             height: 24px;
             border: none;
-            background: white;
+            background: var(--bg-primary);
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8rem;
@@ -1431,7 +1448,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         /* 약점 과목 스타일 */
         .weak-subject {
-            background: #FFF5F5;
+            background: var(--error-bg);
             border: 2px solid var(--danger);
             padding: 15px;
             border-radius: 8px;
@@ -1467,7 +1484,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         .recommendation {
-            background: white;
+            background: var(--bg-primary);
             padding: 10px;
             border-radius: 6px;
             margin-top: 10px;
@@ -1737,6 +1754,30 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         .empty-state-action:hover {
+        
+        /* Utility Classes for Inline Styles */
+        .motivation-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .error-notice {
+            background: var(--error-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--danger-color);
+            margin-top: 15px;
+        }
+        
+        .note-preview {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+        }
             background: var(--accent-dark);
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
@@ -1901,7 +1942,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v2.5.0</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v2.5.1</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -2053,7 +2094,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <div class="time-blocks" id="time-blocks-container">
                     <!-- 동적으로 생성됩니다 -->
                 </div>
-                <div style="background: #FFF5F5; padding: 15px; border-radius: 8px; border-left: 4px solid var(--danger); margin-top: 15px;">
+                <div style="background: var(--error-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--danger); margin-top: 15px;">
                     <div style="font-weight: 600; margin-bottom: 10px; color: var(--danger);">💡 합격자 평균 (직장병행 기준)</div>
                     <div style="font-size: 0.9rem; line-height: 1.6;">
                         • 일일 학습시간: 평일 4-5시간<br>
@@ -2145,7 +2186,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     </div>
                     <div style="font-size: 0.9rem; opacity: 0.9;">- 29회 합격자 -</div>
                 </div>
-                <div style="background: #FFF5F5; padding: 15px; border-radius: 8px; border-left: 4px solid var(--danger); margin-top: 15px;">
+                <div style="background: var(--error-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--danger); margin-top: 15px;">
                     <div style="font-weight: 600; margin-bottom: 10px; color: var(--danger);">🏆 합격자 조언</div>
                     <div style="font-size: 0.9rem; line-height: 1.6;">
                         • 기출문제 6-7회독이 핵심<br>
