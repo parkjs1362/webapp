@@ -1,20 +1,19 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <!--
-    시험 전략적 학습 시스템
-    Version: 2.6.0
+    ?쒗뿕 ?꾨왂???숈뒿 ?쒖뒪??    Version: 2.6.0
     Last Updated: 2025-10-16
 
     Changes in v2.6.0 - UX Improvements & Feature Updates:
     - FEATURE: Added manual subject time editing functionality
-      * Click edit button (✏️) next to each subject in time chart to manually adjust hours
+      * Click edit button (?륅툘) next to each subject in time chart to manually adjust hours
       * Manual time data stored separately and persists across sessions
       * Clear visual indicator showing manually edited subjects
       * Edit modal with current time display and validation
-    - UI CLEANUP: Removed "집중 필요 과목" (Weak Subjects) section
+    - UI CLEANUP: Removed "吏묒쨷 ?꾩슂 怨쇰ぉ" (Weak Subjects) section
       * Simplified dashboard by removing redundant priority indicators
       * Users can assess subject priority through progress charts directly
-    - UI CLEANUP: Removed "오늘의 학습 추천" (Smart Recommendations) section
+    - UI CLEANUP: Removed "?ㅻ뒛???숈뒿 異붿쿇" (Smart Recommendations) section
       * Streamlined interface by removing auto-generated suggestions
       * Focus on user-driven study planning through time blocks and goals
     - ENHANCEMENT: Improved D-day date text visibility
@@ -34,7 +33,7 @@
       * Fixed bar height initialization to ensure bars are immediately visible
       * Added debug logging to track chart rendering issues
       * Enhanced error handling in chart rendering functions
-    - CRITICAL FIX: Exam type switching (1차/2차) now properly syncs ALL dashboard components
+    - CRITICAL FIX: Exam type switching (1李?2李? now properly syncs ALL dashboard components
       * Fixed setExamType() to update analytics charts (subject time, mock scores)
       * Fixed weak subjects list to update when switching exam types
       * Fixed smart recommendations to reflect current exam type
@@ -86,13 +85,13 @@
       * Dark color palette with proper contrast ratios
       * Saved to localStorage with auto-load on page load
       * All components styled for dark mode (cards, modals, buttons, charts)
-    - Enhanced subject focus logic ("집중 필요 과목")
+    - Enhanced subject focus logic ("吏묒쨷 ?꾩슂 怨쇰ぉ")
       * Priority based on progress percentage, rotation count, and mock exam performance
       * Clear visual indicators (red/orange/yellow badges)
       * Sorted by actual priority (lowest progress first)
       * Shows success message when all subjects on track
     - Added professional SVG-based favicon (book with checkmark icon)
-    - Updated all "법무사" references to "시험" for generic exam tracking
+    - Updated all "踰뺣Т?? references to "?쒗뿕" for generic exam tracking
     - Improved chart visualizations with better animations and responsiveness
     - Enhanced real-time analytics updates when user adds data
     - Better error handling and edge case management
@@ -118,7 +117,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
     Changes in v2.3.0 - UX/UI Major Upgrade:
     - CRITICAL: Completely replaced all alert()/prompt()/confirm() with modern modal dialogs
-    - Added separate D-day counters for both 1차 and 2차 exams with editable dates
+    - Added separate D-day counters for both 1李?and 2李?exams with editable dates
     - Implemented visual urgency indicators (color changes as exam approaches)
     - Added comprehensive toast notification system (non-blocking, auto-dismiss)
     - Modal-based editing for ALL operations (subject progress, time blocks, mock scores, goals)
@@ -135,8 +134,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
     - Enhanced time block completion to use actual hours instead of hardcoded 2 hours
     - Added customizable target problem count per subject
     - Added hours field to time blocks for accurate time tracking
-    - Corrected 2차 exam subjects based on official 법무사 exam structure
-    - Removed study mode selector (직장인/전업/주말전사 modes)
+    - Corrected 2李?exam subjects based on official 踰뺣Т??exam structure
+    - Removed study mode selector (吏곸옣???꾩뾽/二쇰쭚?꾩궗 modes)
     - Improved UX with better time tracking and progress customization
 
     Changes in v2.1.0:
@@ -148,7 +147,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
     - Enhanced UI with collapsible sections and improved data visualization
 
     Changes in v2.0.0:
-    - Added support for 2차 (secondary) exam subjects
+    - Added support for 2李?(secondary) exam subjects
     - Fixed subject progress editing functionality
     - Fixed mock exam score delete functionality (always visible now)
     - Fixed study strategy (time blocks) edit/delete functionality
@@ -157,7 +156,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v2.5.3</title>
+    <title>?쒗뿕 ?꾨왂???숈뒿 ?쒖뒪??(1李?2李? v2.5.3</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -375,7 +374,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             padding: 20px;
         }
         
-        /* 헤더 스타일 */
+        /* ?ㅻ뜑 ?ㅽ???*/
         .header {
             background: var(--bg-primary);
             border-radius: 12px;
@@ -437,7 +436,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             color: white;
         }
         
-        /* 대시보드 그리드 */
+        /* ??쒕낫??洹몃━??*/
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -519,7 +518,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             outline-offset: 2px;
         }
         
-        /* 오늘의 학습 계획 */
+        /* ?ㅻ뒛???숈뒿 怨꾪쉷 */
         .today-plan {
             grid-column: span 2;
         }
@@ -612,7 +611,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             border-color: var(--success);
         }
 
-        /* 포모도로 타이머 */
+        /* ?щえ?꾨줈 ??대㉧ */
         .pomodoro-display {
             text-align: center;
             padding: 20px 0;
@@ -645,7 +644,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             font-size: 1.2rem;
         }
 
-        /* 기출문제 회독 트래커 */
+        /* 湲곗텧臾몄젣 ?뚮룆 ?몃옒而?*/
         .rotation-tracker {
             margin-top: 15px;
         }
@@ -704,7 +703,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             50% { opacity: 0.6; }
         }
         
-        /* 학습 타이머 */
+        /* ?숈뒿 ??대㉧ */
         .timer-display {
             font-size: 3rem;
             font-weight: bold;
@@ -749,7 +748,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             transform: translateY(-2px);
         }
         
-        /* 주간 학습 통계 */
+        /* 二쇨컙 ?숈뒿 ?듦퀎 */
         .weekly-stats {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -786,7 +785,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             font-weight: bold;
         }
         
-        /* 과목별 진도 */
+        /* 怨쇰ぉ蹂?吏꾨룄 */
         .subject-progress {
             margin-top: 15px;
         }
@@ -833,7 +832,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             font-weight: bold;
         }
         
-        /* 모의고사 점수 트래커 */
+        /* 紐⑥쓽怨좎궗 ?먯닔 ?몃옒而?*/
         .mock-scores {
             margin-top: 15px;
             max-height: 300px;
@@ -900,7 +899,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             transform: scale(1.1);
         }
         
-        /* 모달 스타일 */
+        /* 紐⑤떖 ?ㅽ???*/
         .modal {
             display: none;
             position: fixed;
@@ -1034,7 +1033,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             transform: translateY(-2px);
         }
         
-        /* 노트 섹션 */
+        /* ?명듃 ?뱀뀡 */
         .notes-section {
             margin-top: 20px;
         }
@@ -1079,7 +1078,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             border-color: var(--accent);
         }
         
-        /* 반응형 디자인 */
+        /* 諛섏쓳???붿옄??*/
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -1102,7 +1101,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
         
-        /* 토스트 알림 - Enhanced */
+        /* ?좎뒪???뚮┝ - Enhanced */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -1167,7 +1166,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
 
-        /* D-Day 카드 스타일 - Enhanced */
+        /* D-Day 移대뱶 ?ㅽ???- Enhanced */
         .dday-container {
             display: flex;
             gap: 15px;
@@ -1334,7 +1333,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
 
-        /* 확인 모달 스타일 */
+        /* ?뺤씤 紐⑤떖 ?ㅽ???*/
         .confirm-modal .modal-content {
             max-width: 400px;
         }
@@ -1346,7 +1345,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             color: var(--text-primary);
         }
 
-        /* 스트릭 트래커 스타일 */
+        /* ?ㅽ듃由??몃옒而??ㅽ???*/
         .streak-display {
             text-align: center;
             padding: 20px;
@@ -1390,7 +1389,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             opacity: 0.9;
         }
 
-        /* 분석 대시보드 스타일 */
+        /* 遺꾩꽍 ??쒕낫???ㅽ???*/
         .analytics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1423,7 +1422,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             color: var(--text-secondary);
         }
 
-        /* 차트 스타일 - Enhanced for visibility */
+        /* 李⑦듃 ?ㅽ???- Enhanced for visibility */
         .chart-container {
             background: var(--bg-light);
             padding: 20px;
@@ -1632,7 +1631,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             border-width: 0;
         }
 
-        /* 목표 설정 스타일 */
+        /* 紐⑺몴 ?ㅼ젙 ?ㅽ???*/
         .goal-item {
             background: var(--bg-light);
             padding: 15px;
@@ -1700,7 +1699,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             color: white;
         }
 
-        /* 약점 과목 스타일 */
+        /* ?쎌젏 怨쇰ぉ ?ㅽ???*/
         .weak-subject {
             background: var(--error-bg);
             border: 2px solid var(--danger);
@@ -1746,7 +1745,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             border-left: 3px solid var(--warning);
         }
 
-        /* 추천 사항 스타일 */
+        /* 異붿쿇 ?ы빆 ?ㅽ???*/
         .recommendation-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -1777,13 +1776,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         .recommendation-list li:before {
-            content: '→';
+            content: '??;
             position: absolute;
             left: 0;
             font-weight: bold;
         }
 
-        /* 접을 수 있는 섹션 */
+        /* ?묒쓣 ???덈뒗 ?뱀뀡 */
         .collapsible-header {
             display: flex;
             justify-content: space-between;
@@ -1811,7 +1810,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             max-height: 0;
         }
 
-        /* 데이터 관리 섹션 */
+        /* ?곗씠??愿由??뱀뀡 */
         .data-management-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -2199,102 +2198,102 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
     <!-- Dark Mode Toggle -->
     <button class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-        <span id="theme-icon">🌙</span>
+        <span id="theme-icon">?뙔</span>
     </button>
 
     <div class="container">
-        <!-- 헤더 -->
+        <!-- ?ㅻ뜑 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v2.6.0</h1>
+                <h1 class="title">?렞 ?쒗뿕 ?꾨왂???숈뒿 ?쒖뒪??v2.6.0</h1>
             </div>
 
-            <!-- D-Day 카운터 (1차/2차) -->
+            <!-- D-Day 移댁슫??(1李?2李? -->
             <div class="dday-container">
-                <div class="dday-card" id="dday-1st-card" onclick="editExamDate('1차')">
-                    <div class="dday-label">📚 1차 시험</div>
+                <div class="dday-card" id="dday-1st-card" onclick="editExamDate('1李?)">
+                    <div class="dday-label">?뱴 1李??쒗뿕</div>
                     <div class="dday-value" id="dday-1st-value">D-?</div>
-                    <div class="dday-date" id="dday-1st-date">날짜 미설정</div>
-                    <button class="dday-edit-btn" onclick="event.stopPropagation(); editExamDate('1차')">날짜 설정</button>
+                    <div class="dday-date" id="dday-1st-date">?좎쭨 誘몄꽕??/div>
+                    <button class="dday-edit-btn" onclick="event.stopPropagation(); editExamDate('1李?)">?좎쭨 ?ㅼ젙</button>
                 </div>
-                <div class="dday-card" id="dday-2nd-card" onclick="editExamDate('2차')">
-                    <div class="dday-label">✍️ 2차 시험</div>
+                <div class="dday-card" id="dday-2nd-card" onclick="editExamDate('2李?)">
+                    <div class="dday-label">?랃툘 2李??쒗뿕</div>
                     <div class="dday-value" id="dday-2nd-value">D-?</div>
-                    <div class="dday-date" id="dday-2nd-date">날짜 미설정</div>
-                    <button class="dday-edit-btn" onclick="event.stopPropagation(); editExamDate('2차')">날짜 설정</button>
+                    <div class="dday-date" id="dday-2nd-date">?좎쭨 誘몄꽕??/div>
+                    <button class="dday-edit-btn" onclick="event.stopPropagation(); editExamDate('2李?)">?좎쭨 ?ㅼ젙</button>
                 </div>
             </div>
 
             <div class="study-mode-selector">
-                <button class="mode-btn" onclick="setExamType('1차')">1차 시험</button>
-                <button class="mode-btn" onclick="setExamType('2차')">2차 시험</button>
+                <button class="mode-btn" onclick="setExamType('1李?)">1李??쒗뿕</button>
+                <button class="mode-btn" onclick="setExamType('2李?)">2李??쒗뿕</button>
             </div>
         </div>
         
-        <!-- 학습 스트릭 (최상단 강조) -->
+        <!-- ?숈뒿 ?ㅽ듃由?(理쒖긽??媛뺤“) -->
         <div class="dashboard-grid">
-            <!-- 학습 스트릭 트래커 -->
+            <!-- ?숈뒿 ?ㅽ듃由??몃옒而?-->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">🔥 학습 스트릭</h2>
+                    <h2 class="card-title">?뵦 ?숈뒿 ?ㅽ듃由?/h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="resetStreak()">🔄</button>
+                        <button class="action-btn" onclick="resetStreak()">?봽</button>
                     </div>
                 </div>
                 <div class="streak-display">
-                    <div class="streak-label">현재 연속 학습일</div>
+                    <div class="streak-label">?꾩옱 ?곗냽 ?숈뒿??/div>
                     <div class="streak-number" id="current-streak">0</div>
-                    <div class="streak-label">일 연속 🔥</div>
+                    <div class="streak-label">???곗냽 ?뵦</div>
                     <div class="streak-stats">
                         <div class="streak-stat-item">
                             <div class="streak-stat-value" id="longest-streak">0</div>
-                            <div class="streak-stat-label">최장 기록</div>
+                            <div class="streak-stat-label">理쒖옣 湲곕줉</div>
                         </div>
                         <div class="streak-stat-item">
                             <div class="streak-stat-value" id="total-study-days">0</div>
-                            <div class="streak-stat-label">총 학습일</div>
+                            <div class="streak-stat-label">珥??숈뒿??/div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 학습 분석 대시보드 -->
+        <!-- ?숈뒿 遺꾩꽍 ??쒕낫??-->
         <div class="card">
             <div class="card-header collapsible-header" onclick="toggleCollapse('analytics-section')">
-                <h2 class="card-title">📊 학습 분석 대시보드</h2>
-                <span class="collapse-icon" id="analytics-icon">▼</span>
+                <h2 class="card-title">?뱤 ?숈뒿 遺꾩꽍 ??쒕낫??/h2>
+                <span class="collapse-icon" id="analytics-icon">??/span>
             </div>
             <div class="collapsible-content" id="analytics-section">
                 <div class="analytics-grid">
                     <div class="analytics-stat">
-                        <div class="analytics-label">총 학습 시간</div>
+                        <div class="analytics-label">珥??숈뒿 ?쒓컙</div>
                         <div class="analytics-value" id="total-study-hours">0h</div>
                     </div>
                     <div class="analytics-stat">
-                        <div class="analytics-label">일평균 학습</div>
+                        <div class="analytics-label">?쇳룊洹??숈뒿</div>
                         <div class="analytics-value" id="avg-daily-hours">0h</div>
                     </div>
                     <div class="analytics-stat">
-                        <div class="analytics-label">전체 진도율</div>
+                        <div class="analytics-label">?꾩껜 吏꾨룄??/div>
                         <div class="analytics-value" id="overall-progress">0%</div>
                     </div>
                     <div class="analytics-stat">
-                        <div class="analytics-label">모의고사 평균</div>
-                        <div class="analytics-value" id="avg-mock-score">0점</div>
+                        <div class="analytics-label">紐⑥쓽怨좎궗 ?됯퇏</div>
+                        <div class="analytics-value" id="avg-mock-score">0??/div>
                     </div>
                 </div>
 
-                <!-- 과목별 학습 시간 차트 -->
+                <!-- 怨쇰ぉ蹂??숈뒿 ?쒓컙 李⑦듃 -->
                 <div class="chart-container">
-                    <h3 id="subject-chart-title" style="margin-bottom: 15px; font-size: 1rem;">과목별 학습 시간 분포</h3>
+                    <h3 id="subject-chart-title" style="margin-bottom: 15px; font-size: 1rem;">怨쇰ぉ蹂??숈뒿 ?쒓컙 遺꾪룷</h3>
                     <div class="chart-controls">
-                        <span class="chart-control-label">정렬:</span>
-                        <button class="chart-control-btn active" data-sort="time" aria-label="시간순 정렬">시간순</button>
-                        <button class="chart-control-btn" data-sort="name" aria-label="이름순 정렬">이름순</button>
-                        <span class="chart-control-label" style="margin-left: 15px;">표시:</span>
-                        <button class="chart-control-btn active" data-view="hours" aria-label="시간 단위로 표시">시간</button>
-                        <button class="chart-control-btn" data-view="percentage" aria-label="비율로 표시">비율</button>
+                        <span class="chart-control-label">?뺣젹:</span>
+                        <button class="chart-control-btn active" data-sort="time" aria-label="?쒓컙???뺣젹">?쒓컙??/button>
+                        <button class="chart-control-btn" data-sort="name" aria-label="?대쫫???뺣젹">?대쫫??/button>
+                        <span class="chart-control-label" style="margin-left: 15px;">?쒖떆:</span>
+                        <button class="chart-control-btn active" data-view="hours" aria-label="?쒓컙 ?⑥쐞濡??쒖떆">?쒓컙</button>
+                        <button class="chart-control-btn" data-view="percentage" aria-label="鍮꾩쑉濡??쒖떆">鍮꾩쑉</button>
                     </div>
                     <div class="bar-chart"
                          id="subject-time-chart"
@@ -2302,236 +2301,235 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                          aria-labelledby="subject-chart-title"
                          aria-describedby="subject-chart-desc"
                          tabindex="0">
-                        <!-- 동적으로 생성됩니다 -->
+                        <!-- ?숈쟻?쇰줈 ?앹꽦?⑸땲??-->
                     </div>
                     <div id="subject-chart-desc" class="sr-only">
-                        과목별 학습 시간을 막대 그래프로 표시합니다. 각 막대를 선택하면 상세 정보를 확인할 수 있습니다.
+                        怨쇰ぉ蹂??숈뒿 ?쒓컙??留됰? 洹몃옒?꾨줈 ?쒖떆?⑸땲?? 媛?留됰?瑜??좏깮?섎㈃ ?곸꽭 ?뺣낫瑜??뺤씤?????덉뒿?덈떎.
                     </div>
                 </div>
 
-                <!-- 모의고사 점수 추이 차트 -->
+                <!-- 紐⑥쓽怨좎궗 ?먯닔 異붿씠 李⑦듃 -->
                 <div class="chart-container">
-                    <h3 id="mock-chart-title" style="margin-bottom: 15px; font-size: 1rem;">모의고사 점수 추이</h3>
+                    <h3 id="mock-chart-title" style="margin-bottom: 15px; font-size: 1rem;">紐⑥쓽怨좎궗 ?먯닔 異붿씠</h3>
                     <div class="bar-chart"
                          id="mock-score-chart"
                          role="img"
                          aria-labelledby="mock-chart-title"
                          aria-describedby="mock-chart-desc"
                          tabindex="0">
-                        <!-- 동적으로 생성됩니다 -->
+                        <!-- ?숈쟻?쇰줈 ?앹꽦?⑸땲??-->
                     </div>
                     <div id="mock-chart-desc" class="sr-only">
-                        모의고사 점수 추이를 막대 그래프로 표시합니다. 60점 이상은 녹색, 40-59점은 주황색, 40점 미만은 빨간색으로 표시됩니다.
+                        紐⑥쓽怨좎궗 ?먯닔 異붿씠瑜?留됰? 洹몃옒?꾨줈 ?쒖떆?⑸땲?? 60???댁긽? ?뱀깋, 40-59?먯? 二쇳솴?? 40??誘몃쭔? 鍮④컙?됱쑝濡??쒖떆?⑸땲??
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 목표 관리 -->
+        <!-- 紐⑺몴 愿由?-->
         <div class="dashboard-grid">
-            <!-- 목표 설정 & 마일스톤 -->
+            <!-- 紐⑺몴 ?ㅼ젙 & 留덉씪?ㅽ넠 -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">🎯 학습 목표</h2>
+                    <h2 class="card-title">?렞 ?숈뒿 紐⑺몴</h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="addGoal()">➕</button>
+                        <button class="action-btn" onclick="addGoal()">??/button>
                     </div>
                 </div>
                 <div id="goals-container">
-                    <!-- 동적으로 생성됩니다 -->
+                    <!-- ?숈쟻?쇰줈 ?앹꽦?⑸땲??-->
                 </div>
             </div>
         </div>
 
-        <!-- 대시보드 그리드 -->
+        <!-- ??쒕낫??洹몃━??-->
         <div class="dashboard-grid">
-            <!-- 오늘의 학습 계획 -->
+            <!-- ?ㅻ뒛???숈뒿 怨꾪쉷 -->
             <div class="card today-plan">
                 <div class="card-header">
-                    <h2 class="card-title">📚 오늘의 학습 전략</h2>
+                    <h2 class="card-title">?뱴 ?ㅻ뒛???숈뒿 ?꾨왂</h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="addTimeBlock()">➕</button>
+                        <button class="action-btn" onclick="addTimeBlock()">??/button>
                     </div>
                 </div>
                 <div class="time-blocks" id="time-blocks-container">
-                    <!-- 동적으로 생성됩니다 -->
+                    <!-- ?숈쟻?쇰줈 ?앹꽦?⑸땲??-->
                 </div>
                 <div style="background: var(--error-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--danger); margin-top: 15px;">
-                    <div style="font-weight: 600; margin-bottom: 10px; color: var(--danger);">💡 합격자 평균 (직장병행 기준)</div>
+                    <div style="font-weight: 600; margin-bottom: 10px; color: var(--danger);">?뮕 ?⑷꺽???됯퇏 (吏곸옣蹂묓뻾 湲곗?)</div>
                     <div style="font-size: 0.9rem; line-height: 1.6;">
-                        • 일일 학습시간: 평일 4-5시간<br>
-                        • 기출문제 회독: 과목당 6-7회<br>
-                        • 1차 준비기간: 12-18개월
+                        ???쇱씪 ?숈뒿?쒓컙: ?됱씪 4-5?쒓컙<br>
+                        ??湲곗텧臾몄젣 ?뚮룆: 怨쇰ぉ??6-7??br>
+                        ??1李?以鍮꾧린媛? 12-18媛쒖썡
                     </div>
                 </div>
             </div>
             
-            <!-- 기출문제 회독 트래커 -->
+            <!-- 湲곗텧臾몄젣 ?뚮룆 ?몃옒而?-->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">🔄 기출문제 회독 현황</h2>
+                    <h2 class="card-title">?봽 湲곗텧臾몄젣 ?뚮룆 ?꾪솴</h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="resetRotations()">🔄</button>
+                        <button class="action-btn" onclick="resetRotations()">?봽</button>
                     </div>
                 </div>
                 <div class="rotation-tracker" id="rotation-tracker">
-                    <!-- 동적으로 생성됩니다 -->
+                    <!-- ?숈쟻?쇰줈 ?앹꽦?⑸땲??-->
                 </div>
             </div>
             
-            <!-- 학습 타이머 -->
+            <!-- ?숈뒿 ??대㉧ -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">⏱️ 오늘의 학습 시간</h2>
+                    <h2 class="card-title">?깍툘 ?ㅻ뒛???숈뒿 ?쒓컙</h2>
                 </div>
                 <div class="timer-display" id="timer">00:00:00</div>
                 <div class="timer-controls">
-                    <button class="timer-btn start" onclick="startTimer()">시작</button>
-                    <button class="timer-btn pause" onclick="pauseTimer()">일시정지</button>
-                    <button class="timer-btn reset" onclick="resetTimer()">리셋</button>
+                    <button class="timer-btn start" onclick="startTimer()">?쒖옉</button>
+                    <button class="timer-btn pause" onclick="pauseTimer()">?쇱떆?뺤?</button>
+                    <button class="timer-btn reset" onclick="resetTimer()">由ъ뀑</button>
                 </div>
                 <div class="weekly-stats" id="weekly-stats">
-                    <!-- 동적으로 생성됩니다 -->
+                    <!-- ?숈쟻?쇰줈 ?앹꽦?⑸땲??-->
                 </div>
             </div>
             
-            <!-- 포모도로 타이머 -->
+            <!-- ?щえ?꾨줈 ??대㉧ -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">🍅 포모도로 타이머</h2>
+                    <h2 class="card-title">?뛿 ?щえ?꾨줈 ??대㉧</h2>
                 </div>
                 <div class="pomodoro-display">
-                    <div class="pomodoro-mode" id="pomodoro-mode">작업 세션</div>
+                    <div class="pomodoro-mode" id="pomodoro-mode">?묒뾽 ?몄뀡</div>
                     <div class="timer-display" id="pomodoro-timer">25:00</div>
                     <div class="pomodoro-session-count">
-                        완료된 세션: <span id="pomodoro-count">0</span>개
-                    </div>
+                        ?꾨즺???몄뀡: <span id="pomodoro-count">0</span>媛?                    </div>
                 </div>
                 <div class="timer-controls">
-                    <button class="timer-btn start" id="pomodoro-start" onclick="startPomodoro()">시작</button>
-                    <button class="timer-btn pause" id="pomodoro-pause" onclick="pausePomodoro()" style="display:none;">일시정지</button>
-                    <button class="timer-btn reset" onclick="resetPomodoro()">리셋</button>
+                    <button class="timer-btn start" id="pomodoro-start" onclick="startPomodoro()">?쒖옉</button>
+                    <button class="timer-btn pause" id="pomodoro-pause" onclick="pausePomodoro()" style="display:none;">?쇱떆?뺤?</button>
+                    <button class="timer-btn reset" onclick="resetPomodoro()">由ъ뀑</button>
                 </div>
             </div>
 
-            <!-- 과목별 진도 현황 -->
+            <!-- 怨쇰ぉ蹂?吏꾨룄 ?꾪솴 -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">📊 과목별 진도율</h2>
+                    <h2 class="card-title">?뱤 怨쇰ぉ蹂?吏꾨룄??/h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="updateAllProgress()">✏️</button>
+                        <button class="action-btn" onclick="updateAllProgress()">?륅툘</button>
                     </div>
                 </div>
                 <div class="subject-progress" id="subject-progress">
-                    <!-- 동적으로 생성됩니다 -->
+                    <!-- ?숈쟻?쇰줈 ?앹꽦?⑸땲??-->
                 </div>
             </div>
             
-            <!-- 모의고사 점수 트래커 -->
+            <!-- 紐⑥쓽怨좎궗 ?먯닔 ?몃옒而?-->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">📝 모의고사 점수 추이</h2>
+                    <h2 class="card-title">?뱷 紐⑥쓽怨좎궗 ?먯닔 異붿씠</h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="showScoreModal()">➕</button>
+                        <button class="action-btn" onclick="showScoreModal()">??/button>
                     </div>
                 </div>
                 <div class="mock-scores" id="mock-scores">
-                    <!-- 동적으로 생성됩니다 -->
+                    <!-- ?숈쟻?쇰줈 ?앹꽦?⑸땲??-->
                 </div>
             </div>
             
-            <!-- 동기부여 카드 -->
+            <!-- ?숆린遺??移대뱶 -->
             <div class="card">
                 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; text-align: center;">
                     <div style="font-size: 1.1rem; font-style: italic; margin-bottom: 10px;" id="motivation-quote">
-                        "포기하지 않으면 반드시 합격한다. 시험은 끝까지 버티는 것입니다."
+                        "?ш린?섏? ?딆쑝硫?諛섎뱶???⑷꺽?쒕떎. ?쒗뿕? ?앷퉴吏 踰꾪떚??寃껋엯?덈떎."
                     </div>
-                    <div style="font-size: 0.9rem; opacity: 0.9;">- 29회 합격자 -</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">- 29???⑷꺽??-</div>
                 </div>
                 <div style="background: var(--error-bg); padding: 15px; border-radius: 8px; border-left: 4px solid var(--danger); margin-top: 15px;">
-                    <div style="font-weight: 600; margin-bottom: 10px; color: var(--danger);">🏆 합격자 조언</div>
+                    <div style="font-weight: 600; margin-bottom: 10px; color: var(--danger);">?룇 ?⑷꺽??議곗뼵</div>
                     <div style="font-size: 0.9rem; line-height: 1.6;">
-                        • 기출문제 6-7회독이 핵심<br>
-                        • 최신판례는 반드시 체크<br>
-                        • 모의고사 점수에 연연하지 말 것<br>
-                        • 매일 꾸준히가 답입니다
+                        ??湲곗텧臾몄젣 6-7?뚮룆???듭떖<br>
+                        ??理쒖떊?먮???諛섎뱶??泥댄겕<br>
+                        ??紐⑥쓽怨좎궗 ?먯닔???곗뿰?섏? 留?寃?br>
+                        ??留ㅼ씪 袁몄??덇? ?듭엯?덈떎
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- 학습 노트 섹션 -->
+        <!-- ?숈뒿 ?명듃 ?뱀뀡 -->
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">📝 오늘의 학습 노트</h2>
+                <h2 class="card-title">?뱷 ?ㅻ뒛???숈뒿 ?명듃</h2>
             </div>
             <div class="notes-section">
-                <textarea class="notes-input" placeholder="오늘 학습한 핵심 내용, 틀린 문제, 헷갈리는 개념을 정리하세요..." id="study-notes"></textarea>
+                <textarea class="notes-input" placeholder="?ㅻ뒛 ?숈뒿???듭떖 ?댁슜, ?由?臾몄젣, ?룰컝由щ뒗 媛쒕뀗???뺣━?섏꽭??.." id="study-notes"></textarea>
                 <div class="notes-toolbar">
-                    <button class="notes-btn" onclick="saveNotes()">저장</button>
-                    <button class="notes-btn" onclick="showPreviousNotes()">이전 노트</button>
-                    <button class="notes-btn" onclick="exportNotes()">내보내기</button>
-                    <button class="notes-btn" onclick="addErrorNote()">오답노트 추가</button>
-                    <button class="notes-btn" onclick="clearNotes()">초기화</button>
+                    <button class="notes-btn" onclick="saveNotes()">???/button>
+                    <button class="notes-btn" onclick="showPreviousNotes()">?댁쟾 ?명듃</button>
+                    <button class="notes-btn" onclick="exportNotes()">?대낫?닿린</button>
+                    <button class="notes-btn" onclick="addErrorNote()">?ㅻ떟?명듃 異붽?</button>
+                    <button class="notes-btn" onclick="clearNotes()">珥덇린??/button>
                 </div>
             </div>
         </div>
 
-        <!-- 데이터 관리 섹션 -->
+        <!-- ?곗씠??愿由??뱀뀡 -->
         <div class="card data-management-card">
             <div class="card-header">
-                <h2 class="card-title">💾 데이터 관리</h2>
+                <h2 class="card-title">?뮶 ?곗씠??愿由?/h2>
             </div>
             <div class="data-management-section">
-                <p class="data-management-desc">학습 데이터를 안전하게 백업하고 다른 기기에서 불러올 수 있습니다</p>
+                <p class="data-management-desc">?숈뒿 ?곗씠?곕? ?덉쟾?섍쾶 諛깆뾽?섍퀬 ?ㅻⅨ 湲곌린?먯꽌 遺덈윭?????덉뒿?덈떎</p>
                 <div class="data-management-actions">
                     <button class="data-btn export-btn" onclick="exportData()">
-                        <span class="btn-icon">⬇️</span>
-                        <span class="btn-text">데이터 내보내기</span>
+                        <span class="btn-icon">燧뉛툘</span>
+                        <span class="btn-text">?곗씠???대낫?닿린</span>
                     </button>
                     <button class="data-btn import-btn" onclick="document.getElementById('importFileInput').click()">
-                        <span class="btn-icon">⬆️</span>
-                        <span class="btn-text">데이터 가져오기</span>
+                        <span class="btn-icon">燧놅툘</span>
+                        <span class="btn-text">?곗씠??媛?몄삤湲?/span>
                     </button>
                     <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importData(event)">
                 </div>
                 <div class="data-management-info">
-                    <small>내보내기: 모든 학습 데이터를 JSON 파일로 저장합니다</small><br>
-                    <small>가져오기: 이전에 저장한 데이터를 불러옵니다 (현재 데이터는 대체됩니다)</small>
+                    <small>?대낫?닿린: 紐⑤뱺 ?숈뒿 ?곗씠?곕? JSON ?뚯씪濡???ν빀?덈떎</small><br>
+                    <small>媛?몄삤湲? ?댁쟾????ν븳 ?곗씠?곕? 遺덈윭?듬땲??(?꾩옱 ?곗씠?곕뒗 ?泥대맗?덈떎)</small>
                 </div>
             </div>
         </div>
 
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
-            시험 전략적 학습 시스템 v2.5.2 | 1차/2차 시험 지원 | 차트 시각화 개선 | 다크 모드 | 데이터 Import/Export
+            ?쒗뿕 ?꾨왂???숈뒿 ?쒖뒪??v2.5.2 | 1李?2李??쒗뿕 吏??| 李⑦듃 ?쒓컖??媛쒖꽑 | ?ㅽ겕 紐⑤뱶 | ?곗씠??Import/Export
         </div>
     </div>
     
-    <!-- 모달들 -->
+    <!-- 紐⑤떖??-->
     <div id="scoreModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">모의고사 점수 추가</h3>
-                <button class="modal-close" onclick="closeModal('scoreModal')">✕</button>
+                <h3 class="modal-title">紐⑥쓽怨좎궗 ?먯닔 異붽?</h3>
+                <button class="modal-close" onclick="closeModal('scoreModal')">??/button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">시험 날짜</label>
+                    <label class="form-label">?쒗뿕 ?좎쭨</label>
                     <input type="date" class="form-input" id="scoreDate">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">점수</label>
-                    <input type="number" step="0.5" class="form-input" id="scoreValue" placeholder="예: 58.5">
+                    <label class="form-label">?먯닔</label>
+                    <input type="number" step="0.5" class="form-input" id="scoreValue" placeholder="?? 58.5">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">메모 (선택)</label>
-                    <input type="text" class="form-input" id="scoreMemo" placeholder="예: 3차 모의고사">
+                    <label class="form-label">硫붾え (?좏깮)</label>
+                    <input type="text" class="form-input" id="scoreMemo" placeholder="?? 3李?紐⑥쓽怨좎궗">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('scoreModal')">취소</button>
-                <button class="modal-btn save" onclick="saveScore()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('scoreModal')">痍⑥냼</button>
+                <button class="modal-btn save" onclick="saveScore()">???/button>
             </div>
         </div>
     </div>
@@ -2539,49 +2537,49 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
     <div id="timeBlockModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">학습 시간 블록 추가</h3>
-                <button class="modal-close" onclick="closeModal('timeBlockModal')">✕</button>
+                <h3 class="modal-title">?숈뒿 ?쒓컙 釉붾줉 異붽?</h3>
+                <button class="modal-close" onclick="closeModal('timeBlockModal')">??/button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">시간대</label>
-                    <input type="text" class="form-input" id="blockTime" placeholder="예: 06:00-08:00">
+                    <label class="form-label">?쒓컙?</label>
+                    <input type="text" class="form-input" id="blockTime" placeholder="?? 06:00-08:00">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">과목</label>
+                    <label class="form-label">怨쇰ぉ</label>
                     <select class="form-select" id="blockSubject">
-                        <optgroup label="1차 시험">
-                            <option value="헌법">헌법</option>
-                            <option value="민법">민법</option>
-                            <option value="상법">상법</option>
-                            <option value="민사집행법">민사집행법</option>
-                            <option value="부동산등기법">부동산등기법</option>
-                            <option value="상업등기법">상업등기법</option>
-                            <option value="공탁법">공탁법</option>
+                        <optgroup label="1李??쒗뿕">
+                            <option value="?뚮쾿">?뚮쾿</option>
+                            <option value="誘쇰쾿">誘쇰쾿</option>
+                            <option value="?곷쾿">?곷쾿</option>
+                            <option value="誘쇱궗吏묓뻾踰?>誘쇱궗吏묓뻾踰?/option>
+                            <option value="遺?숈궛?깃린踰?>遺?숈궛?깃린踰?/option>
+                            <option value="?곸뾽?깃린踰?>?곸뾽?깃린踰?/option>
+                            <option value="怨듯긽踰?>怨듯긽踰?/option>
                         </optgroup>
-                        <optgroup label="2차 시험">
-                            <option value="민법 (2차)">민법 (2차)</option>
-                            <option value="형법 (2차)">형법 (2차)</option>
-                            <option value="형사소송법 (2차)">형사소송법 (2차)</option>
-                            <option value="민사소송법 (2차)">민사소송법 (2차)</option>
-                            <option value="민사사건서류작성 (2차)">민사사건서류작성 (2차)</option>
-                            <option value="부동산등기법 (2차)">부동산등기법 (2차)</option>
-                            <option value="등기신청서류작성 (2차)">등기신청서류작성 (2차)</option>
+                        <optgroup label="2李??쒗뿕">
+                            <option value="誘쇰쾿 (2李?">誘쇰쾿 (2李?</option>
+                            <option value="?뺣쾿 (2李?">?뺣쾿 (2李?</option>
+                            <option value="?뺤궗?뚯넚踰?(2李?">?뺤궗?뚯넚踰?(2李?</option>
+                            <option value="誘쇱궗?뚯넚踰?(2李?">誘쇱궗?뚯넚踰?(2李?</option>
+                            <option value="誘쇱궗?ш굔?쒕쪟?묒꽦 (2李?">誘쇱궗?ш굔?쒕쪟?묒꽦 (2李?</option>
+                            <option value="遺?숈궛?깃린踰?(2李?">遺?숈궛?깃린踰?(2李?</option>
+                            <option value="?깃린?좎껌?쒕쪟?묒꽦 (2李?">?깃린?좎껌?쒕쪟?묒꽦 (2李?</option>
                         </optgroup>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">예상 학습 시간 (시간)</label>
-                    <input type="number" class="form-input" id="blockHours" placeholder="예: 2" min="0.5" step="0.5" value="2">
+                    <label class="form-label">?덉긽 ?숈뒿 ?쒓컙 (?쒓컙)</label>
+                    <input type="number" class="form-input" id="blockHours" placeholder="?? 2" min="0.5" step="0.5" value="2">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">학습 내용</label>
-                    <input type="text" class="form-input" id="blockDetail" placeholder="예: 기출문제 #201-250">
+                    <label class="form-label">?숈뒿 ?댁슜</label>
+                    <input type="text" class="form-input" id="blockDetail" placeholder="?? 湲곗텧臾몄젣 #201-250">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('timeBlockModal')">취소</button>
-                <button class="modal-btn save" onclick="saveTimeBlock()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('timeBlockModal')">痍⑥냼</button>
+                <button class="modal-btn save" onclick="saveTimeBlock()">???/button>
             </div>
         </div>
     </div>
@@ -2589,176 +2587,175 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
     <div id="goalModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">학습 목표 추가</h3>
-                <button class="modal-close" onclick="closeModal('goalModal')">✕</button>
+                <h3 class="modal-title">?숈뒿 紐⑺몴 異붽?</h3>
+                <button class="modal-close" onclick="closeModal('goalModal')">??/button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">목표 내용</label>
-                    <input type="text" class="form-input" id="goalTitle" placeholder="예: 민법 3회독 완료">
+                    <label class="form-label">紐⑺몴 ?댁슜</label>
+                    <input type="text" class="form-input" id="goalTitle" placeholder="?? 誘쇰쾿 3?뚮룆 ?꾨즺">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">목표 날짜</label>
+                    <label class="form-label">紐⑺몴 ?좎쭨</label>
                     <input type="date" class="form-input" id="goalDate">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">현재 진도 (%)</label>
+                    <label class="form-label">?꾩옱 吏꾨룄 (%)</label>
                     <input type="number" min="0" max="100" class="form-input" id="goalProgress" placeholder="0-100" value="0">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('goalModal')">취소</button>
-                <button class="modal-btn save" onclick="saveGoal()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('goalModal')">痍⑥냼</button>
+                <button class="modal-btn save" onclick="saveGoal()">???/button>
             </div>
         </div>
     </div>
 
-    <!-- 시험 날짜 설정 모달 -->
+    <!-- ?쒗뿕 ?좎쭨 ?ㅼ젙 紐⑤떖 -->
     <div id="examDateModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="examDateModalTitle">시험 날짜 설정</h3>
-                <button class="modal-close" onclick="closeModal('examDateModal')">✕</button>
+                <h3 class="modal-title" id="examDateModalTitle">?쒗뿕 ?좎쭨 ?ㅼ젙</h3>
+                <button class="modal-close" onclick="closeModal('examDateModal')">??/button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">시험 날짜</label>
+                    <label class="form-label">?쒗뿕 ?좎쭨</label>
                     <input type="date" class="form-input" id="examDateInput">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">메모 (선택)</label>
-                    <input type="text" class="form-input" id="examDateMemo" placeholder="예: 필기시험">
+                    <label class="form-label">硫붾え (?좏깮)</label>
+                    <input type="text" class="form-input" id="examDateMemo" placeholder="?? ?꾧린?쒗뿕">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('examDateModal')">취소</button>
-                <button class="modal-btn save" onclick="saveExamDate()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('examDateModal')">痍⑥냼</button>
+                <button class="modal-btn save" onclick="saveExamDate()">???/button>
             </div>
         </div>
     </div>
 
-    <!-- 과목 진도 수정 모달 -->
+    <!-- 怨쇰ぉ 吏꾨룄 ?섏젙 紐⑤떖 -->
     <div id="subjectProgressModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="subjectProgressModalTitle">과목 진도 수정</h3>
-                <button class="modal-close" onclick="closeModal('subjectProgressModal')">✕</button>
+                <h3 class="modal-title" id="subjectProgressModalTitle">怨쇰ぉ 吏꾨룄 ?섏젙</h3>
+                <button class="modal-close" onclick="closeModal('subjectProgressModal')">??/button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">완료 문제수</label>
+                    <label class="form-label">?꾨즺 臾몄젣??/label>
                     <input type="number" class="form-input" id="subjectCompleted" min="0">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">목표 문제수</label>
+                    <label class="form-label">紐⑺몴 臾몄젣??/label>
                     <input type="number" class="form-input" id="subjectTotal" min="1">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('subjectProgressModal')">취소</button>
-                <button class="modal-btn save" onclick="saveSubjectProgress()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('subjectProgressModal')">痍⑥냼</button>
+                <button class="modal-btn save" onclick="saveSubjectProgress()">???/button>
             </div>
         </div>
     </div>
 
-    <!-- 주간 학습 시간 수정 모달 -->
+    <!-- 二쇨컙 ?숈뒿 ?쒓컙 ?섏젙 紐⑤떖 -->
     <div id="weeklyHoursModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="weeklyHoursModalTitle">학습 시간 수정</h3>
-                <button class="modal-close" onclick="closeModal('weeklyHoursModal')">✕</button>
+                <h3 class="modal-title" id="weeklyHoursModalTitle">?숈뒿 ?쒓컙 ?섏젙</h3>
+                <button class="modal-close" onclick="closeModal('weeklyHoursModal')">??/button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">학습 시간 (시간)</label>
+                    <label class="form-label">?숈뒿 ?쒓컙 (?쒓컙)</label>
                     <input type="number" class="form-input" id="weeklyHoursInput" min="0" step="0.5">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('weeklyHoursModal')">취소</button>
-                <button class="modal-btn save" onclick="saveWeeklyHours()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('weeklyHoursModal')">痍⑥냼</button>
+                <button class="modal-btn save" onclick="saveWeeklyHours()">???/button>
             </div>
         </div>
     </div>
 
-    <!-- 확인 모달 (confirm 대체) -->
+    <!-- ?뺤씤 紐⑤떖 (confirm ?泥? -->
     <div id="confirmModal" class="modal confirm-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="confirmModalTitle">확인</h3>
-                <button class="modal-close" onclick="closeModal('confirmModal')">✕</button>
+                <h3 class="modal-title" id="confirmModalTitle">?뺤씤</h3>
+                <button class="modal-close" onclick="closeModal('confirmModal')">??/button>
             </div>
             <div class="modal-body">
-                <div class="confirm-message" id="confirmMessage">정말 실행하시겠습니까?</div>
+                <div class="confirm-message" id="confirmMessage">?뺣쭚 ?ㅽ뻾?섏떆寃좎뒿?덇퉴?</div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('confirmModal')">취소</button>
-                <button class="modal-btn save" id="confirmOkBtn">확인</button>
+                <button class="modal-btn cancel" onclick="closeModal('confirmModal')">痍⑥냼</button>
+                <button class="modal-btn save" id="confirmOkBtn">?뺤씤</button>
             </div>
         </div>
     </div>
 
-    <!-- 틀린 문제 노트 모달 -->
+    <!-- ?由?臾몄젣 ?명듃 紐⑤떖 -->
     <div id="wrongNoteModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">틀린 문제 노트 추가</h3>
-                <button class="modal-close" onclick="closeModal('wrongNoteModal')">✕</button>
+                <h3 class="modal-title">?由?臾몄젣 ?명듃 異붽?</h3>
+                <button class="modal-close" onclick="closeModal('wrongNoteModal')">??/button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">과목명</label>
-                    <input type="text" class="form-input" id="wrongSubject" placeholder="예: 민법">
+                    <label class="form-label">怨쇰ぉ紐?/label>
+                    <input type="text" class="form-input" id="wrongSubject" placeholder="?? 誘쇰쾿">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">틀린 문제 번호 또는 내용</label>
-                    <input type="text" class="form-input" id="wrongQuestion" placeholder="예: 2024년 1회 35번">
+                    <label class="form-label">?由?臾몄젣 踰덊샇 ?먮뒗 ?댁슜</label>
+                    <input type="text" class="form-input" id="wrongQuestion" placeholder="?? 2024??1??35踰?>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">틀린 이유</label>
-                    <textarea class="form-input" id="wrongReason" rows="3" placeholder="이유를 입력하세요"></textarea>
+                    <label class="form-label">?由??댁쑀</label>
+                    <textarea class="form-input" id="wrongReason" rows="3" placeholder="?댁쑀瑜??낅젰?섏꽭??></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('wrongNoteModal')">취소</button>
-                <button class="modal-btn save" onclick="saveWrongNote()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('wrongNoteModal')">痍⑥냼</button>
+                <button class="modal-btn save" onclick="saveWrongNote()">???/button>
             </div>
         </div>
     </div>
 
-    <!-- 데이터 가져오기 확인 모달 -->
+    <!-- ?곗씠??媛?몄삤湲??뺤씤 紐⑤떖 -->
     <div id="importConfirmModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">데이터 가져오기 확인</h3>
-                <button class="modal-close" onclick="closeModal('importConfirmModal')">✕</button>
+                <h3 class="modal-title">?곗씠??媛?몄삤湲??뺤씤</h3>
+                <button class="modal-close" onclick="closeModal('importConfirmModal')">??/button>
             </div>
             <div class="modal-body">
                 <div class="confirm-message" style="margin-bottom: 20px; color: var(--warning-dark); font-weight: 600;">
-                    ⚠️ 현재 데이터를 가져온 데이터로 교체하시겠습니까?<br>
-                    <span style="font-size: 0.9rem; color: var(--danger-color);">현재 데이터는 완전히 삭제되며 복구할 수 없습니다.</span>
+                    ?좑툘 ?꾩옱 ?곗씠?곕? 媛?몄삩 ?곗씠?곕줈 援먯껜?섏떆寃좎뒿?덇퉴?<br>
+                    <span style="font-size: 0.9rem; color: var(--danger-color);">?꾩옱 ?곗씠?곕뒗 ?꾩쟾????젣?섎ŉ 蹂듦뎄?????놁뒿?덈떎.</span>
                 </div>
                 <div class="import-preview" id="importPreviewContainer">
-                    <!-- 가져올 데이터 미리보기가 여기에 표시됩니다 -->
+                    <!-- 媛?몄삱 ?곗씠??誘몃━蹂닿린媛 ?ш린???쒖떆?⑸땲??-->
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('importConfirmModal')">취소</button>
-                <button class="modal-btn save" id="confirmImportBtn" style="background: var(--danger-color);">확인 및 가져오기</button>
+                <button class="modal-btn cancel" onclick="closeModal('importConfirmModal')">痍⑥냼</button>
+                <button class="modal-btn save" id="confirmImportBtn" style="background: var(--danger-color);">?뺤씤 諛?媛?몄삤湲?/button>
             </div>
         </div>
     </div>
 
-    <!-- 토스트 알림 컨테이너 -->
+    <!-- ?좎뒪???뚮┝ 而⑦뀒?대꼫 -->
     <div id="toastContainer" class="toast-container"></div>
 
     <script>
-        // 데이터 초기화
-        let studyData = {
-            examType: localStorage.getItem('examType') || '1차',
+        // ?곗씠??珥덇린??        let studyData = {
+            examType: localStorage.getItem('examType') || '1李?,
             examDates: {
-                '1차': null,  // Format: 'YYYY-MM-DD'
-                '2차': null
+                '1李?: null,  // Format: 'YYYY-MM-DD'
+                '2李?: null
             },
             timer: {
                 seconds: 0,
@@ -2773,22 +2770,22 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 completedSessions: 0
             },
             subjects1st: [
-                { name: '헌법', total: 500, completed: 320, rotations: [true, true, false, false, false, false, false] },
-                { name: '민법', total: 800, completed: 580, rotations: [true, true, true, false, false, false, false] },
-                { name: '상법', total: 500, completed: 280, rotations: [true, true, false, false, false, false, false] },
-                { name: '민사집행법', total: 400, completed: 180, rotations: [true, false, false, false, false, false, false] },
-                { name: '부동산등기법', total: 500, completed: 420, rotations: [true, true, true, true, false, false, false] },
-                { name: '상업등기법', total: 300, completed: 150, rotations: [true, false, false, false, false, false, false] },
-                { name: '공탁법', total: 300, completed: 200, rotations: [true, true, false, false, false, false, false] }
+                { name: '?뚮쾿', total: 500, completed: 320, rotations: [true, true, false, false, false, false, false] },
+                { name: '誘쇰쾿', total: 800, completed: 580, rotations: [true, true, true, false, false, false, false] },
+                { name: '?곷쾿', total: 500, completed: 280, rotations: [true, true, false, false, false, false, false] },
+                { name: '誘쇱궗吏묓뻾踰?, total: 400, completed: 180, rotations: [true, false, false, false, false, false, false] },
+                { name: '遺?숈궛?깃린踰?, total: 500, completed: 420, rotations: [true, true, true, true, false, false, false] },
+                { name: '?곸뾽?깃린踰?, total: 300, completed: 150, rotations: [true, false, false, false, false, false, false] },
+                { name: '怨듯긽踰?, total: 300, completed: 200, rotations: [true, true, false, false, false, false, false] }
             ],
             subjects2nd: [
-                { name: '민법 (2차)', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                { name: '형법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                { name: '형사소송법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                { name: '민사소송법 (2차)', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                { name: '민사사건서류작성 (2차)', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                { name: '부동산등기법 (2차)', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                { name: '등기신청서류작성 (2차)', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] }
+                { name: '誘쇰쾿 (2李?', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '?뺣쾿 (2李?', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '?뺤궗?뚯넚踰?(2李?', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '誘쇱궗?뚯넚踰?(2李?', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '誘쇱궗?ш굔?쒕쪟?묒꽦 (2李?', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '遺?숈궛?깃린踰?(2李?', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                { name: '?깃린?좎껌?쒕쪟?묒꽦 (2李?', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] }
             ],
             subjects: [],  // Will be set dynamically based on examType
             timeBlocks: [],
@@ -2808,48 +2805,48 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             manualSubjectTime: {}  // Manually edited time per subject (overrides calculated time)
         };
         
-        // 로컬 스토리지에서 데이터 로드
+        // 濡쒖뺄 ?ㅽ넗由ъ??먯꽌 ?곗씠??濡쒕뱶
         function loadData() {
             const saved = localStorage.getItem('studyData');
             if (saved) {
                 const loadedData = JSON.parse(saved);
                 studyData = { ...studyData, ...loadedData };
 
-                // 2차 과목이 없거나 구버전인 경우 새로운 기본값 설정
+                // 2李?怨쇰ぉ???녾굅??援щ쾭?꾩씤 寃쎌슦 ?덈줈??湲곕낯媛??ㅼ젙
                 if (!studyData.subjects2nd || studyData.subjects2nd.length === 4) {
                     studyData.subjects2nd = [
-                        { name: '민법 (2차)', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                        { name: '형법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                        { name: '형사소송법 (2차)', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                        { name: '민사소송법 (2차)', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                        { name: '민사사건서류작성 (2차)', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                        { name: '부동산등기법 (2차)', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
-                        { name: '등기신청서류작성 (2차)', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] }
+                        { name: '誘쇰쾿 (2李?', total: 100, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '?뺣쾿 (2李?', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '?뺤궗?뚯넚踰?(2李?', total: 50, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '誘쇱궗?뚯넚踰?(2李?', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '誘쇱궗?ш굔?쒕쪟?묒꽦 (2李?', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '遺?숈궛?깃린踰?(2李?', total: 70, completed: 0, rotations: [false, false, false, false, false, false, false] },
+                        { name: '?깃린?좎껌?쒕쪟?묒꽦 (2李?', total: 30, completed: 0, rotations: [false, false, false, false, false, false, false] }
                     ];
                 }
 
-                // 1차 과목이 없으면 기본값 설정 (구버전 호환성)
+                // 1李?怨쇰ぉ???놁쑝硫?湲곕낯媛??ㅼ젙 (援щ쾭???명솚??
                 if (!studyData.subjects1st && studyData.subjects) {
                     studyData.subjects1st = studyData.subjects;
                 }
             }
 
-            // 시험 타입에 따라 과목 설정
-            // 시험 유형 문자열 정규화 (인코딩 이슈 대비)
+            // ?쒗뿕 ??낆뿉 ?곕씪 怨쇰ぉ ?ㅼ젙
+            // ?쒗뿕 ?좏삎 臾몄옄???뺢퇋??(?몄퐫???댁뒋 ?鍮?
             if (!studyData.examType || (studyData.examType + '').trim() === '') {
-                studyData.examType = '1차';
+                studyData.examType = '1李?;
             } else {
-                studyData.examType = (studyData.examType + '').trim().includes('2') ? '2차' : '1차';
+                studyData.examType = (studyData.examType + '').trim().includes('2') ? '2李? : '1李?;
             }
 
-            // 시험 일정 키 보정
+            // ?쒗뿕 ?쇱젙 ??蹂댁젙
             if (!studyData.examDates || typeof studyData.examDates !== 'object') {
-                studyData.examDates = { '1차': null, '2차': null };
+                studyData.examDates = { '1李?: null, '2李?: null };
             }
 
             updateSubjectsByExamType();
 
-            // 오늘 타이머 데이터 로드
+            // ?ㅻ뒛 ??대㉧ ?곗씠??濡쒕뱶
             const today = new Date().toISOString().split('T')[0];
             const todayTimer = localStorage.getItem(`timer_${today}`);
             if (todayTimer) {
@@ -2857,25 +2854,23 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
 
-        // 시험 타입에 따라 과목 설정
+        // ?쒗뿕 ??낆뿉 ?곕씪 怨쇰ぉ ?ㅼ젙
         function updateSubjectsByExamType() {
-            if (studyData.examType === '2차') {
+            if (studyData.examType === '2李?) {
                 studyData.subjects = studyData.subjects2nd;
             } else {
                 studyData.subjects = studyData.subjects1st;
             }
         }
         
-        // 데이터 저장
-        function saveData() {
+        // ?곗씠?????        function saveData() {
             localStorage.setItem('studyData', JSON.stringify(studyData));
             
-            // 오늘 타이머 별도 저장
-            const today = new Date().toISOString().split('T')[0];
+            // ?ㅻ뒛 ??대㉧ 蹂꾨룄 ???            const today = new Date().toISOString().split('T')[0];
             localStorage.setItem(`timer_${today}`, studyData.timer.seconds);
         }
         
-        // 초기화 함수
+        // 珥덇린???⑥닔
         function init() {
             loadData();
             updateDDay();
@@ -2893,17 +2888,17 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             renderAnalytics();
             renderGoals();
 
-            // 시험 타입 및 모드 설정
+            // ?쒗뿕 ???諛?紐⑤뱶 ?ㅼ젙
             document.querySelectorAll('.mode-btn').forEach(btn => {
                 const btnText = btn.textContent.trim();
-                // 시험 타입 버튼
-                if (btnText === '1차 시험' || btnText === '2차 시험') {
+                // ?쒗뿕 ???踰꾪듉
+                if (btnText === '1李??쒗뿕' || btnText === '2李??쒗뿕') {
                     btn.classList.remove('active');
-                    if (btnText === studyData.examType + ' 시험') {
+                    if (btnText === studyData.examType + ' ?쒗뿕') {
                         btn.classList.add('active');
                     }
                 }
-                // 학습 모드 버튼
+                // ?숈뒿 紐⑤뱶 踰꾪듉
                 else {
                     btn.classList.remove('active');
                     if(btnText.includes(studyData.mode)) {
@@ -2912,35 +2907,35 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 }
             });
             
-            // 기본 시간 블록이 없으면 추가
+            // 湲곕낯 ?쒓컙 釉붾줉???놁쑝硫?異붽?
             if (studyData.timeBlocks.length === 0) {
                 studyData.timeBlocks = [
-                    { id: Date.now(), time: '05:00-07:00', subject: '민법', detail: '기출문제 #201-250', completed: false },
-                    { id: Date.now() + 1, time: '19:00-22:00', subject: '헌법', detail: '최신판례 + 기출 회독', completed: false }
+                    { id: Date.now(), time: '05:00-07:00', subject: '誘쇰쾿', detail: '湲곗텧臾몄젣 #201-250', completed: false },
+                    { id: Date.now() + 1, time: '19:00-22:00', subject: '?뚮쾿', detail: '理쒖떊?먮? + 湲곗텧 ?뚮룆', completed: false }
                 ];
                 saveData();
                 renderTimeBlocks();
             }
             
-            // 기본 점수가 없으면 추가
+            // 湲곕낯 ?먯닔媛 ?놁쑝硫?異붽?
             if (studyData.mockScores.length === 0) {
                 studyData.mockScores = [
-                    { id: Date.now(), date: '2024-09-29', score: 52.5, memo: '1차 모의' },
-                    { id: Date.now() + 1, date: '2024-10-06', score: 55.0, memo: '2차 모의' },
-                    { id: Date.now() + 2, date: '2024-10-13', score: 58.5, memo: '3차 모의' }
+                    { id: Date.now(), date: '2024-09-29', score: 52.5, memo: '1李?紐⑥쓽' },
+                    { id: Date.now() + 1, date: '2024-10-06', score: 55.0, memo: '2李?紐⑥쓽' },
+                    { id: Date.now() + 2, date: '2024-10-13', score: 58.5, memo: '3李?紐⑥쓽' }
                 ];
                 saveData();
                 renderMockScores();
             }
         }
         
-        // D-Day 계산 및 업데이트 (1차/2차)
+        // D-Day 怨꾩궛 諛??낅뜲?댄듃 (1李?2李?
         function updateDDay() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // 1차 시험 D-day
-            const exam1stDate = studyData.examDates?.['1차'];
+            // 1李??쒗뿕 D-day
+            const exam1stDate = studyData.examDates?.['1李?];
             const card1st = document.getElementById('dday-1st-card');
             if (exam1stDate) {
                 const targetDate = new Date(exam1stDate);
@@ -2964,12 +2959,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 card1st.className = `dday-card ${urgencyClass}`;
             } else {
                 document.getElementById('dday-1st-value').textContent = 'D-?';
-                document.getElementById('dday-1st-date').textContent = '날짜 미설정';
+                document.getElementById('dday-1st-date').textContent = '?좎쭨 誘몄꽕??;
                 card1st.className = 'dday-card';
             }
 
-            // 2차 시험 D-day
-            const exam2ndDate = studyData.examDates?.['2차'];
+            // 2李??쒗뿕 D-day
+            const exam2ndDate = studyData.examDates?.['2李?];
             const card2nd = document.getElementById('dday-2nd-card');
             if (exam2ndDate) {
                 const targetDate = new Date(exam2ndDate);
@@ -2993,17 +2988,17 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 card2nd.className = `dday-card ${urgencyClass}`;
             } else {
                 document.getElementById('dday-2nd-value').textContent = 'D-?';
-                document.getElementById('dday-2nd-date').textContent = '날짜 미설정';
+                document.getElementById('dday-2nd-date').textContent = '?좎쭨 誘몄꽕??;
                 card2nd.className = 'dday-card';
             }
         }
 
-        // 시험 날짜 설정 모달
+        // ?쒗뿕 ?좎쭨 ?ㅼ젙 紐⑤떖
         let editingExamType = null;
 
         function editExamDate(examType) {
             editingExamType = examType;
-            document.getElementById('examDateModalTitle').textContent = `${examType} 시험 날짜 설정`;
+            document.getElementById('examDateModalTitle').textContent = `${examType} ?쒗뿕 ?좎쭨 ?ㅼ젙`;
 
             const currentDate = studyData.examDates?.[examType];
             document.getElementById('examDateInput').value = currentDate || '';
@@ -3024,30 +3019,30 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 saveData();
                 updateDDay();
                 closeModal('examDateModal');
-                showToast(`${editingExamType} 시험 날짜가 설정되었습니다`);
+                showToast(`${editingExamType} ?쒗뿕 ?좎쭨媛 ?ㅼ젙?섏뿀?듬땲??);
 
                 editingExamType = null;
             } else {
-                showToast('시험 날짜를 입력해주세요', 'error');
+                showToast('?쒗뿕 ?좎쭨瑜??낅젰?댁＜?몄슂', 'error');
             }
         }
         
-        // 시험 타입 설정
+        // ?쒗뿕 ????ㅼ젙
         function setExamType(type) {
             console.log(`[Exam Type] Switching to ${type}`);
             studyData.examType = type;
             localStorage.setItem('examType', type);
 
-            // 과목 업데이트
+            // 怨쇰ぉ ?낅뜲?댄듃
             updateSubjectsByExamType();
 
             saveData();
 
             // Update button states
             document.querySelectorAll('.mode-btn').forEach(btn => {
-                if (btn.textContent.includes('시험')) {
+                if (btn.textContent.includes('?쒗뿕')) {
                     btn.classList.remove('active');
-                    if (btn.textContent === type + ' 시험') {
+                    if (btn.textContent === type + ' ?쒗뿕') {
                         btn.classList.add('active');
                     }
                 }
@@ -3073,11 +3068,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             updateStreak();
 
             console.log(`[Exam Type] All components updated for ${type}`);
-            showToast(`${type} 시험 모드로 변경되었습니다. 모든 데이터가 동기화되었습니다.`, 'success');
+            showToast(`${type} ?쒗뿕 紐⑤뱶濡?蹂寃쎈릺?덉뒿?덈떎. 紐⑤뱺 ?곗씠?곌? ?숆린?붾릺?덉뒿?덈떎.`, 'success');
         }
 
-        // 시간 블록 렌더링
-        function renderTimeBlocks() {
+        // ?쒓컙 釉붾줉 ?뚮뜑留?        function renderTimeBlocks() {
             const container = document.getElementById('time-blocks-container');
             container.innerHTML = '';
 
@@ -3085,48 +3079,47 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const blockEl = document.createElement('div');
                 blockEl.className = `time-block ${block.completed ? 'completed' : ''}`;
 
-                // 액션 버튼 컨테이너
+                // ?≪뀡 踰꾪듉 而⑦뀒?대꼫
                 const actionsDiv = document.createElement('div');
                 actionsDiv.className = 'time-block-actions';
 
-                // 수정 버튼
+                // ?섏젙 踰꾪듉
                 const editBtn = document.createElement('button');
                 editBtn.className = 'time-block-btn';
-                editBtn.textContent = '✏️';
+                editBtn.textContent = '?륅툘';
                 editBtn.onclick = () => editTimeBlock(block.id);
 
-                // 삭제 버튼
+                // ??젣 踰꾪듉
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'time-block-btn';
-                deleteBtn.textContent = '🗑️';
+                deleteBtn.textContent = '?뿊截?;
                 deleteBtn.onclick = () => deleteTimeBlock(block.id);
 
                 actionsDiv.appendChild(editBtn);
                 actionsDiv.appendChild(deleteBtn);
 
-                // 시간 라벨
+                // ?쒓컙 ?쇰꺼
                 const timeLabel = document.createElement('div');
                 timeLabel.className = 'time-label';
                 const hours = block.hours || 2;
-                timeLabel.textContent = `⏰ ${block.time} (${hours}h)`;
+                timeLabel.textContent = `??${block.time} (${hours}h)`;
 
-                // 과목명
-                const subjectDiv = document.createElement('div');
+                // 怨쇰ぉ紐?                const subjectDiv = document.createElement('div');
                 subjectDiv.className = 'time-subject';
                 subjectDiv.textContent = block.subject;
 
-                // 상세 내용
+                // ?곸꽭 ?댁슜
                 const detailDiv = document.createElement('div');
                 detailDiv.className = 'time-detail';
                 detailDiv.textContent = block.detail;
 
-                // 완료 버튼
+                // ?꾨즺 踰꾪듉
                 const checkBtn = document.createElement('button');
                 checkBtn.className = `check-btn ${block.completed ? 'checked' : ''}`;
-                checkBtn.textContent = block.completed ? '완료✓' : '완료';
+                checkBtn.textContent = block.completed ? '?꾨즺?? : '?꾨즺';
                 checkBtn.onclick = () => toggleTimeBlock(block.id);
 
-                // 모두 추가
+                // 紐⑤몢 異붽?
                 blockEl.appendChild(actionsDiv);
                 blockEl.appendChild(timeLabel);
                 blockEl.appendChild(subjectDiv);
@@ -3137,7 +3130,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             });
         }
         
-        // 시간 블록 토글
+        // ?쒓컙 釉붾줉 ?좉?
         function toggleTimeBlock(id) {
             const block = studyData.timeBlocks.find(b => b.id === id);
             if (block) {
@@ -3148,7 +3141,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 if (block.completed) {
                     studyData.timer.seconds += seconds;
                     updateTimerDisplay();
-                    showToast(`학습 완료! ${hours}시간이 추가되었습니다 👏`);
+                    showToast(`?숈뒿 ?꾨즺! ${hours}?쒓컙??異붽??섏뿀?듬땲???몡`);
                 } else {
                     studyData.timer.seconds = Math.max(0, studyData.timer.seconds - seconds);
                     updateTimerDisplay();
@@ -3158,13 +3151,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
         
-        // 시간 블록 추가
+        // ?쒓컙 釉붾줉 異붽?
         function addTimeBlock() {
             document.getElementById('timeBlockModal').classList.add('show');
         }
         
-        // 시간 블록 저장
-        function saveTimeBlock() {
+        // ?쒓컙 釉붾줉 ???        function saveTimeBlock() {
             const time = document.getElementById('blockTime').value;
             const subject = document.getElementById('blockSubject').value;
             const hours = parseFloat(document.getElementById('blockHours').value) || 2;
@@ -3172,18 +3164,18 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
             if (time && subject && detail) {
                 if (editingBlockId) {
-                    // 수정 모드
+                    // ?섏젙 紐⑤뱶
                     const block = studyData.timeBlocks.find(b => b.id === editingBlockId);
                     if (block) {
                         block.time = time;
                         block.subject = subject;
                         block.hours = hours;
                         block.detail = detail;
-                        showToast('학습 블록이 수정되었습니다');
+                        showToast('?숈뒿 釉붾줉???섏젙?섏뿀?듬땲??);
                     }
                     editingBlockId = null;
                 } else {
-                    // 추가 모드
+                    // 異붽? 紐⑤뱶
                     studyData.timeBlocks.push({
                         id: Date.now(),
                         time,
@@ -3192,7 +3184,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         detail,
                         completed: false
                     });
-                    showToast('학습 블록이 추가되었습니다');
+                    showToast('?숈뒿 釉붾줉??異붽??섏뿀?듬땲??);
                 }
                 saveData();
                 renderTimeBlocks();
@@ -3202,21 +3194,21 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 document.getElementById('blockTime').value = '';
                 document.getElementById('blockDetail').value = '';
                 document.getElementById('blockHours').value = '2';
-                document.querySelector('#timeBlockModal .modal-title').textContent = '학습 시간 블록 추가';
+                document.querySelector('#timeBlockModal .modal-title').textContent = '?숈뒿 ?쒓컙 釉붾줉 異붽?';
             }
         }
         
-        // 시간 블록 삭제
+        // ?쒓컙 釉붾줉 ??젣
         function deleteTimeBlock(id) {
-            showConfirm('정말 삭제하시겠습니까?', () => {
+            showConfirm('?뺣쭚 ??젣?섏떆寃좎뒿?덇퉴?', () => {
                 studyData.timeBlocks = studyData.timeBlocks.filter(b => b.id !== id);
                 saveData();
                 renderTimeBlocks();
-                showToast('삭제되었습니다');
+                showToast('??젣?섏뿀?듬땲??);
             });
         }
         
-        // 시간 블록 수정 (모달 사용)
+        // ?쒓컙 釉붾줉 ?섏젙 (紐⑤떖 ?ъ슜)
         let editingBlockId = null;
 
         function editTimeBlock(id) {
@@ -3227,13 +3219,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 document.getElementById('blockSubject').value = block.subject;
                 document.getElementById('blockHours').value = block.hours || 2;
                 document.getElementById('blockDetail').value = block.detail;
-                document.querySelector('#timeBlockModal .modal-title').textContent = '학습 시간 블록 수정';
+                document.querySelector('#timeBlockModal .modal-title').textContent = '?숈뒿 ?쒓컙 釉붾줉 ?섏젙';
                 document.getElementById('timeBlockModal').classList.add('show');
             }
         }
         
-        // 회독 트래커 렌더링
-        function renderRotationTracker() {
+        // ?뚮룆 ?몃옒而??뚮뜑留?        function renderRotationTracker() {
             const container = document.getElementById('rotation-tracker');
             container.innerHTML = '';
             
@@ -3260,12 +3251,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             });
         }
         
-        // 회독 토글
+        // ?뚮룆 ?좉?
         function toggleRotation(subjectIdx, rotationIdx) {
             const subject = studyData.subjects[subjectIdx];
             subject.rotations[rotationIdx] = !subject.rotations[rotationIdx];
             
-            // 이전 회독이 완료되지 않았으면 완료 처리
+            // ?댁쟾 ?뚮룆???꾨즺?섏? ?딆븯?쇰㈃ ?꾨즺 泥섎━
             for (let i = 0; i < rotationIdx; i++) {
                 subject.rotations[i] = true;
             }
@@ -3274,23 +3265,22 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             renderRotationTracker();
             
             if (subject.rotations[rotationIdx]) {
-                showToast(`${subject.name} ${rotationIdx + 1}회독 완료! 🎉`);
+                showToast(`${subject.name} ${rotationIdx + 1}?뚮룆 ?꾨즺! ?럦`);
             }
         }
         
-        // 회독 초기화
-        function resetRotations() {
-            showConfirm('모든 회독 기록을 초기화하시겠습니까?', () => {
+        // ?뚮룆 珥덇린??        function resetRotations() {
+            showConfirm('紐⑤뱺 ?뚮룆 湲곕줉??珥덇린?뷀븯?쒓쿋?듬땲源?', () => {
                 studyData.subjects.forEach(subject => {
                     subject.rotations = [false, false, false, false, false, false, false];
                 });
                 saveData();
                 renderRotationTracker();
-                showToast('회독 기록이 초기화되었습니다');
+                showToast('?뚮룆 湲곕줉??珥덇린?붾릺?덉뒿?덈떎');
             });
         }
         
-        // 타이머 기능
+        // ??대㉧ 湲곕뒫
         function startTimer() {
             if (!studyData.timer.isRunning) {
                 studyData.timer.isRunning = true;
@@ -3298,10 +3288,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     studyData.timer.seconds++;
                     updateTimerDisplay();
                     
-                    // 30분마다 자동 저장
-                    if (studyData.timer.seconds % 1800 === 0) {
+                    // 30遺꾨쭏???먮룞 ???                    if (studyData.timer.seconds % 1800 === 0) {
                         saveData();
-                        showToast('학습 진도가 자동 저장되었습니다');
+                        showToast('?숈뒿 吏꾨룄媛 ?먮룞 ??λ릺?덉뒿?덈떎');
                     }
                 }, 1000);
             }
@@ -3314,13 +3303,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         function resetTimer() {
-            showConfirm('정말 리셋하시겠습니까?', () => {
+            showConfirm('?뺣쭚 由ъ뀑?섏떆寃좎뒿?덇퉴?', () => {
                 studyData.timer.isRunning = false;
                 clearInterval(studyData.timer.interval);
                 studyData.timer.seconds = 0;
                 updateTimerDisplay();
                 saveData();
-                showToast('타이머가 리셋되었습니다');
+                showToast('??대㉧媛 由ъ뀑?섏뿀?듬땲??);
             });
         }
         
@@ -3333,7 +3322,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
 
-        // 포모도로 타이머 기능
+        // ?щえ?꾨줈 ??대㉧ 湲곕뒫
         function startPomodoro() {
             if (!studyData.pomodoro.isRunning) {
                 studyData.pomodoro.isRunning = true;
@@ -3352,15 +3341,15 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                             studyData.pomodoro.completedSessions++;
                             studyData.pomodoro.mode = 'break';
                             studyData.pomodoro.seconds = 300; // 5 minutes break
-                            showToast('작업 세션 완료! 5분 휴식 시작 🎉');
-                            document.getElementById('pomodoro-mode').textContent = '휴식 시간';
+                            showToast('?묒뾽 ?몄뀡 ?꾨즺! 5遺??댁떇 ?쒖옉 ?럦');
+                            document.getElementById('pomodoro-mode').textContent = '?댁떇 ?쒓컙';
                             document.getElementById('pomodoro-mode').className = 'pomodoro-mode break';
                         } else {
                             // Break completed
                             studyData.pomodoro.mode = 'work';
                             studyData.pomodoro.seconds = 1500; // 25 minutes work
-                            showToast('휴식 완료! 새로운 작업 세션 시작 💪');
-                            document.getElementById('pomodoro-mode').textContent = '작업 세션';
+                            showToast('?댁떇 ?꾨즺! ?덈줈???묒뾽 ?몄뀡 ?쒖옉 ?뮞');
+                            document.getElementById('pomodoro-mode').textContent = '?묒뾽 ?몄뀡';
                             document.getElementById('pomodoro-mode').className = 'pomodoro-mode work';
                         }
                         updatePomodoroDisplay();
@@ -3381,17 +3370,17 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         function resetPomodoro() {
-            showConfirm('포모도로 타이머를 리셋하시겠습니까?', () => {
+            showConfirm('?щえ?꾨줈 ??대㉧瑜?由ъ뀑?섏떆寃좎뒿?덇퉴?', () => {
                 pausePomodoro();
                 studyData.pomodoro.seconds = 1500; // Reset to 25 minutes
                 studyData.pomodoro.mode = 'work';
                 studyData.pomodoro.completedSessions = 0;
                 updatePomodoroDisplay();
                 document.getElementById('pomodoro-count').textContent = '0';
-                document.getElementById('pomodoro-mode').textContent = '작업 세션';
+                document.getElementById('pomodoro-mode').textContent = '?묒뾽 ?몄뀡';
                 document.getElementById('pomodoro-mode').className = 'pomodoro-mode work';
                 saveData();
-                showToast('포모도로 타이머가 리셋되었습니다');
+                showToast('?щえ?꾨줈 ??대㉧媛 由ъ뀑?섏뿀?듬땲??);
             });
         }
 
@@ -3425,12 +3414,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
 
-        // 주간 통계 렌더링
-        function renderWeeklyStats() {
+        // 二쇨컙 ?듦퀎 ?뚮뜑留?        function renderWeeklyStats() {
             const container = document.getElementById('weekly-stats');
             container.innerHTML = '';
             
-            const days = ['월', '화', '수', '목', '금', '토', '일'];
+            const days = ['??, '??, '??, '紐?, '湲?, '??, '??];
             const today = new Date().getDay();
             const adjustedToday = today === 0 ? 6 : today - 1;
             
@@ -3450,12 +3438,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             });
         }
         
-        // 일일 시간 업데이트 - 모달 사용
+        // ?쇱씪 ?쒓컙 ?낅뜲?댄듃 - 紐⑤떖 ?ъ슜
         let editingWeekDay = null;
 
         function updateDayHours(day) {
             editingWeekDay = day;
-            document.getElementById('weeklyHoursModalTitle').textContent = `${day}요일 학습 시간 수정`;
+            document.getElementById('weeklyHoursModalTitle').textContent = `${day}?붿씪 ?숈뒿 ?쒓컙 ?섏젙`;
             document.getElementById('weeklyHoursInput').value = studyData.weeklyHours[day] || 0;
             document.getElementById('weeklyHoursModal').classList.add('show');
         }
@@ -3471,15 +3459,14 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 renderWeeklyStats();
                 updateAnalytics();
                 closeModal('weeklyHoursModal');
-                showToast(`${editingWeekDay}요일 학습 시간이 업데이트되었습니다`);
+                showToast(`${editingWeekDay}?붿씪 ?숈뒿 ?쒓컙???낅뜲?댄듃?섏뿀?듬땲??);
                 editingWeekDay = null;
             } else {
-                showToast('올바른 시간을 입력해주세요', 'error');
+                showToast('?щ컮瑜??쒓컙???낅젰?댁＜?몄슂', 'error');
             }
         }
         
-        // 과목별 진도 렌더링
-        function renderSubjectProgress() {
+        // 怨쇰ぉ蹂?吏꾨룄 ?뚮뜑留?        function renderSubjectProgress() {
             const container = document.getElementById('subject-progress');
             container.innerHTML = '';
 
@@ -3488,16 +3475,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const div = document.createElement('div');
                 div.className = 'progress-item';
 
-                // 헤더 생성
+                // ?ㅻ뜑 ?앹꽦
                 const header = document.createElement('div');
                 header.className = 'progress-header';
                 header.innerHTML = `
                     <span class="progress-label">${subject.name}</span>
-                    <span class="progress-value">${subject.completed}/${subject.total} 문제</span>
+                    <span class="progress-value">${subject.completed}/${subject.total} 臾몄젣</span>
                 `;
                 header.onclick = () => updateProgress(idx);
 
-                // 프로그레스 바 생성
+                // ?꾨줈洹몃젅??諛??앹꽦
                 const progressBar = document.createElement('div');
                 progressBar.className = 'progress-bar';
                 progressBar.innerHTML = `
@@ -3511,14 +3498,14 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             });
         }
 
-        // 진도 업데이트 - 모달 사용
+        // 吏꾨룄 ?낅뜲?댄듃 - 紐⑤떖 ?ъ슜
         let editingSubjectIdx = null;
 
         function updateProgress(idx) {
             const subject = studyData.subjects[idx];
             editingSubjectIdx = idx;
 
-            document.getElementById('subjectProgressModalTitle').textContent = `${subject.name} 진도 수정`;
+            document.getElementById('subjectProgressModalTitle').textContent = `${subject.name} 吏꾨룄 ?섏젙`;
             document.getElementById('subjectCompleted').value = subject.completed;
             document.getElementById('subjectTotal').value = subject.total;
             document.getElementById('subjectProgressModal').classList.add('show');
@@ -3535,8 +3522,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 subject.completed = completed;
                 subject.total = Math.max(total, 1);
 
-                // 실제 데이터 소스에도 반영
-                if (studyData.examType === '2차') {
+                // ?ㅼ젣 ?곗씠???뚯뒪?먮룄 諛섏쁺
+                if (studyData.examType === '2李?) {
                     studyData.subjects2nd[editingSubjectIdx] = subject;
                 } else {
                     studyData.subjects1st[editingSubjectIdx] = subject;
@@ -3545,21 +3532,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 saveData();
                 renderSubjectProgress();
                 closeModal('subjectProgressModal');
-                showToast(`${subject.name} 진도가 업데이트되었습니다 (${subject.completed}/${subject.total})`);
+                showToast(`${subject.name} 吏꾨룄媛 ?낅뜲?댄듃?섏뿀?듬땲??(${subject.completed}/${subject.total})`);
 
                 editingSubjectIdx = null;
             } else {
-                showToast('올바른 숫자를 입력해주세요', 'error');
+                showToast('?щ컮瑜??レ옄瑜??낅젰?댁＜?몄슂', 'error');
             }
         }
         
-        // 전체 진도 업데이트
+        // ?꾩껜 吏꾨룄 ?낅뜲?댄듃
         function updateAllProgress() {
-            showToast('각 과목을 클릭하여 진도를 업데이트하세요');
+            showToast('媛?怨쇰ぉ???대┃?섏뿬 吏꾨룄瑜??낅뜲?댄듃?섏꽭??);
         }
         
-        // 모의고사 점수 렌더링
-        function renderMockScores() {
+        // 紐⑥쓽怨좎궗 ?먯닔 ?뚮뜑留?        function renderMockScores() {
             const container = document.getElementById('mock-scores');
             container.innerHTML = '';
 
@@ -3568,34 +3554,34 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const div = document.createElement('div');
                 div.className = 'score-entry';
 
-                // 날짜 및 메모 표시
+                // ?좎쭨 諛?硫붾え ?쒖떆
                 const dateSpan = document.createElement('span');
                 dateSpan.className = 'score-date';
                 dateSpan.textContent = `${score.date} ${score.memo ? `(${score.memo})` : ''}`;
 
-                // 액션 버튼 컨테이너
+                // ?≪뀡 踰꾪듉 而⑦뀒?대꼫
                 const actionsDiv = document.createElement('div');
                 actionsDiv.className = 'score-actions';
 
-                // 수정 버튼
+                // ?섏젙 踰꾪듉
                 const editBtn = document.createElement('button');
                 editBtn.className = 'score-action-btn';
-                editBtn.textContent = '✏️';
+                editBtn.textContent = '?륅툘';
                 editBtn.onclick = () => editScore(score.id);
 
-                // 삭제 버튼
+                // ??젣 踰꾪듉
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'score-action-btn';
-                deleteBtn.textContent = '🗑️';
+                deleteBtn.textContent = '?뿊截?;
                 deleteBtn.onclick = () => deleteScore(score.id);
 
                 actionsDiv.appendChild(editBtn);
                 actionsDiv.appendChild(deleteBtn);
 
-                // 점수 표시
+                // ?먯닔 ?쒖떆
                 const scoreSpan = document.createElement('span');
                 scoreSpan.className = `score-value ${isPass ? 'pass' : 'fail'}`;
-                scoreSpan.textContent = `${score.score}점`;
+                scoreSpan.textContent = `${score.score}??;
 
                 div.appendChild(dateSpan);
                 div.appendChild(actionsDiv);
@@ -3604,17 +3590,17 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 container.appendChild(div);
             });
 
-            // 목표 점수 표시
+            // 紐⑺몴 ?먯닔 ?쒖떆
             const targetDiv = document.createElement('div');
             targetDiv.className = 'score-entry';
             targetDiv.innerHTML = `
-                <span class="score-date">목표 점수</span>
-                <span class="score-value pass">65.0점↑</span>
+                <span class="score-date">紐⑺몴 ?먯닔</span>
+                <span class="score-value pass">65.0?먥넁</span>
             `;
             container.appendChild(targetDiv);
         }
         
-        // 점수 모달 표시
+        // ?먯닔 紐⑤떖 ?쒖떆
         function showScoreModal() {
             document.getElementById('scoreDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('scoreValue').value = '';
@@ -3622,35 +3608,34 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             document.getElementById('scoreModal').classList.add('show');
         }
         
-        // 점수 저장
-        function saveScore() {
+        // ?먯닔 ???        function saveScore() {
             const date = document.getElementById('scoreDate').value;
             const scoreValue = parseFloat(document.getElementById('scoreValue').value);
             const memo = document.getElementById('scoreMemo').value;
 
             if (date && !isNaN(scoreValue)) {
                 if (editingScoreId) {
-                    // 수정 모드
+                    // ?섏젙 紐⑤뱶
                     const score = studyData.mockScores.find(s => s.id === editingScoreId);
                     if (score) {
                         score.date = date;
                         score.score = scoreValue;
                         score.memo = memo;
-                        showToast('점수가 수정되었습니다');
+                        showToast('?먯닔媛 ?섏젙?섏뿀?듬땲??);
                     }
                     editingScoreId = null;
                 } else {
-                    // 추가 모드
+                    // 異붽? 紐⑤뱶
                     studyData.mockScores.push({
                         id: Date.now(),
                         date,
                         score: scoreValue,
                         memo
                     });
-                    showToast(`${scoreValue}점이 기록되었습니다`);
+                    showToast(`${scoreValue}?먯씠 湲곕줉?섏뿀?듬땲??);
                 }
 
-                // 날짜순 정렬
+                // ?좎쭨???뺣젹
                 studyData.mockScores.sort((a, b) => new Date(a.date) - new Date(b.date));
 
                 saveData();
@@ -3661,23 +3646,23 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 document.getElementById('scoreDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('scoreValue').value = '';
                 document.getElementById('scoreMemo').value = '';
-                document.querySelector('#scoreModal .modal-title').textContent = '모의고사 점수 추가';
+                document.querySelector('#scoreModal .modal-title').textContent = '紐⑥쓽怨좎궗 ?먯닔 異붽?';
             } else {
-                showToast('날짜와 점수를 올바르게 입력해주세요', 'error');
+                showToast('?좎쭨? ?먯닔瑜??щ컮瑜닿쾶 ?낅젰?댁＜?몄슂', 'error');
             }
         }
         
-        // 점수 삭제
+        // ?먯닔 ??젣
         function deleteScore(id) {
-            showConfirm('정말 삭제하시겠습니까?', () => {
+            showConfirm('?뺣쭚 ??젣?섏떆寃좎뒿?덇퉴?', () => {
                 studyData.mockScores = studyData.mockScores.filter(s => s.id !== id);
                 saveData();
                 renderMockScores();
-                showToast('삭제되었습니다');
+                showToast('??젣?섏뿀?듬땲??);
             });
         }
         
-        // 점수 수정 - 모달 사용
+        // ?먯닔 ?섏젙 - 紐⑤떖 ?ъ슜
         let editingScoreId = null;
 
         function editScore(id) {
@@ -3687,17 +3672,17 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 document.getElementById('scoreDate').value = score.date;
                 document.getElementById('scoreValue').value = score.score;
                 document.getElementById('scoreMemo').value = score.memo || '';
-                document.querySelector('#scoreModal .modal-title').textContent = '모의고사 점수 수정';
+                document.querySelector('#scoreModal .modal-title').textContent = '紐⑥쓽怨좎궗 ?먯닔 ?섏젙';
                 document.getElementById('scoreModal').classList.add('show');
             }
         }
         
-        // 모달 닫기
+        // 紐⑤떖 ?リ린
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
         }
 
-        // 확인 모달 헬퍼 (confirm 대체)
+        // ?뺤씤 紐⑤떖 ?ы띁 (confirm ?泥?
         function showConfirm(message, onConfirm) {
             document.getElementById('confirmMessage').textContent = message;
             document.getElementById('confirmModal').classList.add('show');
@@ -3712,7 +3697,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             };
         }
 
-        // 메시지 모달 헬퍼 (alert 대체 - HTML 지원)
+        // 硫붿떆吏 紐⑤떖 ?ы띁 (alert ?泥?- HTML 吏??
         function showModalMessage(title, htmlContent) {
             const modal = document.createElement('div');
             modal.className = 'modal show';
@@ -3720,20 +3705,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3 class="modal-title">${title}</h3>
-                        <button class="modal-close" onclick="this.closest('.modal').remove()">✕</button>
+                        <button class="modal-close" onclick="this.closest('.modal').remove()">??/button>
                     </div>
                     <div class="modal-body">
                         ${htmlContent}
                     </div>
                     <div class="modal-footer">
-                        <button class="modal-btn save" onclick="this.closest('.modal').remove()">확인</button>
+                        <button class="modal-btn save" onclick="this.closest('.modal').remove()">?뺤씤</button>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
         }
 
-        // 노트 기능
+        // ?명듃 湲곕뒫
         function saveNotes() {
             const notes = document.getElementById('study-notes').value;
             const today = new Date().toISOString().split('T')[0];
@@ -3745,7 +3730,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             };
             
             saveData();
-            showToast('노트가 저장되었습니다 📝');
+            showToast('?명듃媛 ??λ릺?덉뒿?덈떎 ?뱷');
         }
         
         function loadTodayNotes() {
@@ -3757,26 +3742,26 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         function showPreviousNotes() {
             if (!studyData.notes) {
-                showToast('저장된 노트가 없습니다');
+                showToast('??λ맂 ?명듃媛 ?놁뒿?덈떎');
                 return;
             }
             
             const dates = Object.keys(studyData.notes).sort().reverse();
             if (dates.length === 0) {
-                showToast('저장된 노트가 없습니다');
+                showToast('??λ맂 ?명듃媛 ?놁뒿?덈떎');
                 return;
             }
             
-            let notesList = '<h3 style="margin-bottom:15px">📚 최근 학습 노트</h3>';
+            let notesList = '<h3 style="margin-bottom:15px">?뱴 理쒓렐 ?숈뒿 ?명듃</h3>';
             dates.slice(0, 7).forEach(date => {
                 const content = studyData.notes[date].content;
                 notesList += `<div style="margin-bottom:15px;padding:10px;background:#f7fafc;border-radius:6px">
-                    <strong>📅 ${date}</strong><br>
+                    <strong>?뱟 ${date}</strong><br>
                     ${content.substring(0, 150)}...
                 </div>`;
             });
 
-            showModalMessage('최근 학습 노트', notesList);
+            showModalMessage('理쒓렐 ?숈뒿 ?명듃', notesList);
         }
         
         function exportNotes() {
@@ -3787,7 +3772,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             a.href = url;
             a.download = `study_data_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
-            showToast('데이터가 내보내졌습니다 💾');
+            showToast('?곗씠?곌? ?대낫?댁죱?듬땲???뮶');
         }
         
         function addErrorNote() {
@@ -3803,42 +3788,42 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             const reason = document.getElementById('wrongReason').value;
 
             if (subject && question && reason) {
-                const errorNote = `\n\n[오답노트]\n과목: ${subject}\n문제: ${question}\n이유: ${reason}\n`;
+                const errorNote = `\n\n[?ㅻ떟?명듃]\n怨쇰ぉ: ${subject}\n臾몄젣: ${question}\n?댁쑀: ${reason}\n`;
                 document.getElementById('study-notes').value += errorNote;
                 closeModal('wrongNoteModal');
-                showToast('오답노트가 추가되었습니다');
+                showToast('?ㅻ떟?명듃媛 異붽??섏뿀?듬땲??);
             } else {
-                showToast('모든 항목을 입력해주세요', 'error');
+                showToast('紐⑤뱺 ??ぉ???낅젰?댁＜?몄슂', 'error');
             }
         }
         
         function clearNotes() {
-            showConfirm('오늘 노트를 초기화하시겠습니까?', () => {
+            showConfirm('?ㅻ뒛 ?명듃瑜?珥덇린?뷀븯?쒓쿋?듬땲源?', () => {
                 document.getElementById('study-notes').value = '';
-                showToast('노트가 초기화되었습니다');
+                showToast('?명듃媛 珥덇린?붾릺?덉뒿?덈떎');
             });
         }
         
-        // 동기부여 문구 로테이션
+        // ?숆린遺??臾멸뎄 濡쒗뀒?댁뀡
         function rotateMotivation() {
             const quotes = [
-                "포기하지 않으면 반드시 합격한다. 시험은 끝까지 버티는 것입니다.",
-                "머리보다 중요한 것은 엉덩이를 오래 붙이고 있을 수 있는 것.",
-                "직장병행이라도 매일 꾸준히 하면 합격할 수 있습니다.",
-                "모의고사 점수가 낮아도 포기하지 마세요. 끝까지 가면 됩니다.",
-                "기출문제를 완전히 내 것으로 만드는 것이 합격의 지름길입니다.",
-                "오늘 못한 공부는 내일 두 배가 됩니다. 오늘 할 일은 오늘!",
-                "1년 반의 노력이 평생의 자격증이 됩니다.",
-                "시험은 잘 모르는 상태에서 붙는 거다.",
-                "남들도 어렵습니다. 나만 어려운 것이 아닙니다.",
-                "버티면 합격한다. 끝까지 버티는 것입니다."
+                "?ш린?섏? ?딆쑝硫?諛섎뱶???⑷꺽?쒕떎. ?쒗뿕? ?앷퉴吏 踰꾪떚??寃껋엯?덈떎.",
+                "癒몃━蹂대떎 以묒슂??寃껋? ?됰뜦?대? ?ㅻ옒 遺숈씠怨??덉쓣 ???덈뒗 寃?",
+                "吏곸옣蹂묓뻾?대씪??留ㅼ씪 袁몄????섎㈃ ?⑷꺽?????덉뒿?덈떎.",
+                "紐⑥쓽怨좎궗 ?먯닔媛 ??븘???ш린?섏? 留덉꽭?? ?앷퉴吏 媛硫??⑸땲??",
+                "湲곗텧臾몄젣瑜??꾩쟾????寃껋쑝濡?留뚮뱶??寃껋씠 ?⑷꺽??吏由꾧만?낅땲??",
+                "?ㅻ뒛 紐삵븳 怨듬????댁씪 ??諛곌? ?⑸땲?? ?ㅻ뒛 ???쇱? ?ㅻ뒛!",
+                "1??諛섏쓽 ?몃젰???됱깮???먭꺽利앹씠 ?⑸땲??",
+                "?쒗뿕? ??紐⑤Ⅴ???곹깭?먯꽌 遺숇뒗 嫄곕떎.",
+                "?⑤뱾???대졄?듬땲?? ?섎쭔 ?대젮??寃껋씠 ?꾨떃?덈떎.",
+                "踰꾪떚硫??⑷꺽?쒕떎. ?앷퉴吏 踰꾪떚??寃껋엯?덈떎."
             ];
             
             const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             document.getElementById('motivation-quote').textContent = randomQuote;
         }
         
-        // 토스트 메시지 (타입 지원: success, error, warning, info)
+        // ?좎뒪??硫붿떆吏 (???吏?? success, error, warning, info)
         function showToast(message, type = 'success') {
             const existing = document.querySelector('.toast');
             if (existing) existing.remove();
@@ -3847,10 +3832,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             toast.className = `toast ${type}`;
 
             const icons = {
-                success: '✓',
-                error: '✕',
-                warning: '⚠',
-                info: 'ℹ'
+                success: '??,
+                error: '??,
+                warning: '??,
+                info: '??
             };
 
             toast.innerHTML = `
@@ -3865,16 +3850,15 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }, 3000);
         }
         
-        // 키보드 단축키
-        document.addEventListener('keydown', function(e) {
-            // ESC 키로 모든 모달 닫기
+        // ?ㅻ낫???⑥텞??        document.addEventListener('keydown', function(e) {
+            // ESC ?ㅻ줈 紐⑤뱺 紐⑤떖 ?リ린
             if (e.key === 'Escape') {
                 const openModals = document.querySelectorAll('.modal.show');
                 openModals.forEach(modal => {
                     if (modal.id) {
                         closeModal(modal.id);
                     } else {
-                        modal.remove(); // 동적 생성된 모달
+                        modal.remove(); // ?숈쟻 ?앹꽦??紐⑤떖
                     }
                 });
                 return;
@@ -3895,28 +3879,25 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         });
         
-        // 페이지 종료 시 자동 저장
-        window.addEventListener('beforeunload', function() {
+        // ?섏씠吏 醫낅즺 ???먮룞 ???        window.addEventListener('beforeunload', function() {
             saveData();
             if (document.getElementById('study-notes').value) {
                 saveNotes();
             }
         });
         
-        // 5분마다 동기부여 문구 변경
-        setInterval(rotateMotivation, 300000);
+        // 5遺꾨쭏???숆린遺??臾멸뎄 蹂寃?        setInterval(rotateMotivation, 300000);
 
-        // ===== 새로운 기능: 스트릭 트래커 =====
+        // ===== ?덈줈??湲곕뒫: ?ㅽ듃由??몃옒而?=====
         function updateStreak() {
             const today = new Date().toISOString().split('T')[0];
             const lastStudy = studyData.streak.lastStudyDate;
 
-            // 초기화
-            if (!studyData.streak) {
+            // 珥덇린??            if (!studyData.streak) {
                 studyData.streak = { current: 0, longest: 0, lastStudyDate: null, totalDays: 0 };
             }
 
-            // 오늘 학습 기록이 있는지 확인 (타이머 시간 or 완료된 타임블록)
+            // ?ㅻ뒛 ?숈뒿 湲곕줉???덈뒗吏 ?뺤씤 (??대㉧ ?쒓컙 or ?꾨즺????꾨툝濡?
             const hasStudiedToday = studyData.timer.seconds > 0 ||
                                    studyData.timeBlocks.some(b => b.completed);
 
@@ -3927,21 +3908,21 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
 
                     if (diffDays === 1) {
-                        // 연속 학습
+                        // ?곗냽 ?숈뒿
                         studyData.streak.current++;
                     } else if (diffDays > 1) {
-                        // 스트릭 끊김
+                        // ?ㅽ듃由??딄?
                         studyData.streak.current = 1;
                     }
                 } else {
-                    // 첫 학습
+                    // 泥??숈뒿
                     studyData.streak.current = 1;
                 }
 
                 studyData.streak.lastStudyDate = today;
                 studyData.streak.totalDays++;
 
-                // 최장 기록 갱신
+                // 理쒖옣 湲곕줉 媛깆떊
                 if (studyData.streak.current > studyData.streak.longest) {
                     studyData.streak.longest = studyData.streak.current;
                 }
@@ -3949,22 +3930,22 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 saveData();
             }
 
-            // UI 업데이트
+            // UI ?낅뜲?댄듃
             document.getElementById('current-streak').textContent = studyData.streak.current || 0;
             document.getElementById('longest-streak').textContent = studyData.streak.longest || 0;
             document.getElementById('total-study-days').textContent = studyData.streak.totalDays || 0;
         }
 
         function resetStreak() {
-            showConfirm('스트릭 기록을 초기화하시겠습니까?', () => {
+            showConfirm('?ㅽ듃由?湲곕줉??珥덇린?뷀븯?쒓쿋?듬땲源?', () => {
                 studyData.streak = { current: 0, longest: 0, lastStudyDate: null, totalDays: 0 };
                 saveData();
                 updateStreak();
-                showToast('스트릭이 초기화되었습니다');
+                showToast('?ㅽ듃由?씠 珥덇린?붾릺?덉뒿?덈떎');
             });
         }
 
-        // ===== 새로운 기능: 학습 분석 대시보드 =====
+        // ===== ?덈줈??湲곕뒫: ?숈뒿 遺꾩꽍 ??쒕낫??=====
                 function renderAnalytics() {
             // Calculate REAL total study hours from multiple sources
             let totalHours = 0;
@@ -4018,7 +3999,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // Calculate mock exam average from REAL user data
             if (studyData.mockScores.length > 0) {
                 const avgScore = studyData.mockScores.reduce((sum, s) => sum + s.score, 0) / studyData.mockScores.length;
-                document.getElementById('avg-mock-score').textContent = avgScore.toFixed(1) + '점';
+                document.getElementById('avg-mock-score').textContent = avgScore.toFixed(1) + '??;
             } else {
                 document.getElementById('avg-mock-score').textContent = '-';
             }
@@ -4106,7 +4087,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             sortedSubjects = sortedSubjects.slice(0, 8); // Show top 8
 
             if (sortedSubjects.length === 0 || sortedSubjects.every(([_, time]) => time === 0)) {
-                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px;">학습 데이터를 추가하면 과목별 시간이 표시됩니다</div>';
+                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px;">?숈뒿 ?곗씠?곕? 異붽??섎㈃ 怨쇰ぉ蹂??쒓컙???쒖떆?⑸땲??/div>';
                 return;
             }
 
@@ -4116,8 +4097,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // Add max value indicator at top of chart
             const maxIndicator = document.createElement('div');
             maxIndicator.style.cssText = 'text-align: right; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px; padding: 4px 8px; background: var(--bg-secondary); border-radius: 4px; display: inline-block; float: right;';
-            maxIndicator.innerHTML = `📊 최대값: <strong>${Math.round(maxTime * 10) / 10}시간</strong>`;
-            maxIndicator.title = '차트의 가장 높은 막대가 이 값을 나타냅니다';
+            maxIndicator.innerHTML = `?뱤 理쒕?媛? <strong>${Math.round(maxTime * 10) / 10}?쒓컙</strong>`;
+            maxIndicator.title = '李⑦듃??媛???믪? 留됰?媛 ??媛믪쓣 ?섑??낅땲??;
             container.appendChild(maxIndicator);
 
             // Clear float
@@ -4149,7 +4130,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 bar.style.background = 'linear-gradient(to top, var(--accent-color, #3182CE), var(--success-color, #48BB78))';
                 bar.setAttribute('tabindex', '0');
                 bar.setAttribute('role', 'graphics-symbol');
-                bar.setAttribute('aria-label', `${subjectName}: ${hours}시간 (${percentage}%)`);
+                bar.setAttribute('aria-label', `${subjectName}: ${hours}?쒓컙 (${percentage}%)`);
 
                 if (isSmallBar) {
                     bar.setAttribute('data-small', 'true');
@@ -4184,16 +4165,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 label.style.flexWrap = 'wrap';
 
                 const labelText = document.createElement('span');
-                labelText.textContent = subjectName.replace(' (2차)', '').substring(0, 8);
+                labelText.textContent = subjectName.replace(' (2李?', '').substring(0, 8);
                 labelText.title = subjectName;
                 label.appendChild(labelText);
 
                 // Add edit button for manual time adjustment
                 const editBtn = document.createElement('button');
-                editBtn.textContent = '✏️';
+                editBtn.textContent = '?륅툘';
                 editBtn.className = 'bar-edit-btn';
                 editBtn.style.cssText = 'background: var(--accent-color); border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.75rem; color: white; margin-left: 4px;';
-                editBtn.title = '시간 직접 수정';
+                editBtn.title = '?쒓컙 吏곸젒 ?섏젙';
                 editBtn.onclick = (e) => {
                     e.stopPropagation();
                     editSubjectTime(subjectName, timeSpent);
@@ -4204,8 +4185,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const isManuallyEdited = studyData.manualSubjectTime && studyData.manualSubjectTime[subjectName] !== undefined;
                 if (isManuallyEdited) {
                     const manualIndicator = document.createElement('span');
-                    manualIndicator.textContent = '📝';
-                    manualIndicator.title = '수동으로 편집된 시간';
+                    manualIndicator.textContent = '?뱷';
+                    manualIndicator.title = '?섎룞?쇰줈 ?몄쭛???쒓컙';
                     manualIndicator.style.fontSize = '0.7rem';
                     manualIndicator.style.marginLeft = '2px';
                     label.appendChild(manualIndicator);
@@ -4223,7 +4204,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 bar.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        showToast(`${subjectName}: ${hours}시간 (${percentage}%)`, 'info');
+                        showToast(`${subjectName}: ${hours}?쒓컙 (${percentage}%)`, 'info');
                     }
                 });
 
@@ -4242,33 +4223,33 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             const currentHours = Math.round(currentTime * 10) / 10;
 
             const isManuallySet = studyData.manualSubjectTime && studyData.manualSubjectTime[subjectName] !== undefined;
-            const displaySource = isManuallySet ? '(수동 입력됨)' : '(자동 계산됨)';
+            const displaySource = isManuallySet ? '(?섎룞 ?낅젰??' : '(?먮룞 怨꾩궛??';
 
             modal.innerHTML = `
                 <div class="modal-header">
-                    <h2>📊 과목별 학습 시간 편집</h2>
+                    <h2>?뱤 怨쇰ぉ蹂??숈뒿 ?쒓컙 ?몄쭛</h2>
                 </div>
                 <div class="modal-body">
                     <div style="margin-bottom: 20px; padding: 15px; background: var(--bg-secondary); border-radius: 8px;">
                         <div style="font-weight: 600; margin-bottom: 10px; color: var(--primary-dark);">${subjectName}</div>
                         <div style="font-size: 0.9rem; color: var(--text-secondary);">
-                            현재 시간: <strong>${currentHours}시간</strong> ${displaySource}
+                            ?꾩옱 ?쒓컙: <strong>${currentHours}?쒓컙</strong> ${displaySource}
                         </div>
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <h3 style="font-size: 0.95rem; margin-bottom: 10px;">📌 시간 계산 방법 설명</h3>
+                        <h3 style="font-size: 0.95rem; margin-bottom: 10px;">?뱦 ?쒓컙 怨꾩궛 諛⑸쾿 ?ㅻ챸</h3>
                         <div style="font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary); background: var(--success-bg); padding: 12px; border-radius: 6px; border-left: 3px solid var(--success-color);">
-                            <strong>자동 계산 기준:</strong><br>
-                            1️⃣ <strong>완료된 시간 블록</strong>: 학습 전략에서 완료한 시간<br>
-                            2️⃣ <strong>타이머 사용 시간</strong>: 전체 타이머 시간을 진행 중인 과목에 균등 분배<br>
-                            3️⃣ <strong>진도 기반 추정</strong>: 문제 10개당 0.5시간으로 추정<br><br>
-                            <strong style="color: var(--accent-color);">💡 수동으로 시간을 입력하면 위 자동 계산값을 덮어씁니다.</strong>
+                            <strong>?먮룞 怨꾩궛 湲곗?:</strong><br>
+                            1截뤴깵 <strong>?꾨즺???쒓컙 釉붾줉</strong>: ?숈뒿 ?꾨왂?먯꽌 ?꾨즺???쒓컙<br>
+                            2截뤴깵 <strong>??대㉧ ?ъ슜 ?쒓컙</strong>: ?꾩껜 ??대㉧ ?쒓컙??吏꾪뻾 以묒씤 怨쇰ぉ??洹좊벑 遺꾨같<br>
+                            3截뤴깵 <strong>吏꾨룄 湲곕컲 異붿젙</strong>: 臾몄젣 10媛쒕떦 0.5?쒓컙?쇰줈 異붿젙<br><br>
+                            <strong style="color: var(--accent-color);">?뮕 ?섎룞?쇰줈 ?쒓컙???낅젰?섎㈃ ???먮룞 怨꾩궛媛믪쓣 ??뼱?곷땲??</strong>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">학습 시간 (시간)</label>
+                        <label class="form-label">?숈뒿 ?쒓컙 (?쒓컙)</label>
                         <input type="number"
                                id="manual-subject-time-input"
                                class="form-input"
@@ -4276,21 +4257,21 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                                min="0"
                                max="1000"
                                step="0.5"
-                               placeholder="예: 15.5"
+                               placeholder="?? 15.5"
                                style="font-size: 1.1rem; font-weight: 600;">
                         <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
-                            소수점 한 자리까지 입력 가능 (예: 12.5시간)
+                            ?뚯닔?????먮━源뚯? ?낅젰 媛??(?? 12.5?쒓컙)
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     ${isManuallySet ? `
                         <button class="btn-secondary" onclick="resetSubjectTime('${subjectName}')">
-                            자동 계산으로 되돌리기
+                            ?먮룞 怨꾩궛?쇰줈 ?섎룎由ш린
                         </button>
                     ` : ''}
-                    <button class="btn-secondary" onclick="closeModal()">취소</button>
-                    <button class="btn-primary" onclick="saveSubjectTime('${subjectName}')">저장</button>
+                    <button class="btn-secondary" onclick="closeModal()">痍⑥냼</button>
+                    <button class="btn-primary" onclick="saveSubjectTime('${subjectName}')">???/button>
                 </div>
             `;
 
@@ -4307,12 +4288,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             const hours = parseFloat(input.value);
 
             if (isNaN(hours) || hours < 0) {
-                showToast('유효한 시간을 입력해주세요 (0 이상)', 'error');
+                showToast('?좏슚???쒓컙???낅젰?댁＜?몄슂 (0 ?댁긽)', 'error');
                 return;
             }
 
             if (hours > 1000) {
-                showToast('시간이 너무 큽니다 (최대 1000시간)', 'error');
+                showToast('?쒓컙???덈Т ?쎈땲??(理쒕? 1000?쒓컙)', 'error');
                 return;
             }
 
@@ -4325,12 +4306,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             renderMockScoreChart();
             renderAnalytics();
 
-            showToast(`${subjectName} 학습 시간이 ${hours}시간으로 설정되었습니다`, 'success');
+            showToast(`${subjectName} ?숈뒿 ?쒓컙??${hours}?쒓컙?쇰줈 ?ㅼ젙?섏뿀?듬땲??, 'success');
         }
 
         // Reset subject time to auto-calculation
         function resetSubjectTime(subjectName) {
-            if (confirm(`${subjectName}의 수동 입력 시간을 삭제하고 자동 계산으로 되돌리시겠습니까?`)) {
+            if (confirm(`${subjectName}???섎룞 ?낅젰 ?쒓컙????젣?섍퀬 ?먮룞 怨꾩궛?쇰줈 ?섎룎由ъ떆寃좎뒿?덇퉴?`)) {
                 delete studyData.manualSubjectTime[subjectName];
                 saveData();
 
@@ -4339,7 +4320,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 renderMockScoreChart();
                 renderAnalytics();
 
-                showToast(`${subjectName} 시간이 자동 계산으로 변경되었습니다`, 'success');
+                showToast(`${subjectName} ?쒓컙???먮룞 怨꾩궛?쇰줈 蹂寃쎈릺?덉뒿?덈떎`, 'success');
             }
         }
 
@@ -4353,16 +4334,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 tooltip.innerHTML = `
                     <strong>${data.subject}</strong>
                     <div class="bar-tooltip-row">
-                        <span>학습 시간:</span>
-                        <span>${data.hours}시간</span>
+                        <span>?숈뒿 ?쒓컙:</span>
+                        <span>${data.hours}?쒓컙</span>
                     </div>
                     <div class="bar-tooltip-row">
-                        <span>전체 비율:</span>
+                        <span>?꾩껜 鍮꾩쑉:</span>
                         <span>${data.percentage}%</span>
                     </div>
                     ${data.isManual ? `
                         <div class="bar-tooltip-row" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.2); color: var(--warning-color); font-size: 0.85em;">
-                            <span>📝 수동으로 편집된 시간</span>
+                            <span>?뱷 ?섎룞?쇰줈 ?몄쭛???쒓컙</span>
                         </div>
                     ` : ''}
                 `;
@@ -4411,7 +4392,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             container.innerHTML = '';
 
             if (!studyData.mockScores || studyData.mockScores.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px;">모의고사 점수를 추가해주세요</div>';
+                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px;">紐⑥쓽怨좎궗 ?먯닔瑜?異붽??댁＜?몄슂</div>';
                 return;
             }
 
@@ -4452,7 +4433,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
                 const barValue = document.createElement('div');
                 barValue.className = 'bar-value';
-                barValue.textContent = score.score + '점';
+                barValue.textContent = score.score + '??;
 
                 bar.appendChild(barValue);
 
@@ -4461,7 +4442,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 // Show date in MM/DD format
                 const dateStr = score.date.substring(5); // Remove year
                 label.textContent = dateStr;
-                label.title = score.date + ' - ' + score.score + '점'; // Full info on hover
+                label.title = score.date + ' - ' + score.score + '??; // Full info on hover
 
                 barItem.appendChild(bar);
                 barItem.appendChild(label);
@@ -4479,13 +4460,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
                 if (trend > 0) {
                     trendDiv.style.color = 'var(--success-color)';
-                    trendDiv.textContent = '↑ 이전 대비 +' + trend + '점 상승';
+                    trendDiv.textContent = '???댁쟾 ?鍮?+' + trend + '???곸듅';
                 } else if (trend < 0) {
                     trendDiv.style.color = 'var(--danger-color)';
-                    trendDiv.textContent = '↓ 이전 대비 ' + trend + '점 하락';
+                    trendDiv.textContent = '???댁쟾 ?鍮?' + trend + '???섎씫';
                 } else {
                     trendDiv.style.color = 'var(--text-secondary)';
-                    trendDiv.textContent = '→ 이전과 동일';
+                    trendDiv.textContent = '???댁쟾怨??숈씪';
                 }
 
                 container.appendChild(trendDiv);
@@ -4493,7 +4474,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
 
-        // ===== 새로운 기능: 목표 설정 & 마일스톤 =====
+        // ===== ?덈줈??湲곕뒫: 紐⑺몴 ?ㅼ젙 & 留덉씪?ㅽ넠 =====
         function renderGoals() {
             const container = document.getElementById('goals-container');
             container.innerHTML = '';
@@ -4501,7 +4482,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             if (!studyData.goals) studyData.goals = [];
 
             if (studyData.goals.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">목표를 설정하여 학습 동기를 높이세요! 🎯</div>';
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">紐⑺몴瑜??ㅼ젙?섏뿬 ?숈뒿 ?숆린瑜??믪씠?몄슂! ?렞</div>';
                 return;
             }
 
@@ -4512,25 +4493,25 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const isOverdue = goalDate < today && !isAchieved;
 
                 const daysLeft = Math.ceil((goalDate - today) / (1000 * 60 * 60 * 24));
-                const daysText = isOverdue ? `${Math.abs(daysLeft)}일 경과` : `${daysLeft}일 남음`;
+                const daysText = isOverdue ? `${Math.abs(daysLeft)}??寃쎄낵` : `${daysLeft}???⑥쓬`;
 
                 const div = document.createElement('div');
                 div.className = `goal-item ${isAchieved ? 'achieved' : ''}`;
 
                 div.innerHTML = `
                     <div class="goal-header">
-                        <div class="goal-title">${isAchieved ? '✓ ' : ''}${goal.title}</div>
+                        <div class="goal-title">${isAchieved ? '??' : ''}${goal.title}</div>
                         <div class="goal-date" style="color: ${isOverdue ? 'var(--danger)' : 'var(--text-secondary)'}">${daysText}</div>
                         <div class="goal-actions">
-                            <button class="goal-btn" onclick="editGoal(${goal.id})">✏️</button>
-                            <button class="goal-btn" onclick="deleteGoal(${goal.id})">🗑️</button>
+                            <button class="goal-btn" onclick="editGoal(${goal.id})">?륅툘</button>
+                            <button class="goal-btn" onclick="deleteGoal(${goal.id})">?뿊截?/button>
                         </div>
                     </div>
                     <div class="goal-progress-bar">
                         <div class="goal-progress-fill" style="width: ${Math.min(goal.progress, 100)}%"></div>
                     </div>
                     <div style="text-align: right; font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
-                        ${goal.progress}% 완료
+                        ${goal.progress}% ?꾨즺
                     </div>
                 `;
 
@@ -4556,17 +4537,17 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 if (!studyData.goals) studyData.goals = [];
 
                 if (editingGoalId) {
-                    // 수정 모드
+                    // ?섏젙 紐⑤뱶
                     const goal = studyData.goals.find(g => g.id === editingGoalId);
                     if (goal) {
                         goal.title = title;
                         goal.date = date;
                         goal.progress = Math.min(progress, 100);
-                        showToast('목표가 수정되었습니다');
+                        showToast('紐⑺몴媛 ?섏젙?섏뿀?듬땲??);
                     }
                     editingGoalId = null;
                 } else {
-                    // 추가 모드
+                    // 異붽? 紐⑤뱶
                     studyData.goals.push({
                         id: Date.now(),
                         title,
@@ -4574,7 +4555,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         progress: Math.min(progress, 100),
                         createdAt: new Date().toISOString()
                     });
-                    showToast('목표가 추가되었습니다 🎯');
+                    showToast('紐⑺몴媛 異붽??섏뿀?듬땲???렞');
                 }
 
                 saveData();
@@ -4585,9 +4566,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 document.getElementById('goalTitle').value = '';
                 document.getElementById('goalDate').value = '';
                 document.getElementById('goalProgress').value = '0';
-                document.querySelector('#goalModal .modal-title').textContent = '학습 목표 추가';
+                document.querySelector('#goalModal .modal-title').textContent = '?숈뒿 紐⑺몴 異붽?';
             } else {
-                showToast('목표 내용과 날짜를 입력해주세요', 'error');
+                showToast('紐⑺몴 ?댁슜怨??좎쭨瑜??낅젰?댁＜?몄슂', 'error');
             }
         }
 
@@ -4598,22 +4579,22 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 document.getElementById('goalTitle').value = goal.title;
                 document.getElementById('goalDate').value = goal.date;
                 document.getElementById('goalProgress').value = goal.progress;
-                document.querySelector('#goalModal .modal-title').textContent = '학습 목표 수정';
+                document.querySelector('#goalModal .modal-title').textContent = '?숈뒿 紐⑺몴 ?섏젙';
                 document.getElementById('goalModal').classList.add('show');
             }
         }
 
         function deleteGoal(id) {
-            showConfirm('정말 삭제하시겠습니까?', () => {
+            showConfirm('?뺣쭚 ??젣?섏떆寃좎뒿?덇퉴?', () => {
                 studyData.goals = studyData.goals.filter(g => g.id !== id);
                 saveData();
                 renderGoals();
-                showToast('삭제되었습니다');
+                showToast('??젣?섏뿀?듬땲??);
             });
         }
 
 
-        // ===== 유틸리티: 접을 수 있는 섹션 =====
+        // ===== ?좏떥由ы떚: ?묒쓣 ???덈뒗 ?뱀뀡 =====
         function toggleCollapse(sectionId) {
             const section = document.getElementById(sectionId);
             const icon = document.getElementById(sectionId.replace('-section', '-icon'));
@@ -4622,14 +4603,14 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             icon.classList.toggle('collapsed');
         }
 
-        // ===== 데이터 Import/Export 기능 =====
+        // ===== ?곗씠??Import/Export 湲곕뒫 =====
 
         /**
-         * 모든 학습 데이터를 JSON 파일로 내보내기
+         * 紐⑤뱺 ?숈뒿 ?곗씠?곕? JSON ?뚯씪濡??대낫?닿린
          */
         function exportData() {
             try {
-                // 내보낼 데이터 준비 (민감한 정보 제외, 불필요한 필드 제거)
+                // ?대낫???곗씠??以鍮?(誘쇨컧???뺣낫 ?쒖쇅, 遺덊븘?뷀븳 ?꾨뱶 ?쒓굅)
                 const exportData = {
                     version: '2.5.2',
                     exportDate: new Date().toISOString(),
@@ -4649,16 +4630,15 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     }
                 };
 
-                // JSON으로 변환
-                const dataStr = JSON.stringify(exportData, null, 2);
+                // JSON?쇰줈 蹂??                const dataStr = JSON.stringify(exportData, null, 2);
                 const dataBlob = new Blob([dataStr], { type: 'application/json' });
 
-                // 파일 다운로드
+                // ?뚯씪 ?ㅼ슫濡쒕뱶
                 const url = URL.createObjectURL(dataBlob);
                 const link = document.createElement('a');
                 link.href = url;
 
-                // 파일명: study-data-YYYY-MM-DD.json
+                // ?뚯씪紐? study-data-YYYY-MM-DD.json
                 const today = new Date().toISOString().split('T')[0];
                 link.download = `study-data-${today}.json`;
 
@@ -4666,21 +4646,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 link.click();
                 document.body.removeChild(link);
 
-                // 메모리 정리
+                // 硫붾え由??뺣━
                 URL.revokeObjectURL(url);
 
-                showToast('데이터가 성공적으로 내보내졌습니다', 'success');
+                showToast('?곗씠?곌? ?깃났?곸쑝濡??대낫?댁죱?듬땲??, 'success');
                 console.log('Data exported successfully');
 
             } catch (error) {
                 console.error('Export error:', error);
-                showToast('데이터 내보내기 중 오류가 발생했습니다', 'error');
+                showToast('?곗씠???대낫?닿린 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎', 'error');
             }
         }
 
         /**
-         * JSON 파일에서 학습 데이터 가져오기
-         */
+         * JSON ?뚯씪?먯꽌 ?숈뒿 ?곗씠??媛?몄삤湲?         */
         let pendingImportData = null;
 
         function importData(event) {
@@ -4689,40 +4668,37 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 return;
             }
 
-            // 파일 확장자 검증
-            if (!file.name.endsWith('.json')) {
-                showToast('JSON 파일만 가져올 수 있습니다', 'error');
-                event.target.value = ''; // 파일 선택 초기화
-                return;
+            // ?뚯씪 ?뺤옣??寃利?            if (!file.name.endsWith('.json')) {
+                showToast('JSON ?뚯씪留?媛?몄삱 ???덉뒿?덈떎', 'error');
+                event.target.value = ''; // ?뚯씪 ?좏깮 珥덇린??                return;
             }
 
             const reader = new FileReader();
 
             reader.onload = function(e) {
                 try {
-                    // JSON 파싱
+                    // JSON ?뚯떛
                     const importedData = JSON.parse(e.target.result);
 
-                    // 데이터 구조 검증
-                    if (!validateImportData(importedData)) {
-                        showToast('올바르지 않은 파일 형식입니다', 'error');
+                    // ?곗씠??援ъ“ 寃利?                    if (!validateImportData(importedData)) {
+                        showToast('?щ컮瑜댁? ?딆? ?뚯씪 ?뺤떇?낅땲??, 'error');
                         event.target.value = '';
                         return;
                     }
 
-                    // 임시로 저장하고 확인 모달 표시
+                    // ?꾩떆濡???ν븯怨??뺤씤 紐⑤떖 ?쒖떆
                     pendingImportData = importedData.data;
                     showImportPreview(importedData);
 
                 } catch (error) {
                     console.error('Import parsing error:', error);
-                    showToast('파일을 읽을 수 없습니다. 올바른 JSON 파일인지 확인하세요.', 'error');
+                    showToast('?뚯씪???쎌쓣 ???놁뒿?덈떎. ?щ컮瑜?JSON ?뚯씪?몄? ?뺤씤?섏꽭??', 'error');
                     event.target.value = '';
                 }
             };
 
             reader.onerror = function() {
-                showToast('파일 읽기 중 오류가 발생했습니다', 'error');
+                showToast('?뚯씪 ?쎄린 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎', 'error');
                 event.target.value = '';
             };
 
@@ -4730,12 +4706,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         /**
-         * 가져온 데이터의 유효성 검증
-         */
+         * 媛?몄삩 ?곗씠?곗쓽 ?좏슚??寃利?         */
         function validateImportData(data) {
             try {
-                // 필수 구조 검증
-                if (!data || typeof data !== 'object') {
+                // ?꾩닔 援ъ“ 寃利?                if (!data || typeof data !== 'object') {
                     console.error('Invalid data structure: not an object');
                     return false;
                 }
@@ -4747,8 +4721,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
                 const d = data.data;
 
-                // 필수 배열 필드 검증
-                const requiredArrays = ['subjects1st', 'subjects2nd'];
+                // ?꾩닔 諛곗뿴 ?꾨뱶 寃利?                const requiredArrays = ['subjects1st', 'subjects2nd'];
                 for (const field of requiredArrays) {
                     if (!Array.isArray(d[field])) {
                         console.error(`Invalid data structure: ${field} is not an array`);
@@ -4756,7 +4729,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     }
                 }
 
-                // 선택적 배열 필드 검증 (없으면 빈 배열로 초기화)
+                // ?좏깮??諛곗뿴 ?꾨뱶 寃利?(?놁쑝硫?鍮?諛곗뿴濡?珥덇린??
                 const optionalArrays = ['timeBlocks', 'mockScores', 'goals', 'studyHistory'];
                 for (const field of optionalArrays) {
                     if (d[field] !== undefined && !Array.isArray(d[field])) {
@@ -4765,13 +4738,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     }
                 }
 
-                // 과목 데이터 검증
-                if (d.subjects1st.length === 0) {
+                // 怨쇰ぉ ?곗씠??寃利?                if (d.subjects1st.length === 0) {
                     console.error('Invalid data: subjects1st is empty');
                     return false;
                 }
 
-                // 기본 구조가 올바른지 확인
+                // 湲곕낯 援ъ“媛 ?щ컮瑜몄? ?뺤씤
                 const sample = d.subjects1st[0];
                 if (!sample.name || typeof sample.total !== 'number' || typeof sample.completed !== 'number') {
                     console.error('Invalid subject structure');
@@ -4788,20 +4760,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         /**
-         * 가져올 데이터 미리보기 표시
+         * 媛?몄삱 ?곗씠??誘몃━蹂닿린 ?쒖떆
          */
         function showImportPreview(importedData) {
             const previewContainer = document.getElementById('importPreviewContainer');
             const data = importedData.data;
 
-            // 미리보기 HTML 생성
-            let previewHTML = '<h4 style="margin-bottom: 15px; color: var(--primary-dark);">가져올 데이터 미리보기</h4>';
+            // 誘몃━蹂닿린 HTML ?앹꽦
+            let previewHTML = '<h4 style="margin-bottom: 15px; color: var(--primary-dark);">媛?몄삱 ?곗씠??誘몃━蹂닿린</h4>';
 
-            // 파일 정보
+            // ?뚯씪 ?뺣낫
             if (importedData.version) {
                 previewHTML += `
                     <div class="import-preview-item">
-                        <span class="import-preview-label">파일 버전</span>
+                        <span class="import-preview-label">?뚯씪 踰꾩쟾</span>
                         <span class="import-preview-value">${importedData.version}</span>
                     </div>
                 `;
@@ -4811,77 +4783,76 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const exportDate = new Date(importedData.exportDate);
                 previewHTML += `
                     <div class="import-preview-item">
-                        <span class="import-preview-label">내보낸 날짜</span>
+                        <span class="import-preview-label">?대낫???좎쭨</span>
                         <span class="import-preview-value">${exportDate.toLocaleDateString('ko-KR')}</span>
                     </div>
                 `;
             }
 
-            // 데이터 통계
+            // ?곗씠???듦퀎
             previewHTML += `
                 <div class="import-preview-item">
-                    <span class="import-preview-label">1차 과목 수</span>
-                    <span class="import-preview-value">${data.subjects1st?.length || 0}개</span>
+                    <span class="import-preview-label">1李?怨쇰ぉ ??/span>
+                    <span class="import-preview-value">${data.subjects1st?.length || 0}媛?/span>
                 </div>
                 <div class="import-preview-item">
-                    <span class="import-preview-label">2차 과목 수</span>
-                    <span class="import-preview-value">${data.subjects2nd?.length || 0}개</span>
+                    <span class="import-preview-label">2李?怨쇰ぉ ??/span>
+                    <span class="import-preview-value">${data.subjects2nd?.length || 0}媛?/span>
                 </div>
                 <div class="import-preview-item">
-                    <span class="import-preview-label">학습 블록 수</span>
-                    <span class="import-preview-value">${data.timeBlocks?.length || 0}개</span>
+                    <span class="import-preview-label">?숈뒿 釉붾줉 ??/span>
+                    <span class="import-preview-value">${data.timeBlocks?.length || 0}媛?/span>
                 </div>
                 <div class="import-preview-item">
-                    <span class="import-preview-label">모의고사 기록</span>
-                    <span class="import-preview-value">${data.mockScores?.length || 0}개</span>
+                    <span class="import-preview-label">紐⑥쓽怨좎궗 湲곕줉</span>
+                    <span class="import-preview-value">${data.mockScores?.length || 0}媛?/span>
                 </div>
                 <div class="import-preview-item">
-                    <span class="import-preview-label">학습 목표</span>
-                    <span class="import-preview-value">${data.goals?.length || 0}개</span>
+                    <span class="import-preview-label">?숈뒿 紐⑺몴</span>
+                    <span class="import-preview-value">${data.goals?.length || 0}媛?/span>
                 </div>
                 <div class="import-preview-item">
-                    <span class="import-preview-label">학습 스트릭</span>
-                    <span class="import-preview-value">${data.streak?.current || 0}일 연속</span>
+                    <span class="import-preview-label">?숈뒿 ?ㅽ듃由?/span>
+                    <span class="import-preview-value">${data.streak?.current || 0}???곗냽</span>
                 </div>
             `;
 
             previewContainer.innerHTML = previewHTML;
 
-            // 확인 버튼에 이벤트 핸들러 설정
+            // ?뺤씤 踰꾪듉???대깽???몃뱾???ㅼ젙
             const confirmBtn = document.getElementById('confirmImportBtn');
             confirmBtn.onclick = function() {
                 confirmImport();
             };
 
-            // 모달 표시
+            // 紐⑤떖 ?쒖떆
             document.getElementById('importConfirmModal').classList.add('show');
         }
 
         /**
-         * 데이터 가져오기 최종 확인 및 실행
+         * ?곗씠??媛?몄삤湲?理쒖쥌 ?뺤씤 諛??ㅽ뻾
          */
         function confirmImport() {
             if (!pendingImportData) {
-                showToast('가져올 데이터가 없습니다', 'error');
+                showToast('媛?몄삱 ?곗씠?곌? ?놁뒿?덈떎', 'error');
                 closeModal('importConfirmModal');
                 return;
             }
 
             try {
-                // 현재 데이터를 임시로 백업 (혹시 모를 상황 대비 - 세션 스토리지에)
+                // ?꾩옱 ?곗씠?곕? ?꾩떆濡?諛깆뾽 (?뱀떆 紐⑤? ?곹솴 ?鍮?- ?몄뀡 ?ㅽ넗由ъ???
                 try {
                     sessionStorage.setItem('studyDataBackup', JSON.stringify(studyData));
                 } catch (backupError) {
                     console.warn('Failed to create session backup:', backupError);
                 }
 
-                // 데이터 가져오기
-                const imported = pendingImportData;
+                // ?곗씠??媛?몄삤湲?                const imported = pendingImportData;
 
-                // 기본값과 병합 (누락된 필드 처리)
+                // 湲곕낯媛믨낵 蹂묓빀 (?꾨씫???꾨뱶 泥섎━)
                 studyData = {
-                    examType: imported.examType || '1차',
-                    examDates: imported.examDates || { '1차': null, '2차': null },
+                    examType: imported.examType || '1李?,
+                    examDates: imported.examDates || { '1李?: null, '2李?: null },
                     timer: {
                         seconds: 0,
                         isRunning: false,
@@ -4912,65 +4883,62 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     studyHistory: imported.studyHistory || []
                 };
 
-                // 시험 유형 문자열 정규화 (인코딩 이슈 대비)
+                // ?쒗뿕 ?좏삎 臾몄옄???뺢퇋??(?몄퐫???댁뒋 ?鍮?
                 if (!studyData.examType || (studyData.examType + '').trim() === '') {
-                    studyData.examType = '1차';
+                    studyData.examType = '1李?;
                 } else {
-                    studyData.examType = (studyData.examType + '').trim().includes('2') ? '2차' : '1차';
+                    studyData.examType = (studyData.examType + '').trim().includes('2') ? '2李? : '1李?;
                 }
 
-                // 시험 일정 키 보정
+                // ?쒗뿕 ?쇱젙 ??蹂댁젙
                 if (!studyData.examDates || typeof studyData.examDates !== 'object') {
-                    studyData.examDates = { '1차': null, '2차': null };
+                    studyData.examDates = { '1李?: null, '2李?: null };
                 }
 
-                // 과목 설정 업데이트
+                // 怨쇰ぉ ?ㅼ젙 ?낅뜲?댄듃
                 updateSubjectsByExamType();
 
-                // 로컬 스토리지에 저장
-                saveData();
+                // 濡쒖뺄 ?ㅽ넗由ъ??????                saveData();
 
-                // 모달 닫기
+                // 紐⑤떖 ?リ린
                 closeModal('importConfirmModal');
 
-                // 성공 토스트
-                showToast('데이터를 성공적으로 가져왔습니다! 페이지를 새로고침합니다.', 'success');
+                // ?깃났 ?좎뒪??                showToast('?곗씠?곕? ?깃났?곸쑝濡?媛?몄솕?듬땲?? ?섏씠吏瑜??덈줈怨좎묠?⑸땲??', 'success');
 
-                // 페이지 새로고침 (모든 UI 업데이트)
+                // ?섏씠吏 ?덈줈怨좎묠 (紐⑤뱺 UI ?낅뜲?댄듃)
                 setTimeout(() => {
                     location.reload();
                 }, 1500);
 
-                // 임시 데이터 정리
+                // ?꾩떆 ?곗씠???뺣━
                 pendingImportData = null;
 
                 console.log('Data imported successfully');
 
             } catch (error) {
                 console.error('Import error:', error);
-                showToast('데이터 가져오기 중 오류가 발생했습니다', 'error');
+                showToast('?곗씠??媛?몄삤湲?以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎', 'error');
 
-                // 백업 복구 시도
+                // 諛깆뾽 蹂듦뎄 ?쒕룄
                 try {
                     const backup = sessionStorage.getItem('studyDataBackup');
                     if (backup) {
                         studyData = JSON.parse(backup);
                         saveData();
-                        showToast('이전 데이터로 복구되었습니다', 'info');
+                        showToast('?댁쟾 ?곗씠?곕줈 蹂듦뎄?섏뿀?듬땲??, 'info');
                     }
                 } catch (restoreError) {
                     console.error('Failed to restore backup:', restoreError);
                 }
             } finally {
-                // 파일 입력 초기화
-                const fileInput = document.getElementById('importFileInput');
+                // ?뚯씪 ?낅젰 珥덇린??                const fileInput = document.getElementById('importFileInput');
                 if (fileInput) {
                     fileInput.value = '';
                 }
             }
         }
 
-        // 타이머 시작 시 스트릭 업데이트
+        // ??대㉧ ?쒖옉 ???ㅽ듃由??낅뜲?댄듃
         const originalStartTimer = startTimer;
         startTimer = function() {
             originalStartTimer();
@@ -4978,7 +4946,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             renderAnalytics();
         };
 
-        // 타임블록 완료 시 분석 업데이트
+        // ??꾨툝濡??꾨즺 ??遺꾩꽍 ?낅뜲?댄듃
         const originalToggleTimeBlock = toggleTimeBlock;
         toggleTimeBlock = function(id) {
             originalToggleTimeBlock(id);
@@ -4986,7 +4954,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             renderAnalytics();
         };
 
-        // 초기화 실행
+        // 珥덇린???ㅽ뻾
         init();
 
         // ===== DARK MODE FUNCTIONALITY =====
@@ -5000,9 +4968,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
             // Update icon
             const icon = document.getElementById('theme-icon');
-            icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            icon.textContent = newTheme === 'dark' ? '?截? : '?뙔';
 
-            showToast(`${newTheme === 'dark' ? '다크' : '라이트'} 모드로 전환되었습니다`, 'info');
+            showToast(`${newTheme === 'dark' ? '?ㅽ겕' : '?쇱씠??} 紐⑤뱶濡??꾪솚?섏뿀?듬땲??, 'info');
         }
 
         // Load theme on page load
@@ -5011,7 +4979,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             document.documentElement.setAttribute('data-theme', savedTheme);
             const icon = document.getElementById('theme-icon');
             if (icon) {
-                icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+                icon.textContent = savedTheme === 'dark' ? '?截? : '?뙔';
             }
 
             // Initialize chart controls
@@ -5036,7 +5004,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
                     // Re-render chart
                     renderSubjectTimeChart();
-                    showToast(`${sortType === 'time' ? '시간순' : '이름순'}으로 정렬되었습니다`, 'info');
+                    showToast(`${sortType === 'time' ? '?쒓컙?? : '?대쫫??}?쇰줈 ?뺣젹?섏뿀?듬땲??, 'info');
                 });
             });
 
@@ -5056,7 +5024,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
                     // Re-render chart
                     renderSubjectTimeChart();
-                    showToast(`${viewType === 'hours' ? '시간' : '비율'} 단위로 표시합니다`, 'info');
+                    showToast(`${viewType === 'hours' ? '?쒓컙' : '鍮꾩쑉'} ?⑥쐞濡??쒖떆?⑸땲??, 'info');
                 });
             });
         }
@@ -5068,15 +5036,15 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     if (!window.studyData) return;
                     // Normalize examType
                     const t = (studyData.examType || '').toString().trim();
-                    studyData.examType = t.includes('2') ? '2차' : '1차';
+                    studyData.examType = t.includes('2') ? '2李? : '1李?;
                     // Normalize examDates keys
                     if (!studyData.examDates || typeof studyData.examDates !== 'object') {
-                        studyData.examDates = { '1차': null, '2차': null };
+                        studyData.examDates = { '1李?: null, '2李?: null };
                     } else {
                         const d = studyData.examDates;
-                        const v1 = d['1차'] || d['1'] || d['1st'] || null;
-                        const v2 = d['2차'] || d['2'] || d['2nd'] || null;
-                        studyData.examDates = { '1차': v1, '2차': v2 };
+                        const v1 = d['1李?] || d['1'] || d['1st'] || null;
+                        const v2 = d['2李?] || d['2'] || d['2nd'] || null;
+                        studyData.examDates = { '1李?: v1, '2李?: v2 };
                     }
                 } catch(e) {}
             }
@@ -5104,13 +5072,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         card.className = `dday-card ${cls}`;
                     } else {
                         const v = document.getElementById(valueId); if (v) v.textContent = 'D-?';
-                        const d = document.getElementById(dateId); if (d) d.textContent = '날짜 미설정';
+                        const d = document.getElementById(dateId); if (d) d.textContent = '?좎쭨 誘몄꽕??;
                         card.className = 'dday-card';
                     }
                 }
 
-                updateCard('1차','dday-1st-value','dday-1st-date','dday-1st-card');
-                updateCard('2차','dday-2nd-value','dday-2nd-date','dday-2nd-card');
+                updateCard('1李?,'dday-1st-value','dday-1st-date','dday-1st-card');
+                updateCard('2李?,'dday-2nd-value','dday-2nd-date','dday-2nd-card');
             };
 
             // Safe replacement for saveExamDate to avoid broken strings
@@ -5124,27 +5092,27 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         if (typeof saveData === 'function') saveData();
                         if (typeof updateDDay === 'function') updateDDay();
                         if (typeof closeModal === 'function') closeModal('examDateModal');
-                        if (typeof showToast === 'function') showToast(`${editingExamType} 시험 날짜가 설정되었습니다`, 'success');
+                        if (typeof showToast === 'function') showToast(`${editingExamType} ?쒗뿕 ?좎쭨媛 ?ㅼ젙?섏뿀?듬땲??, 'success');
                         editingExamType = null;
                     } else {
-                        if (typeof showToast === 'function') showToast('시험 날짜를 입력해 주세요', 'error');
+                        if (typeof showToast === 'function') showToast('?쒗뿕 ?좎쭨瑜??낅젰??二쇱꽭??, 'error');
                     }
                 } catch(e) {
-                    try { if (typeof showToast==='function') showToast('날짜 저장 중 오류가 발생했습니다', 'error'); } catch(_){}
+                    try { if (typeof showToast==='function') showToast('?좎쭨 ???以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎', 'error'); } catch(_){}
                 }
             };
 
             function adjustDDayDom(){
                 const c1 = document.getElementById('dday-1st-card');
                 const c2 = document.getElementById('dday-2nd-card');
-                if (c1) c1.onclick = function(){ editExamDate('1차'); };
-                if (c2) c2.onclick = function(){ editExamDate('2차'); };
-                const d1 = document.getElementById('dday-1st-date'); if (d1 && !d1.textContent) d1.textContent = '날짜 미설정';
-                const d2 = document.getElementById('dday-2nd-date'); if (d2 && !d2.textContent) d2.textContent = '날짜 미설정';
+                if (c1) c1.onclick = function(){ editExamDate('1李?); };
+                if (c2) c2.onclick = function(){ editExamDate('2李?); };
+                const d1 = document.getElementById('dday-1st-date'); if (d1 && !d1.textContent) d1.textContent = '?좎쭨 誘몄꽕??;
+                const d2 = document.getElementById('dday-2nd-date'); if (d2 && !d2.textContent) d2.textContent = '?좎쭨 誘몄꽕??;
                 const btns = document.getElementsByClassName('dday-edit-btn');
                 if (btns && btns.length>=2){
-                    if (btns[0]) { btns[0].textContent = '날짜 설정'; btns[0].onclick = function(e){ e.stopPropagation(); editExamDate('1차'); }; }
-                    if (btns[1]) { btns[1].textContent = '날짜 설정'; btns[1].onclick = function(e){ e.stopPropagation(); editExamDate('2차'); }; }
+                    if (btns[0]) { btns[0].textContent = '?좎쭨 ?ㅼ젙'; btns[0].onclick = function(e){ e.stopPropagation(); editExamDate('1李?); }; }
+                    if (btns[1]) { btns[1].textContent = '?좎쭨 ?ㅼ젙'; btns[1].onclick = function(e){ e.stopPropagation(); editExamDate('2李?); }; }
                 }
             }
 
@@ -5152,8 +5120,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const sel = document.querySelector('.study-mode-selector');
                 if (!sel) return;
                 const btns = sel.querySelectorAll('button');
-                if (btns[0]) { btns[0].textContent = '1차 시험'; btns[0].onclick = function(){ setExamType('1차'); }; }
-                if (btns[1]) { btns[1].textContent = '2차 시험'; btns[1].onclick = function(){ setExamType('2차'); }; }
+                if (btns[0]) { btns[0].textContent = '1李??쒗뿕'; btns[0].onclick = function(){ setExamType('1李?); }; }
+                if (btns[1]) { btns[1].textContent = '2李??쒗뿕'; btns[1].onclick = function(){ setExamType('2李?); }; }
             }
 
             document.addEventListener('DOMContentLoaded', function(){
@@ -5161,9 +5129,88 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 adjustDDayDom();
                 adjustModeButtons();
                 if (typeof updateDDay === 'function') updateDDay();
+                adjustUILabels();
+                applyA11yEnhancements();
             });
-        })();
+        })(            function adjustUILabels(){
+                try {
+                    // Header title
+                    const titleEl = document.querySelector('.title');
+                    if (titleEl) titleEl.textContent = '법무사 시험 학습 시스템 v2.6.0';
+
+                    // Theme icon
+                    const themeIcon = document.getElementById('theme-icon');
+                    if (themeIcon && document.documentElement.getAttribute('data-theme') === 'dark') themeIcon.textContent = '🌙';
+                    else if (themeIcon) themeIcon.textContent = '☀️';
+
+                    // Chart titles
+                    const subjTitle = document.getElementById('subject-chart-title');
+                    if (subjTitle) subjTitle.textContent = '과목별 학습 시간 분포';
+                    const mockTitle = document.getElementById('mock-chart-title');
+                    if (mockTitle) mockTitle.textContent = '모의고사 점수 추이';
+
+                    // Analytics card header (find title by icon id)
+                    const analyticsIcon = document.getElementById('analytics-icon');
+                    if (analyticsIcon && analyticsIcon.parentElement) {
+                        const h2 = analyticsIcon.parentElement.querySelector('.card-title');
+                        if (h2) h2.textContent = '학습 분석 대시보드';
+                    }
+
+                    // Card titles by nearby container IDs
+                    function setCardTitleByContainerId(containerId, text){
+                        const c = document.getElementById(containerId);
+                        if (!c) return;
+                        let parent = c.closest('.card');
+                        if (!parent) parent = c.parentElement;
+                        const t = parent ? parent.querySelector('.card-title') : null;
+                        if (t) t.textContent = text;
+                    }
+                    setCardTitleByContainerId('goals-container','학습 목표');
+                    setCardTitleByContainerId('subject-progress','과목별 진도 현황');
+                    setCardTitleByContainerId('mock-scores','모의고사 점수');
+                    setCardTitleByContainerId('time-blocks-container','오늘 학습 계획');
+
+                    // Notes section title
+                    const notes = document.getElementById('study-notes');
+                    if (notes) {
+                        const notesCard = notes.closest('.card');
+                        const title = notesCard ? notesCard.querySelector('.card-title') : null;
+                        if (title) title.textContent = '오늘 학습 노트';
+                    }
+
+                    // Data management title
+                    const dm = document.querySelector('.data-management-card .card-title');
+                    if (dm) dm.textContent = '데이터 관리';
+                } catch(e) {}
+            }
+
+            function applyA11yEnhancements(){
+                try {
+                    // Theme toggle
+                    const themeToggle = document.querySelector('.theme-toggle');
+                    if (themeToggle) themeToggle.setAttribute('aria-label','테마 전환');
+
+                    // Icon-only action buttons
+                    document.querySelectorAll('.action-btn').forEach((btn)=>{
+                        if (!btn.getAttribute('aria-label')) btn.setAttribute('aria-label','작업');
+                    });
+                    document.querySelectorAll('.score-action-btn').forEach((btn)=>{
+                        if (btn.textContent.includes('✏') || btn.textContent.includes('편')) btn.setAttribute('aria-label','편집');
+                        else btn.setAttribute('aria-label','삭제');
+                    });
+                    document.querySelectorAll('.goal-btn').forEach((btn)=>{
+                        if (btn.textContent.includes('✏') || btn.textContent.includes('편')) btn.setAttribute('aria-label','목표 편집');
+                        else btn.setAttribute('aria-label','목표 삭제');
+                    });
+
+                    // Bars focusable (if not already)
+                    document.querySelectorAll('.bar').forEach((bar)=>{
+                        if (!bar.hasAttribute('tabindex')) bar.setAttribute('tabindex','0');
+                    });
+                } catch(e) {}
+            })();
 
     </script>
 </body>
 </html>
+
