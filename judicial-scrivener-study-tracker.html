@@ -2835,6 +2835,18 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
 
             // 시험 타입에 따라 과목 설정
+            // 시험 유형 문자열 정규화 (인코딩 이슈 대비)
+            if (!studyData.examType || (studyData.examType + '').trim() === '') {
+                studyData.examType = '1차';
+            } else {
+                studyData.examType = (studyData.examType + '').trim().includes('2') ? '2차' : '1차';
+            }
+
+            // 시험 일정 키 보정
+            if (!studyData.examDates || typeof studyData.examDates !== 'object') {
+                studyData.examDates = { '1차': null, '2차': null };
+            }
+
             updateSubjectsByExamType();
 
             // 오늘 타이머 데이터 로드
@@ -3231,9 +3243,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 
                 let circlesHtml = '';
                 subject.rotations.forEach((completed, i) => {
-                    const isCurrentjsxjs = completed && !subject.rotations[i + 1];
+                    const isCurrent = completed && !subject.rotations[i + 1];
                     circlesHtml += `
-                        <div class="rotation-circle ${completed ? 'completed' : ''} ${isCurrentjsxjs ? 'current' : ''}" 
+                        <div class="rotation-circle ${completed ? 'completed' : ''} ${isCurrent ? 'current' : ''}" 
                              onclick="toggleRotation(${idx}, ${i})">
                             ${i + 1}
                         </div>
@@ -4584,7 +4596,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             if (goal) {
                 editingGoalId = id;
                 document.getElementById('goalTitle').value = goal.title;
-                document.getElementById('goalDate').value = goal.deadline;
+                document.getElementById('goalDate').value = goal.date;
                 document.getElementById('goalProgress').value = goal.progress;
                 document.querySelector('#goalModal .modal-title').textContent = '학습 목표 수정';
                 document.getElementById('goalModal').classList.add('show');
@@ -4900,6 +4912,18 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     studyHistory: imported.studyHistory || []
                 };
 
+                // 시험 유형 문자열 정규화 (인코딩 이슈 대비)
+                if (!studyData.examType || (studyData.examType + '').trim() === '') {
+                    studyData.examType = '1차';
+                } else {
+                    studyData.examType = (studyData.examType + '').trim().includes('2') ? '2차' : '1차';
+                }
+
+                // 시험 일정 키 보정
+                if (!studyData.examDates || typeof studyData.examDates !== 'object') {
+                    studyData.examDates = { '1차': null, '2차': null };
+                }
+
                 // 과목 설정 업데이트
                 updateSubjectsByExamType();
 
@@ -5037,6 +5061,108 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             });
         }
 
+        // ===== Runtime Patches: Normalize exam keys and repair D-Day/UI bindings =====
+        (function(){
+            function normalizeExamState() {
+                try {
+                    if (!window.studyData) return;
+                    // Normalize examType
+                    const t = (studyData.examType || '').toString().trim();
+                    studyData.examType = t.includes('2') ? '2차' : '1차';
+                    // Normalize examDates keys
+                    if (!studyData.examDates || typeof studyData.examDates !== 'object') {
+                        studyData.examDates = { '1차': null, '2차': null };
+                    } else {
+                        const d = studyData.examDates;
+                        const v1 = d['1차'] || d['1'] || d['1st'] || null;
+                        const v2 = d['2차'] || d['2'] || d['2nd'] || null;
+                        studyData.examDates = { '1차': v1, '2차': v2 };
+                    }
+                } catch(e) {}
+            }
+
+            // Override updateDDay with a robust version
+            window.updateDDay = function updateDDayPatched(){
+                normalizeExamState();
+                const today = new Date();
+                today.setHours(0,0,0,0);
+
+                function updateCard(key, valueId, dateId, cardId){
+                    const dateStr = studyData.examDates[key];
+                    const card = document.getElementById(cardId);
+                    if (!card) return;
+                    if (dateStr) {
+                        const target = new Date(dateStr);
+                        target.setHours(0,0,0,0);
+                        const diffDays = Math.ceil((target - today)/(1000*60*60*24));
+                        let txt = '', cls='normal';
+                        if (diffDays > 0) { txt = `D-${diffDays}`; cls = diffDays <= 30 ? 'urgent' : (diffDays <= 90 ? 'warning' : 'normal'); }
+                        else if (diffDays === 0) { txt = 'D-Day'; cls='urgent'; }
+                        else { txt = `D+${Math.abs(diffDays)}`; }
+                        const v = document.getElementById(valueId); if (v) v.textContent = txt;
+                        const d = document.getElementById(dateId); if (d) d.textContent = dateStr;
+                        card.className = `dday-card ${cls}`;
+                    } else {
+                        const v = document.getElementById(valueId); if (v) v.textContent = 'D-?';
+                        const d = document.getElementById(dateId); if (d) d.textContent = '날짜 미설정';
+                        card.className = 'dday-card';
+                    }
+                }
+
+                updateCard('1차','dday-1st-value','dday-1st-date','dday-1st-card');
+                updateCard('2차','dday-2nd-value','dday-2nd-date','dday-2nd-card');
+            };
+
+            // Safe replacement for saveExamDate to avoid broken strings
+            window.saveExamDate = function(){
+                try {
+                    if (typeof editingExamType === 'undefined' || !editingExamType) return;
+                    const dateValue = (document.getElementById('examDateInput')||{}).value;
+                    if (dateValue) {
+                        if (!studyData.examDates) studyData.examDates = {};
+                        studyData.examDates[editingExamType] = dateValue;
+                        if (typeof saveData === 'function') saveData();
+                        if (typeof updateDDay === 'function') updateDDay();
+                        if (typeof closeModal === 'function') closeModal('examDateModal');
+                        if (typeof showToast === 'function') showToast(`${editingExamType} 시험 날짜가 설정되었습니다`, 'success');
+                        editingExamType = null;
+                    } else {
+                        if (typeof showToast === 'function') showToast('시험 날짜를 입력해 주세요', 'error');
+                    }
+                } catch(e) {
+                    try { if (typeof showToast==='function') showToast('날짜 저장 중 오류가 발생했습니다', 'error'); } catch(_){}
+                }
+            };
+
+            function adjustDDayDom(){
+                const c1 = document.getElementById('dday-1st-card');
+                const c2 = document.getElementById('dday-2nd-card');
+                if (c1) c1.onclick = function(){ editExamDate('1차'); };
+                if (c2) c2.onclick = function(){ editExamDate('2차'); };
+                const d1 = document.getElementById('dday-1st-date'); if (d1 && !d1.textContent) d1.textContent = '날짜 미설정';
+                const d2 = document.getElementById('dday-2nd-date'); if (d2 && !d2.textContent) d2.textContent = '날짜 미설정';
+                const btns = document.getElementsByClassName('dday-edit-btn');
+                if (btns && btns.length>=2){
+                    if (btns[0]) { btns[0].textContent = '날짜 설정'; btns[0].onclick = function(e){ e.stopPropagation(); editExamDate('1차'); }; }
+                    if (btns[1]) { btns[1].textContent = '날짜 설정'; btns[1].onclick = function(e){ e.stopPropagation(); editExamDate('2차'); }; }
+                }
+            }
+
+            function adjustModeButtons(){
+                const sel = document.querySelector('.study-mode-selector');
+                if (!sel) return;
+                const btns = sel.querySelectorAll('button');
+                if (btns[0]) { btns[0].textContent = '1차 시험'; btns[0].onclick = function(){ setExamType('1차'); }; }
+                if (btns[1]) { btns[1].textContent = '2차 시험'; btns[1].onclick = function(){ setExamType('2차'); }; }
+            }
+
+            document.addEventListener('DOMContentLoaded', function(){
+                normalizeExamState();
+                adjustDDayDom();
+                adjustModeButtons();
+                if (typeof updateDDay === 'function') updateDDay();
+            });
+        })();
 
     </script>
 </body>
