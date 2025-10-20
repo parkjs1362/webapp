@@ -2,8 +2,33 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 2.8.0
+    Version: 2.9.0
     Last Updated: 2025-10-20
+
+    Changes in v2.9.0 - Fixed Card Overlapping & Improved Responsive Layout (2025):
+    - CRITICAL: Fixed overlapping card issues in dashboard layout
+      * Changed .today-plan from grid-column: span 2 to span 1 to prevent overlap
+      * Improved dashboard-grid with better responsive breakpoints (1400px, 1024px, 768px)
+      * Changed grid minmax from 400px to 320px for better flexibility
+      * Added align-items: start to prevent cards from stretching
+    - IMPROVED: Card layout and spacing
+      * Added min-height: 200px to cards for consistent sizing
+      * Added display: flex and flex-direction: column for better content flow
+      * Improved overflow handling with overflow: visible
+    - IMPROVED: Time blocks grid layout
+      * Changed from auto-fit to auto-fill for better wrapping behavior
+      * Increased minmax from 220px to 240px for better content fit
+      * Added width: 100% for proper container sizing
+    - IMPROVED: Responsive breakpoints
+      * Added dedicated breakpoints for 1400px+ (3 columns)
+      * Added dedicated breakpoints for 1024-1399px (2 columns)
+      * Added dedicated breakpoints for 768-1023px (2 columns)
+      * Added dedicated breakpoints for 767px and below (1 column)
+      * Added mobile-specific card min-heights (150px, 120px)
+    - CLEANED: Removed duplicate CSS rules
+      * Removed duplicate .card shadow rules
+      * Cleaned up redundant dashboard-grid media queries
+      * Consolidated responsive design sections
 
     Changes in v2.8.0 - Complete Modern UI/UX Redesign (2024):
     - COMPLETE REDESIGN: Implemented modern, spacious layout system
@@ -155,7 +180,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v2.8.0</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v2.9.0</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -436,14 +461,36 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         /* 대시보드 그리드 - Modern Spacious Layout */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: var(--spacing-lg);
             margin-bottom: var(--spacing-2xl);
+            align-items: start;
         }
 
-        @media (max-width: 480px) {
+        /* Responsive breakpoints for dashboard grid */
+        @media (min-width: 1400px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) and (max-width: 1399px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-md);
+            }
+        }
+
+        @media (max-width: 767px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
+                gap: var(--spacing-md);
             }
         }
 
@@ -455,6 +502,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             border: 1px solid var(--border-color);
             transition: transform var(--transition-base), box-shadow var(--transition-base), background-color var(--transition-base);
             position: relative;
+            min-height: 200px;
+            height: auto;
+            overflow: visible;
+            display: flex;
+            flex-direction: column;
         }
 
         .card:hover {
@@ -514,14 +566,15 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         /* 오늘의 학습 계획 */
         .today-plan {
-            grid-column: span 2;
+            grid-column: span 1;
         }
         
         .time-blocks {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: var(--spacing-md);
             margin-bottom: var(--spacing-lg);
+            width: 100%;
         }
 
         .time-block {
@@ -1145,26 +1198,38 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             border-color: var(--accent-color);
         }
         
-        /* 반응형 디자인 */
+        /* 추가 반응형 디자인 */
         @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .today-plan {
-                grid-column: span 1;
-            }
-            
             .timer-display {
                 font-size: 2.5rem;
             }
-            
+
             .weekly-stats {
                 grid-template-columns: repeat(4, 1fr);
             }
-            
+
             .time-blocks {
                 grid-template-columns: 1fr;
+            }
+
+            .card {
+                min-height: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .time-blocks {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-sm);
+            }
+
+            .card {
+                padding: var(--spacing-md);
+                min-height: 120px;
+            }
+
+            .card-title {
+                font-size: var(--font-size-lg);
             }
         }
         
@@ -2127,17 +2192,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             outline-offset: 2px;
         }
 
-        /* Improved Card Shadows */
-        .card {
-            box-shadow: var(--shadow-sm);
-            transition: all var(--transition-base);
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-        }
-
         /* Loading Spinner for Better Feedback */
         .spinner {
             display: inline-block;
@@ -2156,10 +2210,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 margin: 20px auto;
             }
 
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
             .header-top {
                 flex-direction: column;
                 align-items: flex-start;
@@ -2167,10 +2217,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
             .title {
                 font-size: var(--font-size-xl);
-            }
-
-            .card-title {
-                font-size: var(--font-size-base);
             }
 
             /* Larger touch targets on mobile */
@@ -2209,7 +2255,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v2.8.0</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v2.9.0</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -2503,7 +2549,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
-            시험 전략적 학습 시스템 v2.8.0 | 완전히 새로운 현대적 UI/UX 디자인 | 1차/2차 시험 지원 | 학습 분석 & 목표 관리
+            시험 전략적 학습 시스템 v2.9.0 | 카드 오버랩 수정 & 반응형 레이아웃 개선 | 1차/2차 시험 지원 | 학습 분석 & 목표 관리
         </div>
     </div>
     
@@ -4528,7 +4574,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             try {
                 // 내보낼 데이터 준비 (민감한 정보 제외, 불필요한 필드 제거)
                 const exportData = {
-                    version: '2.6.0',
+                    version: '2.9.0',
                     exportDate: new Date().toISOString(),
                     data: {
                         examType: studyData.examType,
