@@ -2,10 +2,24 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 2.5.0
-    Last Updated: 2025-10-15
+    Version: 2.6.0
+    Last Updated: 2025-10-20
 
-    
+    Changes in v2.6.0 - Dashboard UX Redesign & Benchmark Integration:
+    - REMOVED: "오늘의 학습 추천" section for cleaner interface
+    - REMOVED: "집중 필요 과목" section to reduce clutter
+    - ADDED: Benchmark comparison bars in analytics dashboard
+      * Total study hours benchmark: 800-1200h for exam preparation
+      * Daily average benchmark: 4-5h/day target
+      * Mock exam benchmark: 60 points (passing grade)
+      * Progress bars with color-coded indicators (green/blue/orange based on performance)
+    - ENHANCED: Analytics dashboard now shows user's position vs. exam pass standards
+      * Visual progress bars with animated shimmer effect
+      * Responsive color coding based on achievement level
+      * Real-time benchmark comparison updates
+    - IMPROVED: Overall dashboard layout and visual hierarchy
+    - CLEANED: Removed unnecessary backup files and temporary scripts
+
     Changes in v2.5.0 - Analytics Enhancement, Dark Mode & UX Improvements:
     - CRITICAL: Fixed analytics dashboard to use REAL user data instead of sample data
       * Subject time distribution now calculates from actual time blocks, timer, and progress
@@ -87,7 +101,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v2.5.0</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v2.6.0</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -1308,6 +1322,49 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             color: var(--text-secondary);
         }
 
+        .analytics-benchmark {
+            margin-top: 12px;
+            text-align: left;
+        }
+
+        .benchmark-label {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-bottom: 6px;
+        }
+
+        .benchmark-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .benchmark-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), var(--success-color));
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .benchmark-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
         /* 차트 스타일 */
         .chart-container {
             background: var(--bg-light);
@@ -1901,7 +1958,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v2.5.0</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v2.6.0</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -1953,23 +2010,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
             </div>
 
-            <!-- 스마트 학습 추천 -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">💡 오늘의 학습 추천</h2>
-                </div>
-                <div class="recommendation-card">
-                    <div class="recommendation-title">
-                        <span>🎯</span>
-                        <span>맞춤 학습 전략</span>
-                    </div>
-                    <ul class="recommendation-list" id="smart-recommendations">
-                        <!-- 동적으로 생성됩니다 -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-
         <!-- 학습 분석 대시보드 -->
         <div class="card">
             <div class="card-header collapsible-header" onclick="toggleCollapse('analytics-section')">
@@ -1981,18 +2021,42 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     <div class="analytics-stat">
                         <div class="analytics-label">총 학습 시간</div>
                         <div class="analytics-value" id="total-study-hours">0h</div>
+                        <div class="analytics-benchmark">
+                            <div class="benchmark-label">합격자 평균: 800-1200h</div>
+                            <div class="benchmark-bar">
+                                <div class="benchmark-fill" id="total-hours-progress"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="analytics-stat">
                         <div class="analytics-label">일평균 학습</div>
                         <div class="analytics-value" id="avg-daily-hours">0h</div>
+                        <div class="analytics-benchmark">
+                            <div class="benchmark-label">합격자 평균: 4-5h/day</div>
+                            <div class="benchmark-bar">
+                                <div class="benchmark-fill" id="daily-hours-progress"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="analytics-stat">
                         <div class="analytics-label">전체 진도율</div>
                         <div class="analytics-value" id="overall-progress">0%</div>
+                        <div class="analytics-benchmark">
+                            <div class="benchmark-label">목표: 100%</div>
+                            <div class="benchmark-bar">
+                                <div class="benchmark-fill" id="progress-bar"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="analytics-stat">
                         <div class="analytics-label">모의고사 평균</div>
                         <div class="analytics-value" id="avg-mock-score">0점</div>
+                        <div class="analytics-benchmark">
+                            <div class="benchmark-label">합격선: 60점</div>
+                            <div class="benchmark-bar">
+                                <div class="benchmark-fill" id="mock-score-progress"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2014,29 +2078,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             </div>
         </div>
 
-        <!-- 약점 과목 & 목표 관리 -->
-        <div class="dashboard-grid">
-            <!-- 약점 과목 식별 -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">⚠️ 집중 필요 과목</h2>
-                </div>
-                <div id="weak-subjects-container">
-                    <!-- 동적으로 생성됩니다 -->
+        <!-- 목표 설정 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">🎯 학습 목표</h2>
+                <div class="card-actions">
+                    <button class="action-btn" onclick="addGoal()">➕</button>
                 </div>
             </div>
-
-            <!-- 목표 설정 & 마일스톤 -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">🎯 학습 목표</h2>
-                    <div class="card-actions">
-                        <button class="action-btn" onclick="addGoal()">➕</button>
-                    </div>
-                </div>
-                <div id="goals-container">
-                    <!-- 동적으로 생성됩니다 -->
-                </div>
+            <div id="goals-container">
+                <!-- 동적으로 생성됩니다 -->
             </div>
         </div>
 
@@ -2575,9 +2626,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             loadTodayNotes();
             rotateMotivation();
             renderAnalytics();
-            renderWeakSubjects();
             renderGoals();
-            renderSmartRecommendations();
 
             // 시험 타입 및 모드 설정
             document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -3684,16 +3733,78 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             document.getElementById('overall-progress').textContent = overallProgress + '%';
 
             // Calculate mock exam average from REAL user data
+            let avgScore = 0;
             if (studyData.mockScores.length > 0) {
-                const avgScore = studyData.mockScores.reduce((sum, s) => sum + s.score, 0) / studyData.mockScores.length;
+                avgScore = studyData.mockScores.reduce((sum, s) => sum + s.score, 0) / studyData.mockScores.length;
                 document.getElementById('avg-mock-score').textContent = avgScore.toFixed(1) + '점';
             } else {
                 document.getElementById('avg-mock-score').textContent = '-';
             }
 
+            // Update benchmark progress bars
+            updateBenchmarkProgress(totalHours, avgHours, overallProgress, avgScore);
+
             // Render enhanced charts with real data
             renderSubjectTimeChart();
             renderMockScoreChart();
+        }
+
+        function updateBenchmarkProgress(totalHours, avgHours, overallProgress, avgScore) {
+            // Total study hours benchmark: 800-1200h (use 1000 as target)
+            const totalHoursPercent = Math.min((totalHours / 1000) * 100, 100);
+            const totalHoursBar = document.getElementById('total-hours-progress');
+            if (totalHoursBar) {
+                totalHoursBar.style.width = totalHoursPercent + '%';
+                // Color coding
+                if (totalHoursPercent >= 80) {
+                    totalHoursBar.style.background = 'linear-gradient(90deg, var(--success-color), #34D399)';
+                } else if (totalHoursPercent >= 50) {
+                    totalHoursBar.style.background = 'linear-gradient(90deg, var(--accent-color), var(--success-color))';
+                } else {
+                    totalHoursBar.style.background = 'linear-gradient(90deg, var(--warning-color), var(--accent-color))';
+                }
+            }
+
+            // Daily average benchmark: 4-5h (use 4.5 as target)
+            const dailyHoursPercent = Math.min((avgHours / 4.5) * 100, 100);
+            const dailyHoursBar = document.getElementById('daily-hours-progress');
+            if (dailyHoursBar) {
+                dailyHoursBar.style.width = dailyHoursPercent + '%';
+                if (dailyHoursPercent >= 90) {
+                    dailyHoursBar.style.background = 'linear-gradient(90deg, var(--success-color), #34D399)';
+                } else if (dailyHoursPercent >= 60) {
+                    dailyHoursBar.style.background = 'linear-gradient(90deg, var(--accent-color), var(--success-color))';
+                } else {
+                    dailyHoursBar.style.background = 'linear-gradient(90deg, var(--warning-color), var(--accent-color))';
+                }
+            }
+
+            // Overall progress benchmark: 100%
+            const progressBar = document.getElementById('progress-bar');
+            if (progressBar) {
+                progressBar.style.width = overallProgress + '%';
+                if (overallProgress >= 90) {
+                    progressBar.style.background = 'linear-gradient(90deg, var(--success-color), #34D399)';
+                } else if (overallProgress >= 50) {
+                    progressBar.style.background = 'linear-gradient(90deg, var(--accent-color), var(--success-color))';
+                } else {
+                    progressBar.style.background = 'linear-gradient(90deg, var(--warning-color), var(--accent-color))';
+                }
+            }
+
+            // Mock score benchmark: 60 points (passing grade)
+            const mockScorePercent = avgScore > 0 ? Math.min((avgScore / 100) * 100, 100) : 0;
+            const mockScoreBar = document.getElementById('mock-score-progress');
+            if (mockScoreBar) {
+                mockScoreBar.style.width = mockScorePercent + '%';
+                if (avgScore >= 60) {
+                    mockScoreBar.style.background = 'linear-gradient(90deg, var(--success-color), #34D399)';
+                } else if (avgScore >= 40) {
+                    mockScoreBar.style.background = 'linear-gradient(90deg, var(--accent-color), var(--success-color))';
+                } else if (avgScore > 0) {
+                    mockScoreBar.style.background = 'linear-gradient(90deg, var(--danger-color), var(--warning-color))';
+                }
+            }
         }
 
 
@@ -4166,7 +4277,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             try {
                 // 내보낼 데이터 준비 (민감한 정보 제외, 불필요한 필드 제거)
                 const exportData = {
-                    version: '2.5.0',
+                    version: '2.6.0',
                     exportDate: new Date().toISOString(),
                     data: {
                         examType: studyData.examType,
@@ -4507,7 +4618,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             originalToggleTimeBlock(id);
             updateStreak();
             renderAnalytics();
-            renderSmartRecommendations();
         };
 
         // 초기화 실행
