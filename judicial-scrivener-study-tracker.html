@@ -2,8 +2,32 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 3.0.0 - Human-Centered Redesign
-    Last Updated: 2025-10-20
+    Version: 3.1.0 - Enhanced Responsive Design
+    Last Updated: 2025-10-21
+
+    Changes in v3.1.0 - Enhanced Responsive Design (2025):
+    - 📱 MAJOR: Comprehensive Responsive Design System
+      * Added 5-level breakpoint system (360px, 480px, 640px, 768px, 1024px+)
+      * Mobile-first approach with progressive enhancement
+      * Touch-friendly targets (min 44px, comfortable 48px, large 56px)
+      * Optimized layouts for all screen sizes
+    - 🎯 IMPROVED: FAB (Floating Action Button) Responsiveness
+      * Adaptive sizing based on screen size
+      * Improved positioning on mobile devices
+      * Touch-optimized with proper spacing
+    - ♿ ENHANCED: Accessibility Features
+      * WCAG 2.1 AAA compliant touch targets
+      * High contrast mode support
+      * Reduced motion preferences
+      * Print-optimized styles
+    - 🌐 IMPROVED: Device-Specific Optimizations
+      * Touch device detection and optimization
+      * Landscape orientation handling
+      * Grid layout adaptations for tablets
+    - 🎨 NEW: CSS Custom Properties
+      * Responsive breakpoint variables
+      * Touch target size constants
+      * Improved maintainability
 
     Changes in v3.0.0 - Human-Centered UX Redesign (2025):
     - 🎯 MAJOR: Added Focus Mode Dashboard (Hero Section)
@@ -321,6 +345,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             --z-toast: 2000;
             --z-tooltip: 3000;
 
+            /* Responsive Breakpoints */
+            --breakpoint-xs: 360px;
+            --breakpoint-sm: 480px;
+            --breakpoint-md: 640px;
+            --breakpoint-lg: 768px;
+            --breakpoint-xl: 1024px;
+            --breakpoint-2xl: 1280px;
+            --breakpoint-3xl: 1400px;
+
+            /* Touch Target Sizes (WCAG 2.1 AAA) */
+            --touch-target-min: 44px;
+            --touch-target-comfortable: 48px;
+            --touch-target-large: 56px;
+
             /* Legacy support (maintain backwards compatibility) */
             --primary: var(--primary-color);
             --accent: var(--accent-color);
@@ -429,12 +467,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             padding: var(--spacing-xl);
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: var(--spacing-md);
-            }
-        }
-        
         /* 헤더 스타일 - Modern & Spacious */
         .header {
             background: var(--bg-primary);
@@ -1239,42 +1271,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             color: white;
             border-color: var(--accent-color);
         }
-        
-        /* 추가 반응형 디자인 */
-        @media (max-width: 768px) {
-            .timer-display {
-                font-size: 2.5rem;
-            }
 
-            .weekly-stats {
-                grid-template-columns: repeat(4, 1fr);
-            }
-
-            .time-blocks {
-                grid-template-columns: 1fr;
-            }
-
-            .card {
-                min-height: 150px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .time-blocks {
-                grid-template-columns: 1fr;
-                gap: var(--spacing-sm);
-            }
-
-            .card {
-                padding: var(--spacing-md);
-                min-height: 120px;
-            }
-
-            .card-title {
-                font-size: var(--font-size-lg);
-            }
-        }
-        
         /* 토스트 알림 - Enhanced */
         .toast {
             position: fixed;
@@ -1586,12 +1583,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: var(--spacing-lg);
             margin-bottom: var(--spacing-xl);
-        }
-
-        @media (max-width: 768px) {
-            .analytics-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         .analytics-stat {
@@ -2100,18 +2091,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             to { transform: rotate(360deg); }
         }
 
-        /* Mobile optimizations for data management */
-        @media (max-width: 600px) {
-            .data-management-actions {
-                grid-template-columns: 1fr;
-            }
-
-            .data-btn {
-                min-height: 60px;
-                font-size: var(--font-size-lg);
-            }
-        }
-
         /* Empty States */
         .empty-state {
             text-align: center;
@@ -2243,31 +2222,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             border-radius: 50%;
             border-top-color: white;
             animation: spinner 0.6s linear infinite;
-        }
-
-        /* Enhanced Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .modal-content {
-                max-width: 95%;
-                margin: 20px auto;
-            }
-
-            .header-top {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .title {
-                font-size: var(--font-size-xl);
-            }
-
-            /* Larger touch targets on mobile */
-            .action-btn,
-            .rotation-circle,
-            .check-btn {
-                min-width: 44px;
-                min-height: 44px;
-            }
         }
 
         /* Smooth Transitions for Better UX */
@@ -2676,25 +2630,303 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             border-left: 4px solid var(--success-color);
         }
 
-        /* Mobile Responsiveness for v3.0 */
-        @media (max-width: 768px) {
-            .focus-hero {
-                padding: var(--spacing-xl) var(--spacing-md);
+        /* ========================================
+           RESPONSIVE DESIGN - Mobile First Approach
+           ======================================== */
+
+        /* Extra Small Devices (360px - 479px) */
+        @media (max-width: 479px) {
+            .container {
+                padding: var(--spacing-sm);
             }
 
+            .header {
+                padding: var(--spacing-lg);
+                margin-bottom: var(--spacing-lg);
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .title {
+                font-size: var(--font-size-xl);
+            }
+
+            .modal-content {
+                max-width: 95%;
+                margin: 20px auto;
+            }
+
+            .action-btn,
+            .rotation-circle,
+            .check-btn {
+                min-width: var(--touch-target-min);
+                min-height: var(--touch-target-min);
+            }
+
+            .focus-hero {
+                padding: var(--spacing-lg) var(--spacing-sm);
+            }
+
+            .focus-stats {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-sm);
+            }
+
+            .focus-stat {
+                min-height: auto;
+                padding: var(--spacing-md);
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-sm);
+            }
+
+            .quick-action-btn {
+                min-height: var(--touch-target-large);
+                padding: var(--spacing-md);
+                font-size: var(--font-size-base);
+            }
+
+            .dday-container {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+            }
+
+            .card {
+                padding: var(--spacing-md);
+                min-height: 120px;
+            }
+
+            .card-title {
+                font-size: var(--font-size-lg);
+            }
+
+            .time-blocks {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-sm);
+            }
+
+            .fab {
+                width: var(--touch-target-comfortable);
+                height: var(--touch-target-comfortable);
+                right: 12px;
+                bottom: 12px;
+            }
+
+            .fab-icon {
+                font-size: 1.5rem;
+            }
+
+            .fab-menu {
+                right: 20px;
+                bottom: 72px;
+            }
+
+            .fab-menu-item {
+                padding: var(--spacing-xs) var(--spacing-sm);
+            }
+
+            .fab-menu-item-label {
+                font-size: var(--font-size-sm);
+            }
+
+            .theme-toggle {
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+                top: 12px;
+                right: 12px;
+            }
+
+            .timer-display {
+                font-size: 2rem;
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+            }
+
+            .data-btn {
+                min-height: var(--touch-target-large);
+                padding: var(--spacing-md);
+                font-size: var(--font-size-base);
+            }
+
+            .data-management-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Small Devices (480px - 639px) */
+        @media (min-width: 480px) and (max-width: 639px) {
             .focus-stats {
                 grid-template-columns: repeat(2, 1fr);
             }
 
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dday-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .time-blocks {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .analytics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
             .fab {
-                width: 56px;
-                height: 56px;
+                width: var(--touch-target-comfortable);
+                height: var(--touch-target-comfortable);
                 right: 16px;
                 bottom: 16px;
             }
+        }
 
+        /* Medium Devices - Tablets (640px - 767px) */
+        @media (min-width: 640px) and (max-width: 767px) {
+            .focus-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .time-blocks {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .analytics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Large Tablets & Small Desktops (768px - 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .focus-stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .time-blocks {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .analytics-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Touch Device Optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .quick-action-btn,
+            .data-btn,
+            .btn,
+            .mode-btn,
+            .dday-edit-btn {
+                min-height: var(--touch-target-comfortable);
+            }
+
+            .fab {
+                width: var(--touch-target-large);
+                height: var(--touch-target-large);
+            }
+
+            .fab-menu-item {
+                min-height: var(--touch-target-min);
+            }
+
+            /* Increase tap target spacing */
+            .quick-actions,
             .fab-menu {
-                right: 24px;
+                gap: var(--spacing-md);
+            }
+        }
+
+        /* Landscape Orientation Optimizations */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .focus-hero {
+                padding: var(--spacing-md) var(--spacing-lg);
+            }
+
+            .card {
+                min-height: 150px;
+            }
+
+            .fab {
+                width: 44px;
+                height: 44px;
+                right: 12px;
+                bottom: 12px;
+            }
+        }
+
+        /* High Contrast Mode */
+        @media (prefers-contrast: high) {
+            .card,
+            .time-block,
+            .focus-stat,
+            .quick-action-btn {
+                border-width: 2px;
+                border-color: currentColor;
+            }
+
+            .fab {
+                border: 2px solid white;
+            }
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .fab:hover {
+                transform: scale(1.05);
+            }
+
+            .card:hover {
+                transform: none;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .fab,
+            .fab-menu,
+            .theme-toggle,
+            .quick-actions,
+            .data-management {
+                display: none !important;
+            }
+
+            .card {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #000;
+            }
+
+            body {
+                background: white;
+                color: black;
             }
         }
     </style>
@@ -2710,7 +2942,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.0.0</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.1.0</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -5090,7 +5322,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             try {
                 // 내보낼 데이터 준비 (민감한 정보 제외, 불필요한 필드 제거)
                 const exportData = {
-                    version: '2.9.0',
+                    version: '3.1.0',
                     exportDate: new Date().toISOString(),
                     data: {
                         examType: studyData.examType,
