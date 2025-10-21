@@ -2,8 +2,26 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 3.2.0 - Smart Analytics & UX Improvements
+    Version: 3.2.1 - Critical Bug Fixes
     Last Updated: 2025-10-21
+
+    Changes in v3.2.1 - Critical Bug Fixes (2025):
+    - 🐛 CRITICAL FIX: Missing Function Definitions
+      * Added calculateTotalHours() utility function
+      * Fixed addMockScore() → showScoreModal() in FAB menu
+    - 🐛 CRITICAL FIX: Event Handler Issues
+      * Fixed toggleCollapse() to use 'active' class instead of 'collapsed'
+      * Added null check in toggleCollapse() for missing elements
+    - 🐛 CRITICAL FIX: Initialization Issues
+      * Added updateFocusHero() call in init()
+      * Added updateJourneyVisualization() call in init()
+      * Fixed missing HTML elements in focus-hero section
+    - ✨ IMPROVED: Code Quality
+      * Removed duplicate totalHours calculation in renderAnalytics()
+      * Centralized totalHours calculation in calculateTotalHours()
+    - ✨ IMPROVED: User Experience
+      * FAB menu now closes when opening modals
+      * Added focus-suggestion element to HTML
 
     Changes in v3.2.0 - Smart Analytics & UX Improvements (2025):
     - 🎨 MAJOR: Reorganized Layout Structure
@@ -3077,13 +3095,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         <span class="focus-stat-label">연속 일수</span>
                     </div>
                     <div class="focus-stat-item">
-                        <span class="focus-stat-value" id="focus-total">0h</span>
+                        <span class="focus-stat-value" id="focus-total-hours">0h</span>
                         <span class="focus-stat-label">총 학습시간</span>
                     </div>
                     <div class="focus-stat-item">
                         <span class="focus-stat-value" id="focus-progress">0%</span>
                         <span class="focus-stat-label">목표까지</span>
                     </div>
+                </div>
+                <div class="focus-suggestion" id="focus-suggestion" style="margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; text-align: center; font-size: 0.95rem; color: rgba(255,255,255,0.9);">
+                    오늘도 화이팅! 꾸준한 학습이 합격의 지름길입니다!
                 </div>
             </div>
         </div>
@@ -3754,6 +3775,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             rotateMotivation();
             renderAnalytics();
             renderGoals();
+            updateFocusHero();
+            updateJourneyVisualization();
 
             // 시험 타입 및 모드 설정
             document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -4750,6 +4773,26 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         // 5분마다 동기부여 문구 변경
         setInterval(rotateMotivation, 300000);
 
+        // ===== 유틸리티: 총 학습 시간 계산 =====
+        function calculateTotalHours() {
+            let totalHours = 0;
+
+            // 1. From timer
+            totalHours += studyData.timer.seconds / 3600;
+
+            // 2. From completed time blocks
+            studyData.timeBlocks.forEach(block => {
+                if (block.completed) {
+                    totalHours += block.hours || 0;
+                }
+            });
+
+            // 3. From weekly hours tracking
+            Object.values(studyData.weeklyHours).forEach(h => totalHours += h);
+
+            return totalHours;
+        }
+
         // ===== 새로운 기능: 스트릭 트래커 =====
         function updateStreak() {
             const today = new Date().toISOString().split('T')[0];
@@ -4809,22 +4852,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         // ===== 새로운 기능: 학습 분석 대시보드 =====
-                function renderAnalytics() {
+        function renderAnalytics() {
             // Calculate REAL total study hours from multiple sources
-            let totalHours = 0;
-
-            // 1. From timer
-            totalHours += studyData.timer.seconds / 3600;
-
-            // 2. From completed time blocks
-            studyData.timeBlocks.forEach(block => {
-                if (block.completed) {
-                    totalHours += block.hours || 0;
-                }
-            });
-
-            // 3. From weekly hours tracking
-            Object.values(studyData.weeklyHours).forEach(h => totalHours += h);
+            const totalHours = calculateTotalHours();
 
             document.getElementById('total-study-hours').textContent = Math.round(totalHours) + 'h';
 
@@ -5504,7 +5534,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             const section = document.getElementById(sectionId);
             const icon = document.getElementById(sectionId.replace('-section', '-icon'));
 
-            section.classList.toggle('collapsed');
+            if (!section || !icon) return; // 요소가 없으면 리턴
+
+            // active 클래스를 토글하여 표시/숨김
+            section.classList.toggle('active');
             icon.classList.toggle('collapsed');
         }
 
@@ -5902,11 +5935,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             <div class="fab-menu-item-icon" style="background: #4ECDC4;">⏱️</div>
             <div class="fab-menu-item-label">빠른 기록</div>
         </div>
-        <div class="fab-menu-item" onclick="addTimeBlock()">
+        <div class="fab-menu-item" onclick="toggleFABMenu(); addTimeBlock();">
             <div class="fab-menu-item-icon" style="background: #FFE66D;">📚</div>
             <div class="fab-menu-item-label">학습 계획 추가</div>
         </div>
-        <div class="fab-menu-item" onclick="addMockScore()">
+        <div class="fab-menu-item" onclick="toggleFABMenu(); showScoreModal();">
             <div class="fab-menu-item-icon" style="background: #FF6B6B;">📝</div>
             <div class="fab-menu-item-label">모의고사 점수 추가</div>
         </div>
