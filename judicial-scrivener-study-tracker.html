@@ -2,8 +2,15 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 3.2.3 - Critical Event Handler Fixes
+    Version: 3.2.4 - Complete Script Block Consolidation
     Last Updated: 2025-10-21
+
+    Changes in v3.2.4 - Complete Script Block Consolidation (2025):
+    - 🐛 CRITICAL FIX: Merged Two Separated Script Blocks
+      * Combined first and second script blocks into single entry point
+      * FAB menu functions now defined before DOMContentLoaded
+      * Eliminated race condition between script block loading order
+      * Fixed "all click events not working" root cause
 
     Changes in v3.2.3 - Critical Event Handler Fixes (2025):
     - 🐛 CRITICAL FIX: Initialization Timing Issue
@@ -6037,37 +6044,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         });
 
 
-    </script>
+    
 
-    <!-- V3.0.0: 빠른 작업 버튼 (FAB) -->
-    <button class="fab" id="fab" onclick="toggleFABMenu()" title="빠른 작업">
-        <span class="fab-icon">+</span>
-    </button>
+        // ===== SECOND SCRIPT BLOCK MERGED HERE =====
 
-    <div class="fab-menu" id="fab-menu">
-        <div class="fab-menu-item" onclick="quickLogStudy()">
-            <div class="fab-menu-item-icon" style="background: #4ECDC4;">⏱️</div>
-            <div class="fab-menu-item-label">빠른 기록</div>
-        </div>
-        <div class="fab-menu-item" onclick="toggleFABMenu(); addTimeBlock();">
-            <div class="fab-menu-item-icon" style="background: #FFE66D;">📚</div>
-            <div class="fab-menu-item-label">학습 계획 추가</div>
-        </div>
-        <div class="fab-menu-item" onclick="toggleFABMenu(); showScoreModal();">
-            <div class="fab-menu-item-icon" style="background: #FF6B6B;">📝</div>
-            <div class="fab-menu-item-label">모의고사 점수 추가</div>
-        </div>
-    </div>
-
-    <!-- V3.0.0: 업적 달성 모달 -->
-    <div class="achievement-modal" id="achievement-modal">
-        <div class="achievement-badge" id="achievement-badge">🏆</div>
-        <div class="achievement-title" id="achievement-title">업적 달성!</div>
-        <div class="achievement-message" id="achievement-message">새로운 이정표에 도달했습니다!</div>
-        <button class="achievement-close-btn" onclick="closeAchievement()">멋져요!</button>
-    </div>
-
-    <script>
         // ===== V3.0.0: NEW HUMAN-CENTERED UX FEATURES =====
 
         /**
@@ -6369,6 +6349,36 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             updateJourneyVisualization();
             updateFocusHero();
         };
+
+    </script>
+
+    <!-- V3.0.0: 빠른 작업 버튼 (FAB) -->
+    <button class="fab" id="fab" onclick="toggleFABMenu()" title="빠른 작업">
+        <span class="fab-icon">+</span>
+    </button>
+
+    <div class="fab-menu" id="fab-menu">
+        <div class="fab-menu-item" onclick="quickLogStudy()">
+            <div class="fab-menu-item-icon" style="background: #4ECDC4;">⏱️</div>
+            <div class="fab-menu-item-label">빠른 기록</div>
+        </div>
+        <div class="fab-menu-item" onclick="toggleFABMenu(); addTimeBlock();">
+            <div class="fab-menu-item-icon" style="background: #FFE66D;">📚</div>
+            <div class="fab-menu-item-label">학습 계획 추가</div>
+        </div>
+        <div class="fab-menu-item" onclick="toggleFABMenu(); showScoreModal();">
+            <div class="fab-menu-item-icon" style="background: #FF6B6B;">📝</div>
+            <div class="fab-menu-item-label">모의고사 점수 추가</div>
+        </div>
+    </div>
+
+    <!-- V3.0.0: 업적 달성 모달 -->
+    <div class="achievement-modal" id="achievement-modal">
+        <div class="achievement-badge" id="achievement-badge">🏆</div>
+        <div class="achievement-title" id="achievement-title">업적 달성!</div>
+        <div class="achievement-message" id="achievement-message">새로운 이정표에 도달했습니다!</div>
+        <button class="achievement-close-btn" onclick="closeAchievement()">멋져요!</button>
+    </div>
 
     </script>
 
