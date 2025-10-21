@@ -2,8 +2,30 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 3.2.2 - Bug Fixes & UX Improvements
+    Version: 3.2.3 - Critical Event Handler Fixes
     Last Updated: 2025-10-21
+
+    Changes in v3.2.3 - Critical Event Handler Fixes (2025):
+    - 🐛 CRITICAL FIX: Initialization Timing Issue
+      * Moved init() call inside DOMContentLoaded event listener
+      * All DOM elements are now guaranteed to exist before initialization
+      * Fixed "all clickable elements not working" bug
+    - 🐛 CRITICAL FIX: Unified DOMContentLoaded System
+      * Merged duplicate DOMContentLoaded listeners into single entry point
+      * Clear execution order: Theme → Init → Function Wrappers → UI Updates → Event Listeners
+      * Reduced initialization delay from 500ms to 100ms for better UX
+    - 🐛 CRITICAL FIX: Function Wrapper Timing
+      * Moved function wrapping (startTimer, toggleTimeBlock) into DOMContentLoaded
+      * Prevents "undefined function" errors during page load
+    - ✨ IMPROVED: Console Debugging
+      * Added initialization progress logging for easier debugging
+      * Console shows: "DOM Loaded → Init → Wrappers → UI → Listeners"
+    - ✨ IMPROVED: Event Listener Organization
+      * All event listeners registered after DOM is ready
+      * Better separation of concerns and code organization
+    - 🔧 FIXED: Dark Mode Toggle Icon Safety
+      * Added null check for theme-icon element
+      * Prevents errors when element is not found
 
     Changes in v3.2.2 - Bug Fixes & UX Improvements (2025):
     - 🐛 CRITICAL FIX: Fixed editGoal() property name mismatch
@@ -302,7 +324,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v3.0.0</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v3.2.3</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -3053,7 +3075,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.2.1</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.2.3</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -5911,25 +5933,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
 
-        // 타이머 시작 시 스트릭 업데이트
-        const originalStartTimer = startTimer;
-        startTimer = function() {
-            originalStartTimer();
-            updateStreak();
-            renderAnalytics();
-        };
-
-        // 타임블록 완료 시 분석 업데이트
-        const originalToggleTimeBlock = toggleTimeBlock;
-        toggleTimeBlock = function(id) {
-            originalToggleTimeBlock(id);
-            updateStreak();
-            renderAnalytics();
-        };
-
-        // 초기화 실행
-        init();
-
         // ===== DARK MODE FUNCTIONALITY =====
         function toggleDarkMode() {
             const html = document.documentElement;
@@ -5941,19 +5944,96 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
             // Update icon
             const icon = document.getElementById('theme-icon');
-            icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            if (icon) {
+                icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            }
 
             showToast(`${newTheme === 'dark' ? '다크' : '라이트'} 모드로 전환되었습니다`, 'info');
         }
 
-        // Load theme on page load
+        // ===== 통합 초기화 시스템 =====
+        // CRITICAL FIX v3.2.3: DOM이 완전히 로드된 후 모든 초기화 작업 수행
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM Loaded - Starting initialization...');
+
+            // 1. 테마 로드 (가장 먼저 - 깜빡임 방지)
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            const icon = document.getElementById('theme-icon');
-            if (icon) {
-                icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            const themeIcon = document.getElementById('theme-icon');
+            if (themeIcon) {
+                themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
             }
+
+            // 2. 메인 초기화 함수 실행
+            init();
+            console.log('✅ Main init() completed');
+
+            // 3. 함수 래핑 설정 (init 이후에 실행하여 함수 정의 보장)
+            const originalStartTimer = startTimer;
+            startTimer = function() {
+                originalStartTimer();
+                updateStreak();
+                renderAnalytics();
+            };
+
+            const originalToggleTimeBlock = toggleTimeBlock;
+            toggleTimeBlock = function(id) {
+                originalToggleTimeBlock(id);
+                updateStreak();
+                renderAnalytics();
+            };
+            console.log('✅ Function wrappers configured');
+
+            // 4. 추가 UI 업데이트 (약간의 딜레이로 렌더링 최적화)
+            setTimeout(() => {
+                updateFocusHero();
+                updateJourneyVisualization();
+
+                // 마일스톤 체크
+                const totalHours = calculateTotalHours();
+                checkMilestones(totalHours);
+
+                console.log('✅ Secondary UI updates completed');
+            }, 100);  // 500ms → 100ms로 단축하여 UX 개선
+
+            // 5. 외부 클릭 이벤트 리스너 등록
+            // Close FAB menu when clicking outside
+            document.addEventListener('click', function(e) {
+                const fab = document.getElementById('fab');
+                const menu = document.getElementById('fab-menu');
+
+                if (menu && fab && menu.classList.contains('active')) {
+                    if (!fab.contains(e.target) && !menu.contains(e.target)) {
+                        toggleFABMenu();
+                    }
+                }
+            });
+
+            // Close achievement modal when clicking outside
+            document.addEventListener('click', function(e) {
+                const modal = document.getElementById('achievement-modal');
+
+                if (modal && modal.classList.contains('show')) {
+                    if (e.target === modal) {
+                        closeAchievement();
+                    }
+                }
+            });
+
+            // Close regular modals when clicking outside
+            document.addEventListener('click', function(e) {
+                // Get all modals with 'show' class
+                const modals = document.querySelectorAll('.modal.show');
+
+                modals.forEach(modal => {
+                    // Check if click is on the modal backdrop (not modal-content)
+                    if (e.target === modal) {
+                        closeModal(modal.id);
+                    }
+                });
+            });
+
+            console.log('✅ Event listeners configured');
         });
 
 
@@ -6282,61 +6362,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         // ===== V3.0.0: INITIALIZATION =====
 
         // Override renderAnalytics to include journey and hero updates
+        // NOTE: 이 코드는 DOMContentLoaded 전에 실행되어도 안전 (함수만 재정의)
         const originalRenderAnalytics = renderAnalytics;
         renderAnalytics = function() {
             originalRenderAnalytics();
             updateJourneyVisualization();
             updateFocusHero();
         };
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait a bit for other inits to complete
-            setTimeout(() => {
-                updateFocusHero();
-                updateJourneyVisualization();
-
-                // Check milestones on load
-                const totalHours = calculateTotalHours();
-                checkMilestones(totalHours);
-            }, 500);
-        });
-
-        // Close FAB menu when clicking outside
-        document.addEventListener('click', function(e) {
-            const fab = document.getElementById('fab');
-            const menu = document.getElementById('fab-menu');
-
-            if (menu && fab && menu.classList.contains('active')) {
-                if (!fab.contains(e.target) && !menu.contains(e.target)) {
-                    toggleFABMenu();
-                }
-            }
-        });
-
-        // Close achievement modal when clicking outside
-        document.addEventListener('click', function(e) {
-            const modal = document.getElementById('achievement-modal');
-
-            if (modal && modal.classList.contains('show')) {
-                if (e.target === modal) {
-                    closeAchievement();
-                }
-            }
-        });
-
-        // Close regular modals when clicking outside
-        document.addEventListener('click', function(e) {
-            // Get all modals with 'show' class
-            const modals = document.querySelectorAll('.modal.show');
-
-            modals.forEach(modal => {
-                // Check if click is on the modal backdrop (not modal-content)
-                if (e.target === modal) {
-                    closeModal(modal.id);
-                }
-            });
-        });
 
     </script>
 
