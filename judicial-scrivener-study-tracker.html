@@ -2,8 +2,33 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 3.1.0 - Enhanced Responsive Design
+    Version: 3.2.0 - Smart Analytics & UX Improvements
     Last Updated: 2025-10-21
+
+    Changes in v3.2.0 - Smart Analytics & UX Improvements (2025):
+    - 🎨 MAJOR: Reorganized Layout Structure
+      * 학습 스트릭을 독립 카드로 분리하여 강조
+      * 학습 분석 대시보드를 전체 너비로 확장
+      * 카드 레이아웃 일관성 향상
+    - 🔗 MAJOR: Smart Card Interconnection System
+      * 분석 카드 간 유기적 연동 기능 추가
+      * 실시간 인사이트 제공 (총 학습시간, 일평균, 진도율, 모의고사)
+      * 상황별 맞춤 조언 및 격려 메시지
+      * 시험일 기반 동적 피드백
+    - 🌏 IMPROVED: Complete Korean Localization
+      * 모든 영문 텍스트를 한글로 변경
+      * Focus Hero 섹션 한글화
+      * FAB 메뉴 한글화
+      * 업적 모달 한글화
+    - 💡 NEW: Context-Aware Insights
+      * 4단계 진행 상태별 인사이트 (positive/warning/negative)
+      * 합격 기준 대비 현황 분석
+      * 목표 달성까지 남은 시간/점수 계산
+      * D-Day 기반 학습 페이스 조언
+    - ♿ IMPROVED: Accessibility & Layout
+      * 전체 너비 카드 (.streak-card, .analytics-card)
+      * collapsible content 기본 펼침 상태
+      * 인사이트 시각적 구분 (색상 코딩)
 
     Changes in v3.1.0 - Enhanced Responsive Design (2025):
     - 📱 MAJOR: Comprehensive Responsive Design System
@@ -1577,6 +1602,24 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             opacity: 0.9;
         }
 
+        /* 전체 너비 카드 스타일 */
+        .streak-card,
+        .analytics-card {
+            grid-column: 1 / -1;
+            max-width: 100%;
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .collapsible-content.active {
+            max-height: none;
+            overflow: visible;
+        }
+
         /* 분석 대시보드 스타일 - Enhanced Professional Design */
         .analytics-grid {
             display: grid;
@@ -1705,6 +1748,43 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             bottom: 0;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
             animation: shimmer 2s infinite;
+        }
+
+        .analytics-insight {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--accent-color);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            line-height: var(--line-height-relaxed);
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .analytics-insight:empty {
+            display: none;
+        }
+
+        .analytics-insight.positive {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-color: var(--success-color);
+            color: var(--success-dark);
+        }
+
+        .analytics-insight.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: var(--warning-color);
+            color: var(--warning-dark);
+        }
+
+        .analytics-insight.negative {
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: var(--danger-color);
+            color: var(--danger-dark);
         }
 
         @keyframes shimmer {
@@ -2942,7 +3022,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.1.0</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.2.0</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -2967,50 +3047,50 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             </div>
         </div>
 
-        <!-- V3.0.0: Focus Mode Dashboard (Hero Section) -->
+        <!-- V3.0.0: 집중 모드 대시보드 (Hero Section) -->
         <div class="focus-hero" id="focus-hero">
             <div class="focus-hero-content">
-                <div class="focus-greeting" id="focus-greeting">Good Morning, Student! 🌅</div>
-                <div class="focus-date" id="focus-date">Today: Mon Oct 20, 2025</div>
+                <div class="focus-greeting" id="focus-greeting">좋은 아침입니다! 🌅</div>
+                <div class="focus-date" id="focus-date">오늘: 2025년 10월 21일 월요일</div>
 
                 <div class="focus-section-title">
                     <span>📍</span>
-                    <span>Your Focus Today</span>
+                    <span>오늘의 집중 학습</span>
                 </div>
 
                 <div class="focus-card" id="focus-card">
-                    <div class="focus-subject" id="focus-subject">Ready to Start!</div>
-                    <div class="focus-details" id="focus-details">Add your first study plan to get started</div>
+                    <div class="focus-subject" id="focus-subject">시작할 준비 완료!</div>
+                    <div class="focus-details" id="focus-details">첫 학습 계획을 추가하세요</div>
                     <div class="focus-time" id="focus-time">
                         <span>⏱️</span>
-                        <span id="focus-time-text">Let's begin your journey</span>
+                        <span id="focus-time-text">지금 시작하세요</span>
                     </div>
                     <button class="quick-start-btn" onclick="quickStartStudy()">
                         <span>✨</span>
-                        <span>Start Now</span>
+                        <span>지금 시작</span>
                     </button>
                 </div>
 
                 <div class="focus-stats">
                     <div class="focus-stat-item">
                         <span class="focus-stat-value" id="focus-streak">0</span>
-                        <span class="focus-stat-label">Day Streak</span>
+                        <span class="focus-stat-label">연속 일수</span>
                     </div>
                     <div class="focus-stat-item">
                         <span class="focus-stat-value" id="focus-total">0h</span>
-                        <span class="focus-stat-label">Total Hours</span>
+                        <span class="focus-stat-label">총 학습시간</span>
                     </div>
                     <div class="focus-stat-item">
                         <span class="focus-stat-value" id="focus-progress">0%</span>
-                        <span class="focus-stat-label">To Goal</span>
+                        <span class="focus-stat-label">목표까지</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- V3.0.0: Journey Visualization -->
+        <!-- V3.0.0: 학습 여정 시각화 -->
         <div class="journey-container" id="journey-container">
-            <h3 class="journey-title">📊 Your Learning Journey</h3>
+            <h3 class="journey-title">📊 나의 학습 여정</h3>
             <div class="journey-track">
                 <div class="journey-progress" id="journey-progress" style="width: 0%">
                     <span class="journey-marker journey-marker-current">🎯</span>
@@ -3019,51 +3099,49 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <span class="journey-marker journey-marker-goal">🏆</span>
             </div>
             <div class="journey-labels">
-                <span>Start (0h)</span>
-                <span id="journey-current">Current: 0h</span>
-                <span>Goal (800h)</span>
+                <span>시작 (0h)</span>
+                <span id="journey-current">현재: 0h</span>
+                <span>목표 (800h)</span>
             </div>
             <div class="journey-message" id="journey-message">
-                "Every expert was once a beginner. Your journey starts now! 💪"
+                "모든 전문가도 처음엔 초보자였습니다. 지금 시작하세요! 💪"
             </div>
         </div>
 
-        <!-- 학습 스트릭 & 추천 (최상단 강조) -->
-        <div class="dashboard-grid">
-            <!-- 학습 스트릭 트래커 -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">🔥 학습 스트릭</h2>
-                    <div class="card-actions">
-                        <button class="action-btn" onclick="resetStreak()">🔄</button>
-                    </div>
+        <!-- 학습 스트릭 트래커 -->
+        <div class="card streak-card">
+            <div class="card-header">
+                <h2 class="card-title">🔥 학습 스트릭</h2>
+                <div class="card-actions">
+                    <button class="action-btn" onclick="resetStreak()" title="스트릭 초기화">🔄</button>
                 </div>
-                <div class="streak-display">
-                    <div class="streak-label">현재 연속 학습일</div>
-                    <div class="streak-number" id="current-streak">0</div>
-                    <div class="streak-label">일 연속 🔥</div>
-                    <div class="streak-stats">
-                        <div class="streak-stat-item">
-                            <div class="streak-stat-value" id="longest-streak">0</div>
-                            <div class="streak-stat-label">최장 기록</div>
-                        </div>
-                        <div class="streak-stat-item">
-                            <div class="streak-stat-value" id="total-study-days">0</div>
-                            <div class="streak-stat-label">총 학습일</div>
-                        </div>
+            </div>
+            <div class="streak-display">
+                <div class="streak-label">현재 연속 학습일</div>
+                <div class="streak-number" id="current-streak">0</div>
+                <div class="streak-label">일 연속 🔥</div>
+                <div class="streak-stats">
+                    <div class="streak-stat-item">
+                        <div class="streak-stat-value" id="longest-streak">0</div>
+                        <div class="streak-stat-label">최장 기록</div>
+                    </div>
+                    <div class="streak-stat-item">
+                        <div class="streak-stat-value" id="total-study-days">0</div>
+                        <div class="streak-stat-label">총 학습일</div>
                     </div>
                 </div>
             </div>
+        </div>
 
         <!-- 학습 분석 대시보드 -->
-        <div class="card">
+        <div class="card analytics-card">
             <div class="card-header collapsible-header" onclick="toggleCollapse('analytics-section')">
                 <h2 class="card-title">📊 학습 분석 대시보드</h2>
                 <span class="collapse-icon" id="analytics-icon">▼</span>
             </div>
-            <div class="collapsible-content" id="analytics-section">
+            <div class="collapsible-content active" id="analytics-section">
                 <div class="analytics-grid">
-                    <div class="analytics-stat">
+                    <div class="analytics-stat" data-metric="total-hours">
                         <div class="analytics-label">총 학습 시간</div>
                         <div class="analytics-value" id="total-study-hours">0h</div>
                         <div class="analytics-benchmark">
@@ -3072,8 +3150,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                                 <div class="benchmark-fill" id="total-hours-progress"></div>
                             </div>
                         </div>
+                        <div class="analytics-insight" id="total-hours-insight"></div>
                     </div>
-                    <div class="analytics-stat">
+                    <div class="analytics-stat" data-metric="daily-hours">
                         <div class="analytics-label">일평균 학습</div>
                         <div class="analytics-value" id="avg-daily-hours">0h</div>
                         <div class="analytics-benchmark">
@@ -3082,8 +3161,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                                 <div class="benchmark-fill" id="daily-hours-progress"></div>
                             </div>
                         </div>
+                        <div class="analytics-insight" id="daily-hours-insight"></div>
                     </div>
-                    <div class="analytics-stat">
+                    <div class="analytics-stat" data-metric="progress">
                         <div class="analytics-label">전체 진도율</div>
                         <div class="analytics-value" id="overall-progress">0%</div>
                         <div class="analytics-benchmark">
@@ -3092,8 +3172,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                                 <div class="benchmark-fill" id="progress-bar"></div>
                             </div>
                         </div>
+                        <div class="analytics-insight" id="progress-insight"></div>
                     </div>
-                    <div class="analytics-stat">
+                    <div class="analytics-stat" data-metric="mock-score">
                         <div class="analytics-label">모의고사 평균</div>
                         <div class="analytics-value" id="avg-mock-score">0점</div>
                         <div class="analytics-benchmark">
@@ -3102,6 +3183,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                                 <div class="benchmark-fill" id="mock-score-progress"></div>
                             </div>
                         </div>
+                        <div class="analytics-insight" id="mock-score-insight"></div>
                     </div>
                 </div>
 
@@ -4850,10 +4932,123 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     mockScoreBar.style.background = 'linear-gradient(90deg, var(--danger-color), var(--warning-color))';
                 }
             }
+
+            // V3.2.0: Update insights for each metric (카드 간 연동)
+            updateAnalyticsInsights(totalHours, avgHours, overallProgress, avgScore);
+        }
+
+        /**
+         * V3.2.0: 분석 카드 간 유기적 연동 - 인사이트 업데이트
+         */
+        function updateAnalyticsInsights(totalHours, avgHours, overallProgress, avgScore) {
+            // 총 학습 시간 인사이트
+            const totalHoursInsight = document.getElementById('total-hours-insight');
+            if (totalHoursInsight) {
+                let message = '', className = '';
+                if (totalHours >= 800) {
+                    message = '✅ 합격자 평균 달성! 꾸준히 유지하세요.';
+                    className = 'positive';
+                } else if (totalHours >= 400) {
+                    message = `💪 절반 이상 달성! 앞으로 ${Math.round(800 - totalHours)}시간 더 필요합니다.';
+                    className = 'positive';
+                } else if (totalHours >= 100) {
+                    message = `📈 좋은 시작입니다! 목표까지 ${Math.round(800 - totalHours)}시간 남았어요.`;
+                    className = 'warning';
+                } else {
+                    message = '🚀 지금 시작하세요! 매일 4시간씩 학습하면 6-7개월이면 됩니다.';
+                    className = 'warning';
+                }
+                totalHoursInsight.textContent = message;
+                totalHoursInsight.className = 'analytics-insight ' + className;
+            }
+
+            // 일평균 학습 인사이트
+            const dailyHoursInsight = document.getElementById('daily-hours-insight');
+            if (dailyHoursInsight) {
+                let message = '', className = '';
+                if (avgHours >= 5) {
+                    message = '🌟 탁월합니다! 합격자 평균을 초과하고 있어요.';
+                    className = 'positive';
+                } else if (avgHours >= 4) {
+                    message = '✅ 완벽합니다! 합격자 평균 수준을 유지하세요.';
+                    className = 'positive';
+                } else if (avgHours >= 2) {
+                    message = `⬆️ 조금 더! 하루 ${(4 - avgHours).toFixed(1)}시간만 더 투자하세요.`;
+                    className = 'warning';
+                } else {
+                    message = '⚠️ 학습량을 늘려야 합니다. 하루 4-5시간을 목표로 하세요.';
+                    className = 'negative';
+                }
+                dailyHoursInsight.textContent = message;
+                dailyHoursInsight.className = 'analytics-insight ' + className;
+            }
+
+            // 전체 진도율 인사이트
+            const progressInsight = document.getElementById('progress-insight');
+            if (progressInsight) {
+                let message = '', className = '';
+                const daysToExam = calculateDaysToExam();
+                if (overallProgress >= 90) {
+                    message = '🎉 거의 완료! 복습과 모의고사에 집중하세요.';
+                    className = 'positive';
+                } else if (overallProgress >= 70) {
+                    message = '💯 진도가 순조롭습니다! 이 페이스를 유지하세요.';
+                    className = 'positive';
+                } else if (overallProgress >= 40) {
+                    message = `📚 좋습니다! ${Math.round(100 - overallProgress)}% 남았어요.`;
+                    className = 'positive';
+                } else if (daysToExam && daysToExam < 90) {
+                    message = `⏰ 시험까지 ${daysToExam}일! 진도를 더 빠르게 나가세요.`;
+                    className = 'warning';
+                } else {
+                    message = '🎯 꾸준히 진도를 나가면 충분히 완주할 수 있어요!';
+                    className = 'warning';
+                }
+                progressInsight.textContent = message;
+                progressInsight.className = 'analytics-insight ' + className;
+            }
+
+            // 모의고사 평균 인사이트
+            const mockScoreInsight = document.getElementById('mock-score-insight');
+            if (mockScoreInsight) {
+                let message = '', className = '';
+                if (avgScore >= 70) {
+                    message = '🏆 합격권! 이 수준을 유지하면 합격 가능성이 높습니다.';
+                    className = 'positive';
+                } else if (avgScore >= 60) {
+                    message = '✅ 합격선 통과! 70점 이상을 목표로 안정권을 확보하세요.';
+                    className = 'positive';
+                } else if (avgScore >= 50) {
+                    message = `📈 거의 다 왔어요! ${Math.round(60 - avgScore)}점만 더 올리면 됩니다.`;
+                    className = 'warning';
+                } else if (avgScore > 0) {
+                    message = '💪 약점 과목을 집중 공략하세요. 합격선까지 ' + Math.round(60 - avgScore) + '점 필요합니다.';
+                    className = 'negative';
+                } else {
+                    message = '📝 모의고사를 풀어보세요! 현재 실력을 파악하는 것이 중요합니다.';
+                    className = 'warning';
+                }
+                mockScoreInsight.textContent = message;
+                mockScoreInsight.className = 'analytics-insight ' + className;
+            }
+        }
+
+        /**
+         * 시험까지 남은 일수 계산
+         */
+        function calculateDaysToExam() {
+            const examType = studyData.examType || '1차';
+            const examDateStr = studyData.examDates?.[examType];
+            if (!examDateStr) return null;
+
+            const examDate = new Date(examDateStr);
+            const today = new Date();
+            const diffTime = examDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays > 0 ? diffDays : null;
         }
 
 
-        
         function renderSubjectTimeChart() {
             const container = document.getElementById('subject-time-chart');
             container.innerHTML = '';
@@ -5322,7 +5517,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             try {
                 // 내보낼 데이터 준비 (민감한 정보 제외, 불필요한 필드 제거)
                 const exportData = {
-                    version: '3.1.0',
+                    version: '3.2.0',
                     exportDate: new Date().toISOString(),
                     data: {
                         examType: studyData.examType,
@@ -5697,32 +5892,32 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
     </script>
 
-    <!-- V3.0.0: Floating Action Button (FAB) -->
-    <button class="fab" id="fab" onclick="toggleFABMenu()" title="Quick Actions">
+    <!-- V3.0.0: 빠른 작업 버튼 (FAB) -->
+    <button class="fab" id="fab" onclick="toggleFABMenu()" title="빠른 작업">
         <span class="fab-icon">+</span>
     </button>
 
     <div class="fab-menu" id="fab-menu">
         <div class="fab-menu-item" onclick="quickLogStudy()">
             <div class="fab-menu-item-icon" style="background: #4ECDC4;">⏱️</div>
-            <div class="fab-menu-item-label">Quick Log</div>
+            <div class="fab-menu-item-label">빠른 기록</div>
         </div>
         <div class="fab-menu-item" onclick="addTimeBlock()">
             <div class="fab-menu-item-icon" style="background: #FFE66D;">📚</div>
-            <div class="fab-menu-item-label">Add Study Plan</div>
+            <div class="fab-menu-item-label">학습 계획 추가</div>
         </div>
         <div class="fab-menu-item" onclick="addMockScore()">
             <div class="fab-menu-item-icon" style="background: #FF6B6B;">📝</div>
-            <div class="fab-menu-item-label">Add Mock Score</div>
+            <div class="fab-menu-item-label">모의고사 점수 추가</div>
         </div>
     </div>
 
-    <!-- V3.0.0: Achievement Celebration Modal -->
+    <!-- V3.0.0: 업적 달성 모달 -->
     <div class="achievement-modal" id="achievement-modal">
         <div class="achievement-badge" id="achievement-badge">🏆</div>
-        <div class="achievement-title" id="achievement-title">Achievement Unlocked!</div>
-        <div class="achievement-message" id="achievement-message">You've reached a new milestone!</div>
-        <button class="achievement-close-btn" onclick="closeAchievement()">Awesome!</button>
+        <div class="achievement-title" id="achievement-title">업적 달성!</div>
+        <div class="achievement-message" id="achievement-message">새로운 이정표에 도달했습니다!</div>
+        <button class="achievement-close-btn" onclick="closeAchievement()">멋져요!</button>
     </div>
 
     <script>
