@@ -2,8 +2,21 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 3.2.1 - Critical Bug Fixes
+    Version: 3.2.2 - Bug Fixes & UX Improvements
     Last Updated: 2025-10-21
+
+    Changes in v3.2.2 - Bug Fixes & UX Improvements (2025):
+    - 🐛 CRITICAL FIX: Fixed editGoal() property name mismatch
+      * Changed goal.deadline → goal.date for proper date field population
+    - 🐛 CRITICAL FIX: Fixed updateFocusHero() progress calculation
+      * Corrected subject.progress to (completed/total) calculation
+      * Fixed weak subject detection logic
+    - 🐛 HIGH FIX: Added localStorage error handling
+      * Implemented QuotaExceededError detection and recovery
+      * Auto-cleanup of old timer data when storage full
+      * Added console logging for debugging
+    - ✨ IMPROVED: Better error resilience
+      * Graceful fallback when localStorage is full
 
     Changes in v3.2.1 - Critical Bug Fixes (2025):
     - 🐛 CRITICAL FIX: Missing Function Definitions
@@ -3040,7 +3053,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.2.0</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.2.1</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -3400,7 +3413,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
-            시험 전략적 학습 시스템 v3.0.0 | Human-Centered UX Redesign | 1차/2차 시험 지원 | 학습 분석 & 목표 관리
+            시험 전략적 학습 시스템 v3.2.1 | Critical Bug Fixes | 1차/2차 시험 지원 | 학습 분석 & 목표 관리
         </div>
     </div>
     
@@ -3751,11 +3764,32 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         // 데이터 저장
         function saveData() {
-            localStorage.setItem('studyData', JSON.stringify(studyData));
-            
-            // 오늘 타이머 별도 저장
-            const today = new Date().toISOString().split('T')[0];
-            localStorage.setItem(`timer_${today}`, studyData.timer.seconds);
+            try {
+                localStorage.setItem('studyData', JSON.stringify(studyData));
+
+                // 오늘 타이머 별도 저장
+                const today = new Date().toISOString().split('T')[0];
+                localStorage.setItem(`timer_${today}`, studyData.timer.seconds);
+            } catch (e) {
+                // FIXED v3.2.2: localStorage 용량 초과 에러 처리
+                if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+                    console.warn('localStorage 저장 공간이 부족합니다. 오래된 데이터 정리를 시도합니다.');
+                    // 오래된 타이머 데이터 정리
+                    for (let key in localStorage) {
+                        if (key.startsWith('timer_')) {
+                            localStorage.removeItem(key);
+                        }
+                    }
+                    // 재시도
+                    try {
+                        localStorage.setItem('studyData', JSON.stringify(studyData));
+                    } catch (retryError) {
+                        console.error('데이터 저장 실패:', retryError);
+                    }
+                } else {
+                    console.error('데이터 저장 중 오류 발생:', e);
+                }
+            }
         }
         
         // 초기화 함수
@@ -5446,7 +5480,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             if (goal) {
                 editingGoalId = id;
                 document.getElementById('goalTitle').value = goal.title;
-                document.getElementById('goalDate').value = goal.deadline;
+                document.getElementById('goalDate').value = goal.date || goal.deadline || ''; // FIXED: deadline → date (v3.2.2)
                 document.getElementById('goalProgress').value = goal.progress;
                 document.querySelector('#goalModal .modal-title').textContent = '학습 목표 수정';
                 document.getElementById('goalModal').classList.add('show');
@@ -6173,12 +6207,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 suggestion = '과목을 추가하고 학습 계획을 시작하세요!';
             } else {
                 // Find subject with lowest progress
-                const weakSubject = subjects.reduce((min, subject) =>
-                    subject.progress < min.progress ? subject : min
-                , subjects[0]);
+                // FIXED: Calculate progress correctly (v3.2.2)
+                const weakSubject = subjects.reduce((min, subject) => {
+                    const minProgress = (min.completed / min.total) * 100;
+                    const currentProgress = (subject.completed / subject.total) * 100;
+                    return currentProgress < minProgress ? subject : min;
+                }, subjects[0]);
 
-                if (weakSubject && weakSubject.progress < 50) {
-                    suggestion = `${weakSubject.name} 집중 학습을 추천합니다 (진도: ${weakSubject.progress}%)`;
+                const weakProgress = (weakSubject.completed / weakSubject.total) * 100;
+                if (weakSubject && weakProgress < 50) {
+                    suggestion = `${weakSubject.name} 집중 학습을 추천합니다 (진도: ${weakProgress.toFixed(0)}%)`;
                 } else if (studyData.mockScores && studyData.mockScores.length > 0) {
                     const lastScore = studyData.mockScores[studyData.mockScores.length - 1].score;
                     if (lastScore < 60) {
@@ -6285,6 +6323,19 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     closeAchievement();
                 }
             }
+        });
+
+        // Close regular modals when clicking outside
+        document.addEventListener('click', function(e) {
+            // Get all modals with 'show' class
+            const modals = document.querySelectorAll('.modal.show');
+
+            modals.forEach(modal => {
+                // Check if click is on the modal backdrop (not modal-content)
+                if (e.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
         });
 
     </script>
