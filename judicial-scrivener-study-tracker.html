@@ -2,8 +2,17 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 2.13.1
+    Version: 2.13.2
     Last Updated: 2025-10-22
+
+    Changes in v2.13.2 - Critical Data Synchronization & Dashboard Fix:
+    - FIXED: "저장된 데이터: 계산 중..." stuck display - added updateSyncStatus() to init()
+    - FIXED: Charts not updating on initial page load - reordered initialization sequence
+    - FIXED: Data changes not reflecting in charts - moved saveData() wrapper before init()
+    - IMPROVED: Proper initialization lifecycle (DOMReady → setupCharts → wrapFunctions → init → updateCharts)
+    - REFACTORED: Removed duplicate function wrapping and initialization code
+    - IMPROVED: Consolidated DOMContentLoaded handler with all initialization logic
+    - NOTE: Charts now display data immediately on page load + update on all data changes
 
     Changes in v2.13.1 - Chart Data Rendering Fix & Sample Data Optimization:
     - FIXED: Empty chart data issue by ensuring updateSubjectsByExamType() is called
@@ -4083,6 +4092,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             rotateMotivation();
             renderAnalytics();
             renderGoals();
+            updateSyncStatus(); // Update data size display on initial load
 
             // 시험 타입 및 모드 설정
             document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -6059,8 +6069,46 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             renderAnalytics();
         };
 
-        // 초기화 실행
-        init();
+        // ===== PROPER INITIALIZATION SEQUENCE =====
+        // This ensures correct order: DOMReady → setupChart → wrapFunctions → init → chartUpdate
+        document.addEventListener('DOMContentLoaded', function() {
+            // Step 1: Setup Chart.js defaults
+            if (typeof Chart !== 'undefined') {
+                Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                Chart.defaults.animation.duration = 600;
+                Chart.defaults.animation.easing = 'easeInOutQuart';
+            }
+
+            // Step 2: Wrap saveData to update charts on data changes
+            const originalSaveData = saveData;
+            saveData = function() {
+                originalSaveData();
+                if (typeof Chart !== 'undefined') {
+                    initAllCharts();
+                }
+            };
+
+            // Step 3: Wrap toggleDarkMode to update charts on theme change
+            const originalToggleDarkMode = toggleDarkMode;
+            toggleDarkMode = function() {
+                originalToggleDarkMode();
+                if (typeof Chart !== 'undefined') {
+                    setTimeout(() => {
+                        initAllCharts();
+                    }, 100);
+                }
+            };
+
+            // Step 4: Initialize the application (loads data + renders UI)
+            init();
+
+            // Step 5: Initialize charts with loaded data
+            if (typeof Chart !== 'undefined') {
+                initAllCharts();
+            } else {
+                console.error('Chart.js not loaded');
+            }
+        });
 
         // ===== DARK MODE FUNCTIONALITY =====
         function toggleDarkMode() {
@@ -6528,42 +6576,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 console.error('Chart initialization error:', error);
             }
         }
-
-        // Update charts when theme changes
-        const originalToggleDarkMode = toggleDarkMode;
-        toggleDarkMode = function() {
-            originalToggleDarkMode();
-            // Wait for theme transition
-            setTimeout(() => {
-                initAllCharts();
-            }, 100);
-        };
-
-        // Update charts when data changes
-        const originalSaveData = saveData;
-        saveData = function() {
-            originalSaveData();
-            initAllCharts();
-        };
-
-        // Initialize charts on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait for Chart.js to be fully loaded
-            if (typeof Chart !== 'undefined') {
-                // Set Chart.js defaults
-                Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                Chart.defaults.animation.duration = 600;
-                Chart.defaults.animation.easing = 'easeInOutQuart';
-
-                // Initialize all charts
-                setTimeout(() => {
-                    initAllCharts();
-                }, 300);
-            } else {
-                console.error('Chart.js not loaded');
-            }
-        });
-
 
     </script>
 </body>
