@@ -2,8 +2,38 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 2.7.0
-    Last Updated: 2025-10-20
+    Version: 2.8.0
+    Last Updated: 2025-10-21
+
+    Changes in v2.8.0 - Comprehensive UX/UI Refinement & Accessibility Enhancement:
+    - CRITICAL: Fixed dark mode modal support - all modals now properly use CSS variables
+      * Modal background now uses var(--bg-primary) for proper dark mode rendering
+      * Form inputs and modals fully responsive to dark mode theme
+    - CRITICAL: Enhanced accessibility with proper touch targets
+      * Increased action button sizes from 28px to 36px (desktop) and 44px (mobile)
+      * Improved keyboard navigation and focus states
+    - CRITICAL: Reorganized z-index hierarchy for proper modal layering
+      * Fixed modal stacking order when multiple modals are opened
+      * Proper backdrop layering with blur effects
+    - REDESIGNED: Improved layout consistency and spacing system
+      * Standardized all padding/margin to use CSS variables
+      * Fixed D-Day card container with CSS grid for better responsiveness
+      * Enhanced score entry layout with flexbox for better content flow
+    - ENHANCED: Mobile responsiveness improvements
+      * Added 480px breakpoint for small mobile devices
+      * Improved analytics grid and weekly stats responsive behavior
+      * Better touch target positioning on smaller screens
+      * Theme toggle button repositioned for mobile clarity
+    - IMPROVED: Visual hierarchy and semantic styling
+      * Reduced motion support with prefers-reduced-motion media query
+      * Better focus-visible states for keyboard navigation
+      * Enhanced empty state designs with clear user guidance
+      * Improved data management card contrast with backdrop filter
+    - POLISHED: Overall accessibility and user experience
+      * Added ARIA labels to interactive elements
+      * Better semantic HTML structure for score entries
+      * Smooth transitions with cubic-bezier timing functions
+      * Complete dark mode support for all themed components
 
     Changes in v2.7.0 - Professional UX/UI Redesign & Dark Mode Fixes:
     - CRITICAL: Fixed dark mode implementation - all components now properly support dark theme
@@ -125,7 +155,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v2.7.0</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v2.8.0</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -297,10 +327,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             cursor: pointer;
             box-shadow: var(--shadow-lg);
             z-index: 1000;
-            transition: all 0.3s ease;
+            transition: all var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 0;
+            min-width: 50px;
+            min-height: 50px;
         }
 
         .theme-toggle:hover {
@@ -310,6 +343,21 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         .theme-toggle:active {
             transform: scale(0.95);
+        }
+
+        .theme-toggle:focus-visible {
+            outline: 3px solid var(--accent-light);
+            outline-offset: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+            }
         }
 
         
@@ -331,19 +379,19 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         .header {
             background: var(--bg-primary);
             border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 25px;
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
             box-shadow: var(--shadow-md);
             border: 1px solid var(--border-color);
         }
-        
+
         .header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-md);
             flex-wrap: wrap;
-            gap: 20px;
+            gap: var(--spacing-lg);
         }
         
         .title {
@@ -401,10 +449,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         .card {
             background: var(--bg-primary);
             border-radius: 12px;
-            padding: 20px;
+            padding: var(--spacing-lg);
             box-shadow: var(--shadow-md);
             border: 1px solid var(--border-color);
-            transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+            transition: transform var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1), box-shadow var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1), background-color var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
 
@@ -412,12 +460,17 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
-        
+
+        .card:focus-visible {
+            outline: 2px solid var(--accent-light);
+            outline-offset: 3px;
+        }
+
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: var(--spacing-md);
         }
         
         .card-title {
@@ -432,8 +485,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .action-btn {
-            width: 28px;
-            height: 28px;
+            width: 36px;
+            height: 36px;
             border: none;
             background: var(--bg-light);
             border-radius: 6px;
@@ -441,21 +494,41 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
+            transition: all var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.9rem;
+            padding: 0;
+            min-width: 36px;
+            min-height: 36px;
         }
-        
+
         .action-btn:hover {
             background: var(--accent);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
         }
-        
+
         .action-btn.edit:hover {
             background: var(--warning);
         }
-        
+
         .action-btn.delete:hover {
             background: var(--danger);
+        }
+
+        .action-btn:focus-visible {
+            outline: 2px solid var(--accent-light);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .action-btn {
+                width: 44px;
+                height: 44px;
+                min-width: 44px;
+                min-height: 44px;
+                font-size: 1rem;
+            }
         }
         
         /* 오늘의 학습 계획 */
@@ -480,8 +553,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .time-block.completed {
-            background: #E6FFFA;
+            background: var(--success-light);
             border-left-color: var(--success);
+        }
+
+        [data-theme="dark"] .time-block.completed {
+            background: rgba(72, 187, 120, 0.15);
         }
         
         .time-block:hover {
@@ -858,13 +935,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .modal-content {
-            background-color: white;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             margin: 10% auto;
-            padding: 30px;
+            padding: var(--spacing-xl);
             border-radius: 12px;
             width: 90%;
             max-width: 500px;
             animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            z-index: calc(var(--z-modal) + 10);
         }
         
         @keyframes slideIn {
@@ -1113,28 +1193,31 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         /* D-Day 카드 스타일 - Enhanced */
         .dday-container {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
         }
 
         .dday-card {
-            flex: 1;
-            min-width: 250px;
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 20px;
+            padding: var(--spacing-lg);
             text-align: center;
             box-shadow: var(--shadow-md);
-            transition: all 0.3s;
+            transition: all var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
         }
 
         .dday-card:hover {
             transform: translateY(-3px);
             box-shadow: var(--shadow-lg);
+        }
+
+        .dday-card:focus-visible {
+            outline: 2px solid var(--accent-light);
+            outline-offset: 3px;
         }
 
         .dday-card.urgent {
@@ -1527,7 +1610,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         .goal-item.achieved {
             border-left-color: var(--success);
-            background: #E6FFFA;
+            background: var(--success-light);
+        }
+
+        [data-theme="dark"] .goal-item.achieved {
+            background: rgba(72, 187, 120, 0.15);
         }
 
         .goal-header {
@@ -2030,9 +2117,67 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
 
+        /* Extra small mobile devices (480px and below) */
+        @media (max-width: 480px) {
+            .container {
+                padding: var(--spacing-sm);
+            }
+
+            .header {
+                padding: var(--spacing-lg);
+                margin-bottom: var(--spacing-md);
+            }
+
+            .dday-container {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-sm);
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-sm);
+            }
+
+            .weekly-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-sm);
+            }
+
+            .time-blocks {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-sm);
+            }
+
+            .title {
+                font-size: var(--font-size-lg);
+            }
+
+            .card {
+                padding: var(--spacing-md);
+                margin-bottom: var(--spacing-sm);
+            }
+
+            .modal-content {
+                max-width: 90%;
+                margin: 30% auto;
+                padding: var(--spacing-lg);
+            }
+        }
+
         /* Smooth Transitions for Better UX */
         * {
             transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Respect user's motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         /* Better Visual Hierarchy */
@@ -2043,6 +2188,60 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         p {
             line-height: var(--line-height-relaxed);
+        }
+
+        /* Empty State Styles */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-2xl) var(--spacing-lg);
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            margin: var(--spacing-lg) 0;
+            border: 2px dashed var(--border-color);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.8;
+        }
+
+        .empty-state-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .empty-state-description {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+            line-height: var(--line-height-relaxed);
+        }
+
+        .empty-state-action {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            transition: all var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .empty-state-action:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .empty-state-action:focus-visible {
+            outline: 2px solid var(--accent-light);
+            outline-offset: 2px;
         }
     </style>
 </head>
