@@ -2,8 +2,25 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 2.10.0
+    Version: 2.11.0
     Last Updated: 2025-10-22
+
+    Changes in v2.11.0 - Single Column Layout Optimization (User Preference):
+    - CRITICAL: Changed layout from multi-column to single-column for better usability
+      * Dashboard grid: 3-column → 1-column layout
+      * Removed card max-width constraint (450px → 100%)
+      * Simplified grid breakpoints (gap only, no column changes)
+      * Today's plan: removed grid-column span settings
+    - SIMPLIFIED: Responsive design now focuses on gap adjustments only
+      * Desktop: 24px gap
+      * Tablet: 20px gap
+      * Mobile: 16px gap
+      * Small mobile: 12px gap
+    - IMPROVED: User convenience with full-width cards
+      * Cards now stretch to full container width
+      * Better readability on all screen sizes
+      * Cleaner, more linear content flow
+      * No more horizontal scanning needed
 
     Changes in v2.10.0 - Apple/Google Design System Layout Optimization:
     - CRITICAL: Container max-width reduced from 1400px to 1280px (Apple standard)
@@ -226,7 +243,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v2.10.0</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v2.11.0</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -529,39 +546,30 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         /* 대시보드 그리드 - Apple/Google style with max-width cards */
+        /* 대시보드 그리드 - Single Column Layout (User Preference) */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: 1fr;
             gap: 24px;
             margin-bottom: var(--spacing-lg);
-            justify-items: center;
+            width: 100%;
         }
 
-        /* Responsive grid breakpoints */
-        @media (max-width: 1280px) and (min-width: 1025px) {
+        /* Responsive grid gaps only */
+        @media (max-width: 1024px) {
             .dashboard-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
                 gap: 20px;
             }
         }
 
-        @media (max-width: 1024px) and (min-width: 769px) {
+        @media (max-width: 768px) {
             .dashboard-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 20px;
-            }
-        }
-
-        @media (max-width: 768px) and (min-width: 481px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 16px;
             }
         }
 
         @media (max-width: 480px) {
             .dashboard-grid {
-                grid-template-columns: 1fr;
                 gap: 12px;
             }
         }
@@ -574,15 +582,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             border: 1px solid var(--border-color);
             transition: transform var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1), box-shadow var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1), background-color var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            max-width: 450px;
             width: 100%;
-        }
-
-        /* Responsive card max-width */
-        @media (max-width: 480px) {
-            .card {
-                max-width: 100%;
-            }
         }
 
         .card:hover {
@@ -662,22 +662,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         /* 오늘의 학습 계획 */
         /* 오늘의 학습 계획 - Desktop에서 2열 차지, max-width 제약 제거 */
+        /* 오늘의 학습 계획 - Single Column */
         .today-plan {
-            grid-column: span 2;
-            max-width: 100%;
-        }
-
-        @media (max-width: 1024px) {
-            .today-plan {
-                grid-column: span 1;
-                max-width: 450px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .today-plan {
-                max-width: 100%;
-            }
+            width: 100%;
         }
 
         .time-blocks {
