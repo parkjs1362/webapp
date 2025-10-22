@@ -2,8 +2,47 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 2.11.0
+    Version: 2.12.0
     Last Updated: 2025-10-22
+
+    Changes in v2.12.0 - Apple.com Inspired Design System (2024-2025):
+    - CRITICAL: Complete design system overhaul with Apple.com aesthetic
+      * Color System: Apple's refined palette (light: #fbfbfd, dark: #000000)
+      * Typography: San Francisco-inspired font stack with 17px base size
+      * Spacing: 12px/16px base system with generous whitespace (64px-96px)
+      * Shadows: Ultra-subtle approach (0.04-0.08 opacity)
+      * Border Radius: Larger, more modern (16px-28px)
+    - REDESIGNED: Typography system following Apple standards
+      * Line heights: 1.0833 (headlines), 1.47 (body text)
+      * Letter spacing: -0.01em for large text
+      * Font smoothing: antialiased rendering
+      * Font weights: 300-700 range with proper hierarchy
+    - ENHANCED: Animation system with Apple's signature easing
+      * Easing function: cubic-bezier(0.28, 0.11, 0.32, 1)
+      * Duration: 400ms-600ms for premium feel
+      * Smooth scroll: Native smooth scrolling enabled
+      * Reduced motion: Full accessibility support
+    - IMPROVED: Component styling with modern effects
+      * Cards: Larger radius (24px), subtle hover (scale 1.01, translateY -3px)
+      * Buttons: Pill shape (border-radius: 9999px), micro-interactions
+      * Modals: Glassmorphism with backdrop blur (10px-20px)
+      * Header: Minimal design with hover effects
+    - POLISHED: Dark mode with Apple's pure black approach
+      * Background: #000000 (pure black) instead of gray
+      * Cards: #161617 (subtle gray) for depth
+      * Text: #f5f5f7 (off-white) for readability
+      * Accent: #2997ff (brighter blue) for dark mode
+    - ADDED: Modern web design trends (2024-2025)
+      * Smooth transitions: All elements use Apple easing
+      * Micro-interactions: Button hover/active states
+      * Glassmorphism: Modal backdrops with blur
+      * Generous whitespace: Container padding 64px-96px
+    - OPTIMIZED: CSS Variables for consistency
+      * 12 font sizes (11px-80px range)
+      * 5 font weights (300-700)
+      * 4 line heights (1.08-1.625)
+      * 10 spacing scales (4px-96px)
+      * 6 border radius options (10px-28px)
 
     Changes in v2.11.0 - Single Column Layout Optimization (User Preference):
     - CRITICAL: Changed layout from multi-column to single-column for better usability
@@ -243,7 +282,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v2.11.0</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v2.12.0</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -253,84 +292,145 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             padding: 0;
             box-sizing: border-box;
         }
+
+        /* Smooth scrolling - Apple style */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
         
         :root {
-            /* Color Palette */
-            --primary-color: #4A5568;
-            --primary-dark: #2D3748;
-            --primary-light: #718096;
-            --accent-color: #3182CE;
-            --accent-dark: #2C5AA0;
-            --accent-light: #63B3ED;
-            --success-color: #48BB78;
-            --success-dark: #38A169;
-            --success-light: #9AE6B4;
-            --warning-color: #F6AD55;
-            --warning-dark: #DD6B20;
-            --warning-light: #FBD38D;
-            --danger-color: #F56565;
-            --danger-dark: #E53E3E;
-            --danger-light: #FC8181;
-            --info-color: #4299E1;
+            /* ============================================
+               APPLE.COM INSPIRED DESIGN SYSTEM (2024-2025)
+               ============================================ */
 
-            /* Background Colors */
-            --bg-primary: #FFFFFF;
-            --bg-secondary: #F7FAFC;
-            --bg-tertiary: #EDF2F7;
-            --bg-light: #F7FAFC;
+            /* Primary Font Stack - San Francisco inspired */
+            --font-primary: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                            "SF Pro Text", "Segoe UI", "Pretendard",
+                            "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+
+            /* Apple Light Mode Colors */
+            --bg-primary: #fbfbfd;          /* Softer than pure white */
+            --bg-secondary: #ffffff;        /* Pure white for cards */
+            --bg-tertiary: #f5f5f7;         /* Subtle gray background */
+            --bg-light: #fbfbfd;
             --bg-dark: #1A202C;
 
-            /* Text Colors */
-            --text-primary: #1A202C;
-            --text-secondary: #718096;
-            --text-tertiary: #A0AEC0;
+            --text-primary: #1d1d1f;        /* Apple's softer black */
+            --text-secondary: #6e6e73;      /* Medium gray */
+            --text-tertiary: #86868b;       /* Light gray */
             --text-light: #FFFFFF;
 
-            /* Border & Shadow */
-            --border-color: #E2E8F0;
-            --border-light: #F7FAFC;
-            --border-dark: #CBD5E0;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.08);
-            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-            --shadow-xl: 0 20px 25px rgba(0,0,0,0.12);
+            /* Apple Color Palette */
+            --primary-color: #1d1d1f;
+            --primary-dark: #000000;
+            --primary-light: #6e6e73;
 
-            /* Spacing Scale */
-            --spacing-xs: 4px;
-            --spacing-sm: 8px;
+            --accent-color: #0071e3;        /* Apple Blue */
+            --accent-dark: #006edb;
+            --accent-light: #0077ed;
+            --accent-hover: #0077ed;
+
+            --success-color: #30d158;       /* Apple Green */
+            --success-dark: #28a745;
+            --success-light: #4de072;
+
+            --warning-color: #ff9f0a;       /* Apple Orange */
+            --warning-dark: #e68900;
+            --warning-light: #ffb340;
+
+            --danger-color: #ff3b30;        /* Apple Red */
+            --danger-dark: #e6342a;
+            --danger-light: #ff6259;
+
+            --info-color: #007aff;          /* Apple Info Blue */
+
+            /* Borders & Dividers - Very subtle */
+            --border-color: rgba(0, 0, 0, 0.06);
+            --border-light: rgba(0, 0, 0, 0.04);
+            --border-dark: rgba(0, 0, 0, 0.12);
+            --border-hover: rgba(0, 0, 0, 0.12);
+
+            /* Shadows - Apple's subtle approach */
+            --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --shadow-xl: 0 8px 40px rgba(0, 0, 0, 0.08);
+            --shadow-2xl: 0 12px 60px rgba(0, 0, 0, 0.1);
+
+            /* Spacing Scale - Apple uses 12px/16px base */
+            --spacing-2xs: 4px;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
             --spacing-md: 16px;
             --spacing-lg: 24px;
             --spacing-xl: 32px;
             --spacing-2xl: 48px;
             --spacing-3xl: 64px;
+            --spacing-4xl: 80px;
+            --spacing-5xl: 96px;
 
-            /* Typography Scale */
-            --font-size-xs: 0.75rem;    /* 12px */
-            --font-size-sm: 0.875rem;   /* 14px */
-            --font-size-base: 1rem;      /* 16px */
-            --font-size-lg: 1.125rem;    /* 18px */
-            --font-size-xl: 1.25rem;     /* 20px */
-            --font-size-2xl: 1.5rem;     /* 24px */
-            --font-size-3xl: 1.875rem;   /* 30px */
-            --font-size-4xl: 2.25rem;    /* 36px */
-            --font-size-5xl: 3rem;       /* 48px */
+            /* Typography Scale - Apple inspired */
+            --font-size-2xs: 0.6875rem;     /* 11px */
+            --font-size-xs: 0.8125rem;      /* 13px */
+            --font-size-sm: 0.9375rem;      /* 15px */
+            --font-size-base: 1.0625rem;    /* 17px - Apple's body text */
+            --font-size-lg: 1.3125rem;      /* 21px */
+            --font-size-xl: 1.625rem;       /* 26px */
+            --font-size-2xl: 2rem;          /* 32px */
+            --font-size-3xl: 2.5rem;        /* 40px */
+            --font-size-4xl: 3rem;          /* 48px */
+            --font-size-5xl: 4rem;          /* 64px */
+            --font-size-6xl: 5rem;          /* 80px */
 
-            /* Line Heights */
-            --line-height-tight: 1.25;
-            --line-height-normal: 1.5;
-            --line-height-relaxed: 1.75;
+            /* Font Weights */
+            --font-light: 300;
+            --font-normal: 400;
+            --font-medium: 500;
+            --font-semibold: 600;
+            --font-bold: 700;
 
-            /* Border Radius */
-            --radius-sm: 6px;
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --radius-xl: 16px;
+            /* Line Heights - Apple's standards */
+            --line-height-tight: 1.0833;    /* Headlines */
+            --line-height-snug: 1.1667;     /* Subheadings */
+            --line-height-normal: 1.47;     /* Body - Apple's standard */
+            --line-height-relaxed: 1.625;   /* Large text */
+
+            /* Letter Spacing */
+            --letter-spacing-tight: -0.01em;
+            --letter-spacing-normal: 0;
+            --letter-spacing-wide: 0.01em;
+
+            /* Border Radius - Larger, more modern */
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
+            --radius-2xl: 28px;
             --radius-full: 9999px;
 
-            /* Transitions */
-            --transition-fast: 150ms;
-            --transition-base: 250ms;
-            --transition-slow: 350ms;
+            /* Transitions - Apple's smooth animations */
+            --transition-fast: 200ms;
+            --transition-base: 400ms;
+            --transition-slow: 600ms;
+            --transition-slower: 800ms;
+
+            /* Easing Functions - Apple signature */
+            --ease-apple: cubic-bezier(0.28, 0.11, 0.32, 1);
+            --ease-apple-in: cubic-bezier(0.4, 0, 1, 1);
+            --ease-apple-out: cubic-bezier(0, 0, 0.2, 1);
+            --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
             /* Z-index Scale */
             --z-base: 1;
@@ -340,64 +440,89 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             --z-toast: 2000;
             --z-tooltip: 3000;
 
+            /* Glassmorphism - Apple style */
+            --glass-bg: rgba(255, 255, 255, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-blur: 20px;
+
             /* Legacy support (maintain backwards compatibility) */
             --primary: var(--primary-color);
             --accent: var(--accent-color);
             --success: var(--success-color);
             --warning: var(--warning-color);
             --danger: var(--danger-color);
-            --text-primary: var(--text-primary);
-            --text-secondary: var(--text-secondary);
             --border: var(--border-color);
         }
 
-        /* Dark Mode Color Palette - Enhanced for Better Contrast */
+        /* Apple Dark Mode - Pure Black with Subtle Accents */
         [data-theme="dark"] {
-            /* Dark Background Colors */
-            --bg-primary: #1A202C;
-            --bg-secondary: #2D3748;
-            --bg-tertiary: #4A5568;
-            --bg-light: #2D3748;
-            --bg-dark: #171923;
+            /* Dark Background Colors - Apple's approach */
+            --bg-primary: #000000;          /* Pure black */
+            --bg-secondary: #161617;        /* Subtle gray for cards */
+            --bg-tertiary: #1d1d1f;         /* Slightly lighter */
+            --bg-light: #000000;
+            --bg-dark: #000000;
 
-            /* Dark Text Colors - Improved Contrast */
-            --text-primary: #F7FAFC;
-            --text-secondary: #CBD5E0;
-            --text-tertiary: #A0AEC0;
-            --text-light: #FFFFFF;
+            /* Dark Text Colors - Apple's refined palette */
+            --text-primary: #f5f5f7;        /* Off-white */
+            --text-secondary: #a1a1a6;      /* Light gray */
+            --text-tertiary: #86868b;       /* Medium gray */
+            --text-light: #ffffff;
 
-            /* Dark Border & Shadow */
-            --border-color: #4A5568;
-            --border-light: #2D3748;
-            --border-dark: #718096;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.5);
-            --shadow-lg: 0 10px 15px rgba(0,0,0,0.6);
-            --shadow-xl: 0 20px 25px rgba(0,0,0,0.7);
+            /* Dark Borders & Dividers */
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-light: rgba(255, 255, 255, 0.05);
+            --border-dark: rgba(255, 255, 255, 0.16);
+            --border-hover: rgba(255, 255, 255, 0.16);
 
-            /* Adjusted colors for dark mode - Brighter for Better Visibility */
-            --primary-color: #A0AEC0;
-            --primary-dark: #F7FAFC;
-            --primary-light: #718096;
-            --accent-color: #63B3ED;
-            --accent-dark: #3182CE;
-            --accent-light: #90CDF4;
-            --success-color: #48BB78;
-            --success-dark: #38A169;
-            --success-light: #68D391;
-            --warning-color: #F6AD55;
-            --warning-dark: #DD6B20;
-            --warning-light: #FBD38D;
-            --danger-color: #FC8181;
-            --danger-dark: #E53E3E;
-            --danger-light: #FEB2B2;
-            --info-color: #4299E1;
+            /* Dark Shadows - Deeper */
+            --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.5);
+            --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.6);
+            --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.7);
+            --shadow-xl: 0 8px 40px rgba(0, 0, 0, 0.8);
+            --shadow-2xl: 0 12px 60px rgba(0, 0, 0, 0.85);
+
+            /* Adjusted Colors for Dark Mode */
+            --primary-color: #f5f5f7;
+            --primary-dark: #ffffff;
+            --primary-light: #a1a1a6;
+
+            --accent-color: #2997ff;        /* Brighter blue for dark mode */
+            --accent-dark: #0984ff;
+            --accent-light: #409cff;
+            --accent-hover: #409cff;
+
+            --success-color: #30d158;       /* Apple Green stays */
+            --success-dark: #28a745;
+            --success-light: #4de072;
+
+            --warning-color: #ff9f0a;       /* Apple Orange stays */
+            --warning-dark: #e68900;
+            --warning-light: #ffb340;
+
+            --danger-color: #ff453a;        /* Brighter red */
+            --danger-dark: #e6342a;
+            --danger-light: #ff6259;
+
+            --info-color: #007aff;
+
+            /* Glassmorphism - Dark mode */
+            --glass-bg: rgba(22, 22, 23, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-blur: 20px;
         }
 
-        /* Dark mode transitions */
+        /* Apple-style smooth transitions */
         body, .card, .modal-content, .time-block, .subject-rotation,
         .score-entry, .goal-item, .weak-subject, .form-input, .form-select {
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.4s var(--ease-apple),
+                        color 0.4s var(--ease-apple),
+                        border-color 0.4s var(--ease-apple);
+        }
+
+        /* Apply Apple easing to all transitions */
+        * {
+            transition-timing-function: var(--ease-apple);
         }
 
         /* Dark mode toggle button */
@@ -450,46 +575,56 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         
         body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: var(--font-primary);
             background: var(--bg-light);
             color: var(--text-primary);
-            line-height: 1.6;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-normal);
+            letter-spacing: var(--letter-spacing-normal);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.4s var(--ease-apple),
+                        color 0.4s var(--ease-apple);
         }
-        
+
         .container {
             max-width: 1280px;
             margin: 0 auto;
-            padding: 40px 5%;
+            padding: var(--spacing-3xl) 5%;
         }
 
-        /* Responsive container padding - Apple/Google style */
+        /* Responsive container padding - Apple style with generous spacing */
         @media (max-width: 1024px) {
             .container {
-                padding: 32px 4%;
+                padding: var(--spacing-2xl) 4%;
             }
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 24px 4%;
+                padding: var(--spacing-xl) 4%;
             }
         }
 
         @media (max-width: 480px) {
             .container {
-                padding: 16px 4%;
+                padding: var(--spacing-lg) 4%;
             }
         }
-        
-        /* 헤더 스타일 */
+
+        /* 헤더 스타일 - Apple minimalist approach */
         .header {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            padding: var(--spacing-xl);
-            margin-bottom: var(--spacing-lg);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-2xl);
+            margin-bottom: var(--spacing-xl);
             box-shadow: var(--shadow-md);
             border: 1px solid var(--border-color);
+            transition: all 0.4s var(--ease-apple);
+        }
+
+        .header:hover {
+            box-shadow: var(--shadow-lg);
         }
 
         .header-top {
@@ -502,9 +637,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary-dark);
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            line-height: var(--line-height-tight);
+            letter-spacing: var(--letter-spacing-tight);
         }
         
         .d-day-badge {
@@ -574,20 +711,23 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
         
+        /* Card Design - Apple minimalist style */
         .card {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            padding: var(--spacing-lg);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
             box-shadow: var(--shadow-md);
             border: 1px solid var(--border-color);
-            transition: transform var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1), box-shadow var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1), background-color var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform var(--transition-base) var(--ease-apple),
+                        box-shadow var(--transition-base) var(--ease-apple),
+                        background-color var(--transition-base) var(--ease-apple);
             position: relative;
             width: 100%;
         }
 
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: var(--shadow-xl);
         }
 
         .card:focus-visible {
@@ -603,9 +743,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary-dark);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            line-height: var(--line-height-snug);
+            letter-spacing: var(--letter-spacing-tight);
         }
         
         .card-actions {
@@ -1116,41 +1258,51 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         /* 모달 스타일 */
+        /* Apple-style Modal with Glassmorphism */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: var(--z-modal);
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            animation: fadeIn 0.4s var(--ease-apple);
         }
-        
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .modal.show {
             display: block;
         }
-        
+
         .modal-content {
-            background-color: var(--bg-primary);
+            background: var(--bg-secondary);
             color: var(--text-primary);
             margin: 10% auto;
-            padding: var(--spacing-xl);
-            border-radius: 12px;
+            padding: var(--spacing-2xl);
+            border-radius: var(--radius-2xl);
             width: 90%;
-            max-width: 500px;
-            animation: slideIn 0.3s ease;
-            box-shadow: var(--shadow-lg);
+            max-width: 540px;
+            animation: slideInUp 0.5s var(--ease-apple);
+            box-shadow: var(--shadow-2xl);
+            border: 1px solid var(--border-color);
             z-index: calc(var(--z-modal) + 10);
         }
-        
-        @keyframes slideIn {
+
+        @keyframes slideInUp {
             from {
-                transform: translateY(-50px);
+                transform: translateY(30px) scale(0.96);
                 opacity: 0;
             }
             to {
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
                 opacity: 1;
             }
         }
@@ -1163,8 +1315,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .modal-title {
-            font-size: 1.3rem;
-            font-weight: 600;
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-semibold);
+            line-height: var(--line-height-tight);
+            letter-spacing: var(--letter-spacing-tight);
+            color: var(--text-primary);
         }
         
         .modal-close {
@@ -2274,19 +2429,23 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         /* Enhanced Button Consistency */
+        /* Apple-style Button System */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: var(--spacing-sm);
-            padding: var(--spacing-sm) var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-lg);
             border: none;
-            border-radius: var(--radius-md);
-            font-weight: 600;
+            border-radius: var(--radius-full);
+            font-family: var(--font-primary);
+            font-weight: var(--font-medium);
             font-size: var(--font-size-base);
             cursor: pointer;
-            transition: all var(--transition-base);
-            min-height: 44px; /* Touch target size */
+            transition: all var(--transition-base) var(--ease-apple);
+            min-height: 44px;
+            letter-spacing: -0.005em;
+            -webkit-font-smoothing: antialiased;
         }
 
         .btn-primary {
@@ -2295,20 +2454,26 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         .btn-primary:hover {
-            background: var(--accent-dark);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
+            background: var(--accent-hover);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
         }
 
         .btn-secondary {
-            background: var(--bg-secondary);
+            background: var(--bg-tertiary);
             color: var(--text-primary);
             border: 1px solid var(--border-color);
         }
 
         .btn-secondary:hover {
-            background: var(--bg-tertiary);
-            border-color: var(--border-dark);
+            background: var(--bg-secondary);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
         }
 
         .btn-success {
@@ -2317,7 +2482,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         .btn-success:hover {
-            background: var(--success-dark);
+            background: var(--success-light);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-danger {
@@ -2326,7 +2493,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         .btn-danger:hover {
-            background: var(--danger-dark);
+            background: var(--danger-light);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-sm {
@@ -5015,7 +5184,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             try {
                 // 내보낼 데이터 준비 (민감한 정보 제외, 불필요한 필드 제거)
                 const exportData = {
-                    version: '2.6.0',
+                    version: '2.12.0',
                     exportDate: new Date().toISOString(),
                     data: {
                         examType: studyData.examType,
