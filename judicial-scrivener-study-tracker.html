@@ -2,8 +2,29 @@
 <html lang="ko">
 <!--
     시험 전략적 학습 시스템
-    Version: 2.13.2
-    Last Updated: 2025-10-22
+    Version: 2.14.0
+    Last Updated: 2025-10-23
+
+    Changes in v2.14.0 - Complete Daily Data Isolation & Integration:
+    - CRITICAL: Added `date` field to timeBlocks when creating new blocks
+    - FIXED: "오늘의 학습 전략" card now shows only TODAY's blocks (date filtering)
+    - IMPROVED: Empty state message when no blocks exist for today
+    - REFACTORED: toggleTimeBlock() now auto-populates studyHistory on completion
+    - FIXED: Analytics calculations use correct date field (block.date, not block.time)
+    - IMPROVED: Streak calculation filters timeBlocks by today's date
+    - ADDED: Comprehensive DATA_FLOW_ARCHITECTURE.md documentation
+    - VERIFIED: All data entity relationships mapped and validated
+    - TESTED: Complete data flow from creation → storage → display → update
+    - NOTE: Data isolation achieved without daily resets; historical data preserved
+
+    **Key Features**:
+      ✅ Daily blocks isolated by date (show only today's blocks)
+      ✅ studyHistory auto-populated when blocks completed
+      ✅ Charts update automatically on all data changes
+      ✅ Sync status displays correctly on initial load
+      ✅ Streak calculation uses correct date filtering
+      ✅ All analytics use proper data sources
+      ✅ Complete documentation of data flows and relationships
 
     Changes in v2.13.2 - Critical Data Synchronization & Dashboard Fix:
     - FIXED: "저장된 데이터: 계산 중..." stuck display - added updateSyncStatus() to init()
@@ -4247,7 +4268,25 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             const container = document.getElementById('time-blocks-container');
             container.innerHTML = '';
 
-            studyData.timeBlocks.forEach(block => {
+            // Get today's date and filter blocks for today only
+            const today = new Date().toISOString().split('T')[0];
+            const todayBlocks = studyData.timeBlocks.filter(block =>
+                block.date === today  // Only show blocks from today
+            );
+
+            // If no blocks for today, show empty state message
+            if (todayBlocks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                        <div style="font-size: 32px; margin-bottom: 8px;">📚</div>
+                        <div>오늘의 학습 계획이 없습니다</div>
+                        <div style="font-size: 12px; margin-top: 8px;">학습 시간을 추가해주세요</div>
+                    </div>
+                `;
+                return;
+            }
+
+            todayBlocks.forEach(block => {
                 const blockEl = document.createElement('div');
                 blockEl.className = `time-block ${block.completed ? 'completed' : ''}`;
 
@@ -4310,17 +4349,64 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 block.completed = !block.completed;
                 const hours = block.hours || 2; // Default to 2 hours if not set (legacy compatibility)
                 const seconds = hours * 3600;
+                const today = new Date().toISOString().split('T')[0];
 
                 if (block.completed) {
                     studyData.timer.seconds += seconds;
+
+                    // Populate studyHistory when block is completed
+                    if (!studyData.studyHistory) {
+                        studyData.studyHistory = [];
+                    }
+
+                    // Add or update today's study history entry
+                    let todayHistory = studyData.studyHistory.find(h => h.date === today);
+                    if (!todayHistory) {
+                        todayHistory = {
+                            date: today,
+                            totalHours: 0,
+                            completedBlocks: [],
+                            note: ''
+                        };
+                        studyData.studyHistory.push(todayHistory);
+                    }
+
+                    // Add this block to today's history
+                    todayHistory.totalHours += hours;
+                    todayHistory.completedBlocks.push({
+                        subject: block.subject,
+                        hours: hours,
+                        time: block.time
+                    });
+
                     updateTimerDisplay();
                     showToast(`학습 완료! ${hours}시간이 추가되었습니다 👏`);
                 } else {
                     studyData.timer.seconds = Math.max(0, studyData.timer.seconds - seconds);
+
+                    // Remove from studyHistory when uncompleted
+                    if (studyData.studyHistory) {
+                        let todayHistory = studyData.studyHistory.find(h => h.date === today);
+                        if (todayHistory) {
+                            // Remove this block from completed blocks
+                            todayHistory.completedBlocks = todayHistory.completedBlocks.filter(
+                                cb => !(cb.subject === block.subject && cb.time === block.time)
+                            );
+                            todayHistory.totalHours -= hours;
+
+                            // If no more blocks, remove the entire day
+                            if (todayHistory.completedBlocks.length === 0 && todayHistory.totalHours === 0) {
+                                studyData.studyHistory = studyData.studyHistory.filter(h => h.date !== today);
+                            }
+                        }
+                    }
+
                     updateTimerDisplay();
                 }
                 saveData();
                 renderTimeBlocks();
+                updateStreak();
+                renderAnalytics();
             }
         }
         
@@ -4335,6 +4421,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             const subject = document.getElementById('blockSubject').value;
             const hours = parseFloat(document.getElementById('blockHours').value) || 2;
             const detail = document.getElementById('blockDetail').value;
+            // Get today's date in YYYY-MM-DD format for daily tracking
+            const today = new Date().toISOString().split('T')[0];
 
             if (time && subject && detail) {
                 if (editingBlockId) {
@@ -4345,17 +4433,22 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         block.subject = subject;
                         block.hours = hours;
                         block.detail = detail;
+                        // Preserve date when editing, or set to today if missing
+                        if (!block.date) {
+                            block.date = today;
+                        }
                         showToast('학습 블록이 수정되었습니다');
                     }
                     editingBlockId = null;
                 } else {
-                    // 추가 모드
+                    // 추가 모드 - Always add with today's date
                     studyData.timeBlocks.push({
                         id: Date.now(),
                         time,
                         subject,
                         hours,
                         detail,
+                        date: today,  // Add date field for daily tracking
                         completed: false
                     });
                     showToast('학습 블록이 추가되었습니다');
@@ -5082,9 +5175,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 studyData.streak = { current: 0, longest: 0, lastStudyDate: null, totalDays: 0 };
             }
 
-            // 오늘 학습 기록이 있는지 확인 (타이머 시간 or 완료된 타임블록)
+            // 오늘 학습 기록이 있는지 확인 (타이머 시간 or 완료된 타임블록 from TODAY)
+            const todayCompletedBlocks = studyData.timeBlocks.filter(b => b.date === today && b.completed);
             const hasStudiedToday = studyData.timer.seconds > 0 ||
-                                   studyData.timeBlocks.some(b => b.completed);
+                                   todayCompletedBlocks.length > 0;
 
             if (hasStudiedToday && lastStudy !== today) {
                 if (lastStudy) {
@@ -5150,12 +5244,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
             document.getElementById('total-study-hours').textContent = Math.round(totalHours) + 'h';
 
-            // Calculate actual study days from history
+            // Calculate actual study days from history (use correct date field, not time)
             const uniqueStudyDays = new Set();
             studyData.timeBlocks.forEach(block => {
-                if (block.completed && block.time) {
-                    const dateKey = block.time.split('T')[0];
-                    uniqueStudyDays.add(dateKey);
+                if (block.completed && block.date) {
+                    // Use the actual date field, not the time slot
+                    uniqueStudyDays.add(block.date);
                 }
             });
 
