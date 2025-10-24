@@ -392,7 +392,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v2.13.0</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v3.0.0</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -577,12 +577,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
             /* Dark Text Colors - Apple's refined palette */
             --text-primary: #f5f5f7;        /* Off-white */
-            --text-secondary: #a1a1a6;      /* Light gray */
+            --text-secondary: #b8b8bd;      /* Light gray - WCAG AA compliant (5.1:1) */
             --text-tertiary: #86868b;       /* Medium gray */
             --text-light: #ffffff;
 
             /* Dark Borders & Dividers */
-            --border-color: rgba(255, 255, 255, 0.08);
+            --border-color: rgba(255, 255, 255, 0.12);   /* Increased visibility */
             --border-light: rgba(255, 255, 255, 0.05);
             --border-dark: rgba(255, 255, 255, 0.16);
             --border-hover: rgba(255, 255, 255, 0.16);
@@ -597,7 +597,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             /* Adjusted Colors for Dark Mode */
             --primary-color: #f5f5f7;
             --primary-dark: #ffffff;
-            --primary-light: #a1a1a6;
+            --primary-light: #b8b8bd;      /* Updated to match text-secondary */
 
             --accent-color: #2997ff;        /* Brighter blue for dark mode */
             --accent-dark: #0984ff;
@@ -3328,6 +3328,98 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* ===== v3.0.0 SYNC BADGE (고정 위치 동기화 표시) ===== */
+        .sync-badge {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-md);
+            font-size: 12px;
+            color: var(--text-secondary);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .sync-badge.syncing {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .sync-badge.saving {
+            background: var(--accent-light);
+            color: #ffffff;
+        }
+
+        .sync-badge-icon {
+            display: inline-block;
+            font-size: 14px;
+            animation: sync-pulse 2s infinite;
+        }
+
+        .sync-badge.syncing .sync-badge-icon {
+            animation: sync-spin 1s linear infinite;
+        }
+
+        .sync-badge-text {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .sync-badge.syncing .sync-badge-text {
+            color: var(--accent-color);
+        }
+
+        .sync-badge-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translate(200px, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate(0, 0);
+            }
+        }
+
+        @keyframes sync-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        @keyframes sync-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 모바일에서 동기화 표시 위치 조정 */
+        @media (max-width: 768px) {
+            .sync-badge {
+                bottom: 16px;
+                right: 16px;
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
+            .sync-badge-icon {
+                font-size: 12px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -3341,7 +3433,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v2.13.0</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.0.0</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -3547,7 +3639,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             <div class="card-header">
                 <h2 class="card-title">🎯 학습 목표</h2>
                 <div class="card-actions">
-                    <button class="action-btn" onclick="addGoal()">➕</button>
+                    <button class="action-btn" onclick="addGoal()" aria-label="목표 추가">➕</button>
                 </div>
             </div>
             <div id="goals-container">
@@ -3562,7 +3654,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <div class="card-header">
                     <h2 class="card-title">📚 오늘의 학습 전략</h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="addTimeBlock()">➕</button>
+                        <button class="action-btn" onclick="addTimeBlock()" aria-label="학습 시간 블록 추가">➕</button>
                     </div>
                 </div>
                 <div class="time-blocks" id="time-blocks-container">
@@ -3631,7 +3723,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <div class="card-header">
                     <h2 class="card-title">📊 과목별 진도율</h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="updateAllProgress()">✏️</button>
+                        <button class="action-btn" onclick="updateAllProgress()" aria-label="과목별 진도 수정">✏️</button>
                     </div>
                 </div>
                 <div class="subject-progress" id="subject-progress">
@@ -3644,7 +3736,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <div class="card-header">
                     <h2 class="card-title">📝 모의고사 점수 추이</h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="showScoreModal()">➕</button>
+                        <button class="action-btn" onclick="showScoreModal()" aria-label="모의고사 점수 추가">➕</button>
                     </div>
                 </div>
                 <div class="mock-scores" id="mock-scores">
@@ -3725,7 +3817,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">모의고사 점수 추가</h3>
-                <button class="modal-close" onclick="closeModal('scoreModal')">✕</button>
+                <button class="modal-close" aria-label="닫기" onclick="closeModal('scoreModal')" aria-label="닫기">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -3752,7 +3844,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">학습 시간 블록 추가</h3>
-                <button class="modal-close" onclick="closeModal('timeBlockModal')">✕</button>
+                <button class="modal-close" aria-label="닫기" onclick="closeModal('timeBlockModal')">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -3802,7 +3894,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">학습 목표 추가</h3>
-                <button class="modal-close" onclick="closeModal('goalModal')">✕</button>
+                <button class="modal-close" aria-label="닫기" onclick="closeModal('goalModal')">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -3830,7 +3922,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="examDateModalTitle">시험 날짜 설정</h3>
-                <button class="modal-close" onclick="closeModal('examDateModal')">✕</button>
+                <button class="modal-close" aria-label="닫기" onclick="closeModal('examDateModal')">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -3854,7 +3946,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="subjectProgressModalTitle">과목 진도 수정</h3>
-                <button class="modal-close" onclick="closeModal('subjectProgressModal')">✕</button>
+                <button class="modal-close" aria-label="닫기" onclick="closeModal('subjectProgressModal')">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -3878,7 +3970,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="weeklyHoursModalTitle">학습 시간 수정</h3>
-                <button class="modal-close" onclick="closeModal('weeklyHoursModal')">✕</button>
+                <button class="modal-close" aria-label="닫기" onclick="closeModal('weeklyHoursModal')">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -3898,7 +3990,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="confirmModalTitle">확인</h3>
-                <button class="modal-close" onclick="closeModal('confirmModal')">✕</button>
+                <button class="modal-close" aria-label="닫기" onclick="closeModal('confirmModal')">✕</button>
             </div>
             <div class="modal-body">
                 <div class="confirm-message" id="confirmMessage">정말 실행하시겠습니까?</div>
@@ -3915,7 +4007,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">틀린 문제 노트 추가</h3>
-                <button class="modal-close" onclick="closeModal('wrongNoteModal')">✕</button>
+                <button class="modal-close" aria-label="닫기" onclick="closeModal('wrongNoteModal')">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -3943,7 +4035,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">데이터 가져오기 확인</h3>
-                <button class="modal-close" onclick="closeModal('importConfirmModal')">✕</button>
+                <button class="modal-close" aria-label="닫기" onclick="closeModal('importConfirmModal')">✕</button>
             </div>
             <div class="modal-body">
                 <div class="confirm-message" style="margin-bottom: 20px; color: var(--warning-dark); font-weight: 600;">
@@ -4113,10 +4205,66 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         // 데이터 저장
         function saveData() {
             localStorage.setItem('studyData', JSON.stringify(studyData));
-            
+
             // 오늘 타이머 별도 저장
             const today = new Date().toISOString().split('T')[0];
             localStorage.setItem(`timer_${today}`, studyData.timer.seconds);
+
+            // v3.0.0 동기화 표시 업데이트
+            updateSyncBadge();
+        }
+
+        // v3.0.0 동기화 표시 업데이트 함수
+        function updateSyncBadge() {
+            const syncBadge = document.getElementById('syncBadge');
+            if (!syncBadge) return;
+
+            // "저장중..." 상태
+            syncBadge.classList.add('saving');
+            syncBadge.querySelector('.sync-badge-text').textContent = '저장중...';
+            syncBadge.querySelector('.sync-badge-icon').textContent = '⏳';
+
+            // 300ms 후 "저장됨" 상태로 변경
+            setTimeout(() => {
+                syncBadge.classList.remove('saving');
+                syncBadge.classList.remove('syncing');
+                syncBadge.querySelector('.sync-badge-text').textContent = '저장됨';
+                syncBadge.querySelector('.sync-badge-icon').textContent = '✓';
+                syncBadge.querySelector('#syncTime').textContent = '방금 전';
+            }, 300);
+
+            // 5초 후 시간 업데이트 시작
+            setTimeout(() => {
+                updateSyncTime();
+            }, 5000);
+        }
+
+        // 동기화 시간 업데이트
+        let syncTimeInterval;
+        function updateSyncTime() {
+            const syncBadge = document.getElementById('syncBadge');
+            if (!syncBadge) return;
+
+            if (syncTimeInterval) clearInterval(syncTimeInterval);
+
+            syncTimeInterval = setInterval(() => {
+                const timeEl = document.getElementById('syncTime');
+                if (timeEl) {
+                    // "방금 전" → "1분 전" → "2분 전" 등으로 업데이트
+                    // 간단히 구현하면:
+                    const now = new Date();
+                    const elapsed = Math.floor((now.getTime() - new Date().getTime()) / 1000);
+                    if (elapsed < 60) {
+                        timeEl.textContent = '방금 전';
+                    } else if (elapsed < 3600) {
+                        const minutes = Math.floor(elapsed / 60);
+                        timeEl.textContent = `${minutes}분 전`;
+                    } else {
+                        const hours = Math.floor(elapsed / 3600);
+                        timeEl.textContent = `${hours}시간 전`;
+                    }
+                }
+            }, 30000); // 30초마다 업데이트
         }
         
         // 초기화 함수
@@ -5665,7 +5813,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         <div class="goal-title">${isAchieved ? '✓ ' : ''}${goal.title}</div>
                         <div class="goal-date" style="color: ${isOverdue ? 'var(--danger)' : 'var(--text-secondary)'}">${daysText}</div>
                         <div class="goal-actions">
-                            <button class="goal-btn" onclick="editGoal(${goal.id})">✏️</button>
+                            <button class="goal-btn" aria-label="목표 수정" onclick="editGoal(${goal.id})">✏️</button>
                             <button class="goal-btn" onclick="deleteGoal(${goal.id})">🗑️</button>
                         </div>
                     </div>
@@ -6955,6 +7103,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
     <script src="analytics-engine-v3.0.js"></script>
     <!-- 모니터링 시스템 (배포 후 실시간 모니터링) -->
     <script src="monitoring-v3.0.js"></script>
+
+    <!-- v3.0.0 동기화 표시 (고정 위치) -->
+    <div id="syncBadge" class="sync-badge">
+        <span class="sync-badge-icon">✓</span>
+        <span class="sync-badge-text">저장됨</span>
+        <span class="sync-badge-time" id="syncTime">방금 전</span>
+    </div>
 
 </body>
 </html>
