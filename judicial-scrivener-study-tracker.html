@@ -3420,6 +3420,184 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
 
+        /* ===== v3.0.0 STICKY PROGRESS BAR ===== */
+        .sticky-progress-bar {
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: var(--spacing-md) 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md) var(--spacing-lg);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] .sticky-progress-bar {
+            backdrop-filter: blur(20px);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .progress-metric {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .progress-metric:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .metric-icon {
+            font-size: 20px;
+            display: inline-block;
+        }
+
+        .metric-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .sticky-progress-bar {
+                grid-template-columns: repeat(2, 1fr);
+                padding: var(--spacing-sm) var(--spacing-md);
+                gap: var(--spacing-xs);
+            }
+
+            .progress-metric {
+                padding: var(--spacing-xs) var(--spacing-sm);
+                gap: var(--spacing-xs);
+            }
+
+            .metric-icon {
+                font-size: 16px;
+            }
+
+            .metric-value {
+                font-size: 14px;
+            }
+
+            .metric-label {
+                font-size: 10px;
+            }
+        }
+
+        /* ===== v3.0.0 DASHBOARD TAB NAVIGATION ===== */
+        .dashboard-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-lg) 0;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: var(--spacing-xl);
+            overflow-x: auto;
+            scroll-behavior: smooth;
+        }
+
+        .dashboard-tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .dashboard-tabs::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .dashboard-tabs::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            border-bottom-color: var(--accent-light);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+        }
+
+        .tab-icon {
+            font-size: 18px;
+        }
+
+        .tab-label {
+            display: inline;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-tabs {
+                padding: var(--spacing-md) 0;
+                margin-bottom: var(--spacing-lg);
+            }
+
+            .tab-btn {
+                padding: var(--spacing-xs) var(--spacing-sm);
+                font-size: 13px;
+            }
+
+            .tab-icon {
+                font-size: 16px;
+            }
+        }
+
+        /* TAB CONTENT - 처음에는 모두 숨김 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
     </style>
 </head>
 <body>
@@ -3457,7 +3635,62 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <button class="mode-btn" onclick="setExamType('2차')">2차 시험</button>
             </div>
         </div>
-        
+
+        <!-- v3.0.0 STICKY PROGRESS BAR (항상 보이는 진도 표시) -->
+        <div class="sticky-progress-bar" id="stickyProgressBar">
+            <div class="progress-metric" onclick="jumpToSection('analytics')">
+                <span class="metric-icon">📊</span>
+                <div class="metric-info">
+                    <span class="metric-label">전체 진도</span>
+                    <span class="metric-value" id="stickyProgress">0%</span>
+                </div>
+            </div>
+
+            <div class="progress-metric" onclick="jumpToSection('streak')">
+                <span class="metric-icon">🔥</span>
+                <div class="metric-info">
+                    <span class="metric-label">연속 학습</span>
+                    <span class="metric-value" id="stickyStreak">0일</span>
+                </div>
+            </div>
+
+            <div class="progress-metric" onclick="jumpToSection('timeblocks')">
+                <span class="metric-icon">✅</span>
+                <div class="metric-info">
+                    <span class="metric-label">오늘 완료</span>
+                    <span class="metric-value" id="stickyCompleted">0/0</span>
+                </div>
+            </div>
+
+            <div class="progress-metric" onclick="jumpToSection('hours')">
+                <span class="metric-icon">⏱️</span>
+                <div class="metric-info">
+                    <span class="metric-label">오늘 학습시간</span>
+                    <span class="metric-value" id="stickyHours">0h</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- v3.0.0 DASHBOARD TAB NAVIGATION -->
+        <div class="dashboard-tabs">
+            <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">
+                <span class="tab-icon">📋</span>
+                <span class="tab-label">개요</span>
+            </button>
+            <button class="tab-btn" data-tab="planning" onclick="switchTab('planning')">
+                <span class="tab-icon">📅</span>
+                <span class="tab-label">계획</span>
+            </button>
+            <button class="tab-btn" data-tab="tracking" onclick="switchTab('tracking')">
+                <span class="tab-icon">📈</span>
+                <span class="tab-label">추적</span>
+            </button>
+            <button class="tab-btn" data-tab="analytics" onclick="switchTab('analytics')">
+                <span class="tab-icon">📊</span>
+                <span class="tab-label">분석</span>
+            </button>
+        </div>
+
         <!-- 학습 스트릭 & 추천 (최상단 강조) -->
         <div class="dashboard-grid">
             <!-- 학습 스트릭 트래커 -->
@@ -4305,7 +4538,14 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     }
                 }
             });
-            
+
+            // v3.0.0 새 기능 초기화
+            setTimeout(() => {
+                startProgressUpdate(); // Sticky Progress Bar 시작
+                enableNotesAutoSave(); // Notes Auto-save 활성화
+                console.log('✅ v3.0.0 새 기능 활성화됨');
+            }, 500);
+
             // Note: Sample data is already initialized in the studyData object above
             // This prevents overwriting sample data with old defaults
         }
@@ -6408,6 +6648,157 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 }
             }, 500);  // 500ms 지연으로 모든 초기화 완료 후 실행
         });
+
+        // ===== v3.0.0 DASHBOARD TAB & STICKY PROGRESS FUNCTIONALITY =====
+
+        // 탭 전환 함수
+        function switchTab(tabName) {
+            // 모든 탭 버튼의 active 클래스 제거
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // 클릭한 탭 버튼에 active 클래스 추가
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // 모든 콘텐츠 숨기기
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 선택한 탭 콘텐츠 표시
+            const activeContent = document.getElementById(`${tabName}-content`);
+            if (activeContent) {
+                activeContent.classList.add('active');
+            }
+
+            // 스크롤을 탭 버튼 위치로
+            setTimeout(() => {
+                const tabBtn = document.querySelector(`[data-tab="${tabName}"]`);
+                if (tabBtn) {
+                    tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            }, 100);
+        }
+
+        // 섹션으로 점프하는 함수
+        function jumpToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                // 먼저 적절한 탭으로 전환
+                if (sectionId === 'analytics') switchTab('analytics');
+                else if (sectionId === 'streak') switchTab('overview');
+                else if (sectionId === 'timeblocks') switchTab('planning');
+                else if (sectionId === 'hours') switchTab('tracking');
+
+                // 요소로 스크롤
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // 강조 효과
+                    element.style.backgroundColor = 'var(--accent-light)';
+                    element.style.opacity = '0.5';
+                    setTimeout(() => {
+                        element.style.backgroundColor = '';
+                        element.style.opacity = '1';
+                        element.style.transition = 'all 0.3s ease';
+                    }, 500);
+                }, 100);
+            }
+        }
+
+        // Sticky Progress Bar 업데이트 함수
+        function updateStickyProgress() {
+            // 전체 진도 계산
+            let completedSubjects = 0;
+            let totalSubjects = 0;
+            const examType = document.querySelector('.study-mode-selector .active')?.textContent || '1차';
+
+            studyData.subjects.forEach(subject => {
+                if (examType.includes('1차') && !subject.name.includes('2차')) {
+                    totalSubjects++;
+                    if (subject.progress >= 100) completedSubjects++;
+                } else if (examType.includes('2차') && subject.name.includes('2차')) {
+                    totalSubjects++;
+                    if (subject.progress >= 100) completedSubjects++;
+                }
+            });
+
+            const overallProgress = totalSubjects > 0 ? Math.round((completedSubjects / totalSubjects) * 100) : 0;
+            document.getElementById('stickyProgress').textContent = overallProgress + '%';
+
+            // 연속 학습일
+            const streak = studyData.streak?.current || 0;
+            document.getElementById('stickyStreak').textContent = streak + '일';
+
+            // 오늘 완료한 블록
+            const today = new Date().toISOString().split('T')[0];
+            const todayBlocks = studyData.timeBlocks.filter(block => block.date === today);
+            const completedBlocks = todayBlocks.filter(block => block.completed).length;
+            document.getElementById('stickyCompleted').textContent = `${completedBlocks}/${todayBlocks.length}`;
+
+            // 오늘 학습 시간
+            const totalHours = todayBlocks.reduce((sum, block) => sum + block.hours, 0);
+            const completedHours = todayBlocks.filter(block => block.completed).reduce((sum, block) => sum + block.hours, 0);
+            document.getElementById('stickyHours').textContent = `${completedHours.toFixed(1)}h`;
+        }
+
+        // Sticky Progress Bar 자동 업데이트 (데이터 변경 시)
+        let updateProgressInterval;
+        function startProgressUpdate() {
+            updateStickyProgress(); // 초기 업데이트
+            updateProgressInterval = setInterval(updateStickyProgress, 30000); // 30초마다 업데이트
+        }
+
+        // ===== v3.0.0 AUTO-SAVE FOR NOTES =====
+        let notesAutoSaveTimeout;
+        let notesAutoSaveActive = false;
+
+        function enableNotesAutoSave() {
+            const notesInput = document.getElementById('study-notes');
+            if (!notesInput) return;
+
+            notesAutoSaveActive = true;
+
+            notesInput.addEventListener('input', () => {
+                // 기존 타이머 취소
+                if (notesAutoSaveTimeout) clearTimeout(notesAutoSaveTimeout);
+
+                // 입력 중 표시
+                notesInput.style.borderColor = 'var(--accent-light)';
+
+                // 2초 후 자동 저장
+                notesAutoSaveTimeout = setTimeout(() => {
+                    saveNotesAuto();
+                }, 2000);
+            });
+        }
+
+        function saveNotesAuto() {
+            const notesInput = document.getElementById('study-notes');
+            if (!notesInput) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            const content = notesInput.value;
+
+            if (!studyData.notes) studyData.notes = {};
+            if (!studyData.notes[today]) studyData.notes[today] = {};
+
+            studyData.notes[today].content = content;
+            studyData.notes[today].lastModified = new Date().toISOString();
+
+            saveData();
+
+            // 자동 저장 시각적 피드백 (살짝 변경)
+            notesInput.style.borderColor = 'var(--success-color)';
+            notesInput.style.boxShadow = '0 0 0 3px rgba(52, 199, 89, 0.1)';
+
+            setTimeout(() => {
+                notesInput.style.borderColor = '';
+                notesInput.style.boxShadow = '';
+            }, 1500);
+
+            console.log('💾 자동 저장됨:', today);
+        }
 
         // ===== DARK MODE FUNCTIONALITY =====
         function toggleDarkMode() {
