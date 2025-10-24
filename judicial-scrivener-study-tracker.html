@@ -6599,15 +6599,17 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             };
 
             // Step 3: Wrap toggleDarkMode to update charts on theme change
-            const originalToggleDarkMode = toggleDarkMode;
-            toggleDarkMode = function() {
-                originalToggleDarkMode();
-                if (typeof Chart !== 'undefined') {
-                    setTimeout(() => {
-                        initAllCharts();
-                    }, 100);
-                }
-            };
+            if (typeof toggleDarkMode === 'function') {
+                const originalToggleDarkMode = toggleDarkMode;
+                toggleDarkMode = function() {
+                    originalToggleDarkMode();
+                    if (typeof Chart !== 'undefined') {
+                        setTimeout(() => {
+                            initAllCharts();
+                        }, 100);
+                    }
+                };
+            }
 
             // Step 4: Initialize the application (loads data + renders UI)
             init();
@@ -6749,6 +6751,24 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             updateProgressInterval = setInterval(updateStickyProgress, 30000); // 30초마다 업데이트
         }
 
+        // ===== DARK MODE FUNCTIONALITY (함수 조기 정의 - DOMContentLoaded 전) =====
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Update icon
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            }
+
+            showToast(`${newTheme === 'dark' ? '다크' : '라이트'} 모드로 전환되었습니다`, 'info');
+        }
+
         // ===== v3.0.0 AUTO-SAVE FOR NOTES =====
         let notesAutoSaveTimeout;
         let notesAutoSaveActive = false;
@@ -6798,22 +6818,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }, 1500);
 
             console.log('💾 자동 저장됨:', today);
-        }
-
-        // ===== DARK MODE FUNCTIONALITY =====
-        function toggleDarkMode() {
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-
-            // Update icon
-            const icon = document.getElementById('theme-icon');
-            icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-
-            showToast(`${newTheme === 'dark' ? '다크' : '라이트'} 모드로 전환되었습니다`, 'info');
         }
 
         // ============================================
@@ -7464,26 +7468,27 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
     <!-- 마이그레이션 모듈 (v2.14.0 → v3.0.0) -->
     <script>
-        // 동적으로 모듈 로드 (로컬 경로)
-        // 참고: 실제 배포 시 파일 경로 조정 필요
-
-        // 옵션 1: 모듈 코드를 직접 포함 (inline)
-        // 옵션 2: 외부 파일에서 로드 (권장)
-        // <script src="migration-v2-to-v3.js"></script>
-        // <script src="sync-manager-v3.0.js"></script>
-        // <script src="analytics-engine-v3.0.js"></script>
-
-        // 폴백: 모듈을 찾을 수 없는 경우 메시지 출력
+        // v3.0.0 모듈 로드 체크 (콘솔 전용)
         window.addEventListener('load', function() {
-            if (!window.DataMigration) {
-                console.warn('⚠️ migration-v2-to-v3.js 모듈을 로드할 수 없습니다.');
-                console.log('📌 해결 방법:');
-                console.log('1. migration-v2-to-v3.js 파일이 같은 디렉토리에 있는지 확인하세요.');
-                console.log('2. sync-manager-v3.0.js, analytics-engine-v3.0.js 파일도 필요합니다.');
-                console.log('3. HTML 파일에 다음 줄을 추가하세요:');
-                console.log('<script src="migration-v2-to-v3.js"></script>');
-                console.log('<script src="sync-manager-v3.0.js"></script>');
-                console.log('<script src="analytics-engine-v3.0.js"></script>');
+            const modules = {
+                'DataMigration': 'migration-v2-to-v3.js',
+                'SyncManager': 'sync-manager-v3.0.js',
+                'AnalyticsEngine': 'analytics-engine-v3.0.js',
+                'MonitoringSystem': 'monitoring-v3.0.js'
+            };
+
+            const missingModules = [];
+            for (const [name, file] of Object.entries(modules)) {
+                if (!window[name]) {
+                    missingModules.push(file);
+                }
+            }
+
+            if (missingModules.length > 0) {
+                console.warn('⚠️ v3.0.0 모듈 로드 경고:');
+                console.log('다음 파일들이 로드되지 않았습니다:', missingModules);
+            } else {
+                console.log('✅ v3.0.0 모든 모듈 로드됨');
             }
         });
     </script>
