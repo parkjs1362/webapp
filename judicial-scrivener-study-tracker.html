@@ -5489,7 +5489,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 showToast('노트가 초기화되었습니다');
             });
         }
-        
+
+        // 모든 데이터 초기화
+        function clearAllData() {
+            showConfirm('정말로 모든 학습 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.', () => {
+                localStorage.removeItem('studyData');
+                localStorage.removeItem('theme');
+                sessionStorage.clear();
+                showToast('모든 데이터가 삭제되었습니다. 페이지를 새로고침합니다.', 'warning');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            });
+        }
+
         // 동기부여 문구 로테이션
         function rotateMotivation() {
             const quotes = [
