@@ -2,8 +2,20 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.0.0
+    Version: 3.0.1
     Last Updated: 2025-10-24
+
+    Changes in v3.0.1 - Critical Bug Fix for Exam Type Selection:
+    - FIXED: Exam type buttons (1차/2차) now properly update all UI components
+    - FIXED: Added missing UI refresh calls to setExamType() function
+      * updateDDay() - D-day counters now refresh on exam type change
+      * renderTimeBlocks() - Time blocks update with correct subjects
+      * renderWeeklyStats() - Weekly statistics refresh properly
+      * renderMockScores() - Mock exam scores display updates
+      * renderAnalytics() - Analytics dashboard refreshes
+    - IMPROVED: Added console logging for better debugging
+    - IMPROVED: Added comprehensive inline comments explaining each UI update
+    - NOTE: Buttons were executing but UI wasn't refreshing, making them appear broken
 
     Changes in v3.0.0 - Data Normalization & Intelligent Learning Analytics:
     - CRITICAL: Complete data normalization with 7 Entity schema (User, StudyPlan, Subject, TimeBlock, StudyLog, MockExam, LearningHistory)
@@ -4650,6 +4662,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         // 시험 타입 설정
         function setExamType(type) {
+            console.log(`🔄 Switching exam type to: ${type}`);
+
             studyData.examType = type;
             localStorage.setItem('examType', type);
 
@@ -4667,12 +4681,18 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 }
             });
 
-            // UI 업데이트
-            renderRotationTracker();
-            renderSubjectProgress();
-            initAllCharts(); // Update charts with new subjects
+            // UI 업데이트 - COMPLETE refresh of all exam-type dependent components
+            updateDDay();              // Update D-day counters for both exams
+            renderTimeBlocks();        // Refresh time blocks with new subjects
+            renderRotationTracker();   // Update rotation tracker
+            renderWeeklyStats();       // Refresh weekly statistics
+            renderSubjectProgress();   // Update subject progress bars
+            renderMockScores();        // Refresh mock exam scores display
+            renderAnalytics();         // Update analytics dashboard
+            initAllCharts();          // Update all charts with new subjects
 
             showToast(`${type} 시험 모드로 변경되었습니다`);
+            console.log(`✅ Exam type changed to ${type} - All UI components updated`);
         }
 
         // 시간 블록 렌더링
