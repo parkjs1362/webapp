@@ -6186,6 +6186,14 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         // ===== PROPER INITIALIZATION SEQUENCE =====
         // This ensures correct order: DOMReady → setupChart → wrapFunctions → init → chartUpdate
         document.addEventListener('DOMContentLoaded', function() {
+            // Step 0: Load saved theme on page load
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const themeIcon = document.getElementById('theme-icon');
+            if (themeIcon) {
+                themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            }
+
             // Step 1: Setup Chart.js defaults
             if (typeof Chart !== 'undefined') {
                 Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
@@ -6268,16 +6276,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
             showToast(`${newTheme === 'dark' ? '다크' : '라이트'} 모드로 전환되었습니다`, 'info');
         }
-
-        // Load theme on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            const icon = document.getElementById('theme-icon');
-            if (icon) {
-                icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-            }
-        });
 
         // ============================================
         // DATA VISUALIZATION WITH CHART.JS - v2.13.0
@@ -6792,8 +6790,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // TimeBlock 완료 시
             syncMgr.on('timeBlockCompleted', (data) => {
                 console.log('📌 Event: timeBlockCompleted', data.timeBlock.id);
-                if (monitoring) {
-                    monitoring.trackUserAction('timeBlockCompleted', {
+                if (window.monitoring) {
+                    window.monitoring.trackUserAction('timeBlockCompleted', {
                         blockId: data.timeBlock.id,
                         subjectId: data.subjectId
                     });
@@ -6807,8 +6805,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // 데이터 동기화 완료 + 모니터링
             syncMgr.on('synced', (data) => {
                 console.log('📌 Event: synced', data.timestamp);
-                if (monitoring) {
-                    monitoring.monitorSync(
+                if (window.monitoring) {
+                    window.monitoring.monitorSync(
                         data.timestamp - 500,  // 대략적인 시작 시간
                         data.timestamp,
                         v3Data
@@ -6820,8 +6818,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // 취약 과목 식별
             syncMgr.on('weakSubjectsIdentified', (data) => {
                 console.log('📌 Event: weakSubjectsIdentified', data.weakSubjects);
-                if (monitoring) {
-                    monitoring.trackUserAction('weakSubjectsIdentified', {
+                if (window.monitoring) {
+                    window.monitoring.trackUserAction('weakSubjectsIdentified', {
                         count: data.weakSubjects.length
                     });
                 }
@@ -6830,8 +6828,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // Streak 업데이트
             syncMgr.on('streakUpdated', (streak) => {
                 console.log('📌 Event: streakUpdated', streak);
-                if (monitoring) {
-                    monitoring.trackUserAction('streakUpdated', streak);
+                if (window.monitoring) {
+                    window.monitoring.trackUserAction('streakUpdated', streak);
                 }
             });
         }
