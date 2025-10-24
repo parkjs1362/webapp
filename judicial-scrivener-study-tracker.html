@@ -4302,6 +4302,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
     <div id="toastContainer" class="toast-container"></div>
 
     <script>
+        console.log('✅ 메인 스크립트 시작됨');
+
         // 데이터 초기화
         let studyData = {
             examType: localStorage.getItem('examType') || '1차',
@@ -4660,8 +4662,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
         
+        console.log('✅ setExamType 함수 정의 직전');
+
         // 시험 타입 설정
         function setExamType(type) {
+            console.log('✅ setExamType 함수 내부 실행됨');
             alert(`⏰ setExamType 호출됨: ${type}`);
             console.log(`🔄 Switching exam type to: ${type}`);
 
