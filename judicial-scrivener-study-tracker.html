@@ -6228,8 +6228,25 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const v3Success = initializeV3();
                 if (v3Success) {
                     console.log('✅ v3.0.0 fully initialized and ready');
+
+                    // 모니터링 시스템에 v3 데이터 검증
+                    if (window.monitoring && v3Data) {
+                        const validation = window.monitoring.validateV3Data(v3Data);
+                        console.log('✅ v3Data validation:', validation);
+                    }
+
                     // Show v3 initialization success message
                     showToast('📊 v3.0.0 데이터 연동 시스템 활성화됨', 'success');
+
+                    // 모니터링 대시보드 표시
+                    setTimeout(() => {
+                        if (window.monitoring) {
+                            const healthUI = window.monitoring.createHealthCheckUI();
+                            document.body.insertAdjacentHTML('beforeend', healthUI);
+                            // 주기적 리포팅 시작 (10분마다)
+                            window.monitoring.startPeriodicReporting(10 * 60 * 1000);
+                        }
+                    }, 1000);
                 } else {
                     console.warn('⚠️ v3.0.0 initialization had issues, v2.14.0 mode active');
                 }
@@ -6767,7 +6784,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         /**
-         * v3.0.0 Observer 리스너 설정
+         * v3.0.0 Observer 리스너 설정 + 모니터링 통합
          */
         function setupV3Observers() {
             if (!syncMgr) return;
@@ -6775,26 +6792,47 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // TimeBlock 완료 시
             syncMgr.on('timeBlockCompleted', (data) => {
                 console.log('📌 Event: timeBlockCompleted', data.timeBlock.id);
+                if (monitoring) {
+                    monitoring.trackUserAction('timeBlockCompleted', {
+                        blockId: data.timeBlock.id,
+                        subjectId: data.subjectId
+                    });
+                }
                 // UI 업데이트 (필요시)
                 renderTimeBlocks();
                 updateStreak();
                 renderAnalytics();
             });
 
-            // 데이터 동기화 완료
+            // 데이터 동기화 완료 + 모니터링
             syncMgr.on('synced', (data) => {
                 console.log('📌 Event: synced', data.timestamp);
+                if (monitoring) {
+                    monitoring.monitorSync(
+                        data.timestamp - 500,  // 대략적인 시작 시간
+                        data.timestamp,
+                        v3Data
+                    );
+                }
                 updateSyncStatus();
             });
 
             // 취약 과목 식별
             syncMgr.on('weakSubjectsIdentified', (data) => {
                 console.log('📌 Event: weakSubjectsIdentified', data.weakSubjects);
+                if (monitoring) {
+                    monitoring.trackUserAction('weakSubjectsIdentified', {
+                        count: data.weakSubjects.length
+                    });
+                }
             });
 
             // Streak 업데이트
             syncMgr.on('streakUpdated', (streak) => {
                 console.log('📌 Event: streakUpdated', streak);
+                if (monitoring) {
+                    monitoring.trackUserAction('streakUpdated', streak);
+                }
             });
         }
 
@@ -6917,6 +6955,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
     <script src="migration-v2-to-v3.js"></script>
     <script src="sync-manager-v3.0.js"></script>
     <script src="analytics-engine-v3.0.js"></script>
+    <!-- 모니터링 시스템 (배포 후 실시간 모니터링) -->
+    <script src="monitoring-v3.0.js"></script>
 
 </body>
 </html>
