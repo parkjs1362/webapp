@@ -6652,6 +6652,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // Step 4: Initialize the application (loads data + renders UI)
             init();
 
+            // Step 4.5: Initialize tab navigation (show overview tab by default)
+            setTimeout(() => {
+                switchTab('overview');
+                console.log('✅ 탭 네비게이션 초기화 완료');
+            }, 100);
+
             // Step 5: Initialize charts with loaded data
             if (typeof Chart !== 'undefined') {
                 initAllCharts();
@@ -6705,36 +6711,37 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             if (tabBtn) {
                 tabBtn.classList.add('active');
                 console.log(`✅ 탭 버튼 활성화: ${tabName}`);
-            } else {
-                console.warn(`⚠️ 탭 버튼을 찾을 수 없음: [data-tab="${tabName}"]`);
             }
 
-            // 모든 콘텐츠 숨기기
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
+            // 각 탭별 섹션 정의
+            const tabSections = {
+                'overview': ['dday-container', 'sticky-progress-bar', 'rotation-tracker', 'streak-info', 'goals-section'],
+                'planning': ['time-blocks-section', 'time-blocks-container', 'add-time-block-btn'],
+                'tracking': ['weekly-stats', 'study-hours-summary'],
+                'analytics': ['analytics', 'subject-progress', 'mock-scores']
+            };
+
+            // 모든 섹션 숨기기
+            const allSections = Object.values(tabSections).flat();
+            allSections.forEach(sectionId => {
+                const element = document.getElementById(sectionId);
+                if (element) {
+                    element.style.display = 'none';
+                }
             });
 
-            // 선택한 탭 콘텐츠 표시
-            const activeContent = document.getElementById(`${tabName}-content`);
-            if (activeContent) {
-                activeContent.classList.add('active');
-                console.log(`✅ 탭 콘텐츠 표시: ${tabName}-content`);
-            } else {
-                console.warn(`⚠️ 탭 콘텐츠를 찾을 수 없음: #${tabName}-content`);
-                // 대체 방법: 섹션 ID로 찾기
-                const sectionIds = {
-                    'overview': 'dday-container',
-                    'planning': 'time-blocks-container',
-                    'tracking': 'weekly-stats',
-                    'analytics': 'analytics'
-                };
-                const fallbackId = sectionIds[tabName];
-                if (fallbackId) {
-                    const fallbackElement = document.getElementById(fallbackId);
-                    if (fallbackElement) {
-                        console.log(`✅ 대체 섹션으로 전환: ${fallbackId}`);
+            // 선택한 탭의 섹션들 표시
+            const visibleSections = tabSections[tabName];
+            if (visibleSections) {
+                visibleSections.forEach(sectionId => {
+                    const element = document.getElementById(sectionId);
+                    if (element) {
+                        element.style.display = 'block';
+                        console.log(`✅ 섹션 표시: ${sectionId}`);
                     }
-                }
+                });
+            } else {
+                console.warn(`⚠️ 탭 "${tabName}"에 대한 섹션이 없습니다`);
             }
 
             // 스크롤을 탭 버튼 위치로
@@ -6743,6 +6750,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 if (tabBtn) {
                     tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 }
+                // 페이지 상단으로 스크롤
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }, 100);
         }
 
