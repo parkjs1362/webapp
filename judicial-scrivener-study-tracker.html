@@ -5675,8 +5675,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         // ===== 새로운 기능: 학습 분석 대시보드 =====
                 function renderAnalytics() {
-            // Calculate REAL total study hours from single source of truth
-            let totalHours = 0;
+            try {
+                // Calculate REAL total study hours from single source of truth
+                let totalHours = 0;
 
             // FIXED (v2.15.0): Use ONLY completed time blocks as single source of truth
             // Do NOT add timer (it's already included via block completion)
@@ -5735,6 +5736,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // Render enhanced charts with real data
             renderSubjectTimeChart();
             renderMockScoreChart();
+            } catch (error) {
+                console.error('❌ renderAnalytics 에러:', error);
+                console.error('Stack:', error.stack);
+            }
         }
 
         function updateBenchmarkProgress(totalHours, avgHours, overallProgress, avgScore) {
@@ -5799,6 +5804,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         function renderSubjectTimeChart() {
             const container = document.getElementById('subject-time-chart');
+            if (!container) {
+                console.warn('⚠️ subject-time-chart 요소가 없습니다. 건너뜀.');
+                return;
+            }
             container.innerHTML = '';
 
             // Calculate REAL time spent per subject
@@ -5887,6 +5896,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         function renderMockScoreChart() {
             const container = document.getElementById('mock-score-chart');
+            if (!container) {
+                console.warn('⚠️ mock-score-chart 요소가 없습니다. 건너뜀.');
+                return;
+            }
             container.innerHTML = '';
 
             if (!studyData.mockScores || studyData.mockScores.length === 0) {
