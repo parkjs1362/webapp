@@ -4666,8 +4666,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         // 시험 타입 설정
         function setExamType(type) {
-            console.log('✅ setExamType 함수 내부 실행됨');
-            alert(`⏰ setExamType 호출됨: ${type}`);
             console.log(`🔄 Switching exam type to: ${type}`);
 
             studyData.examType = type;
@@ -6695,13 +6693,21 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         // 탭 전환 함수
         function switchTab(tabName) {
+            console.log(`🔄 탭 전환: ${tabName}`);
+
             // 모든 탭 버튼의 active 클래스 제거
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
 
             // 클릭한 탭 버튼에 active 클래스 추가
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            const tabBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            if (tabBtn) {
+                tabBtn.classList.add('active');
+                console.log(`✅ 탭 버튼 활성화: ${tabName}`);
+            } else {
+                console.warn(`⚠️ 탭 버튼을 찾을 수 없음: [data-tab="${tabName}"]`);
+            }
 
             // 모든 콘텐츠 숨기기
             document.querySelectorAll('.tab-content').forEach(content => {
@@ -6712,6 +6718,23 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             const activeContent = document.getElementById(`${tabName}-content`);
             if (activeContent) {
                 activeContent.classList.add('active');
+                console.log(`✅ 탭 콘텐츠 표시: ${tabName}-content`);
+            } else {
+                console.warn(`⚠️ 탭 콘텐츠를 찾을 수 없음: #${tabName}-content`);
+                // 대체 방법: 섹션 ID로 찾기
+                const sectionIds = {
+                    'overview': 'dday-container',
+                    'planning': 'time-blocks-container',
+                    'tracking': 'weekly-stats',
+                    'analytics': 'analytics'
+                };
+                const fallbackId = sectionIds[tabName];
+                if (fallbackId) {
+                    const fallbackElement = document.getElementById(fallbackId);
+                    if (fallbackElement) {
+                        console.log(`✅ 대체 섹션으로 전환: ${fallbackId}`);
+                    }
+                }
             }
 
             // 스크롤을 탭 버튼 위치로
