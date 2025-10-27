@@ -6746,7 +6746,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 'analytics': 'analytics-section'     // 분석 → 분석 섹션
             };
 
-            // 해당 섹션으로 스크롤
+            // 해당 섹션으로 스크롤 (섹션만 - 탭 버튼 스크롤 제거)
             const sectionId = sectionMap[tabName];
             if (sectionId) {
                 const element = document.getElementById(sectionId);
@@ -6759,27 +6759,30 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     console.warn(`⚠️ 섹션을 찾을 수 없음: ${sectionId}`);
                 }
             }
-
-            // 탭 버튼으로 스크롤 (탭 버튼 위치로)
-            setTimeout(() => {
-                const tabBtn = document.querySelector(`[data-tab="${tabName}"]`);
-                if (tabBtn) {
-                    tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }
-            }, 200);
         }
 
-        // 섹션으로 점프하는 함수
+        // 섹션으로 점프하는 함수 (고정된 섹션 ID 매핑)
         function jumpToSection(sectionId) {
+            // 섹션 ID와 탭 매핑 (실제 HTML 요소 ID)
+            const sectionToTabMap = {
+                'rotation-tracker': 'overview',
+                'time-blocks-container': 'planning',
+                'weekly-stats': 'tracking',
+                'analytics-section': 'analytics'
+            };
+
             const element = document.getElementById(sectionId);
             if (element) {
                 // 먼저 적절한 탭으로 전환
-                if (sectionId === 'analytics') switchTab('analytics');
-                else if (sectionId === 'streak') switchTab('overview');
-                else if (sectionId === 'timeblocks') switchTab('planning');
-                else if (sectionId === 'hours') switchTab('tracking');
+                const correspondingTab = sectionToTabMap[sectionId];
+                if (correspondingTab) {
+                    switchTab(correspondingTab);
+                    console.log(`✅ jumpToSection: ${sectionId} → switchTab('${correspondingTab}')`);
+                } else {
+                    console.warn(`⚠️ 섹션 ID를 탭과 매핑할 수 없음: ${sectionId}`);
+                }
 
-                // 요소로 스크롤
+                // 요소로 스크롤 및 강조 효과
                 setTimeout(() => {
                     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     // 강조 효과
@@ -6791,6 +6794,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         element.style.transition = 'all 0.3s ease';
                     }, 500);
                 }, 100);
+            } else {
+                console.warn(`⚠️ 찾을 수 없는 섹션 ID: ${sectionId}`);
             }
         }
 
