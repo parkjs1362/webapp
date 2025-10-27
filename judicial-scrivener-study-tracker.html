@@ -4722,7 +4722,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 return;
             }
 
-            todayBlocks.forEach(block => {
+            todayBlocks.forEach((block, idx) => {
                 const blockEl = document.createElement('div');
                 blockEl.className = `time-block ${block.completed ? 'completed' : ''}`;
 
@@ -4734,13 +4734,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const editBtn = document.createElement('button');
                 editBtn.className = 'time-block-btn';
                 editBtn.textContent = '✏️';
-                editBtn.onclick = () => editTimeBlock(block.id);
+                editBtn.onclick = () => editTimeBlock(block);
 
                 // 삭제 버튼
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'time-block-btn';
                 deleteBtn.textContent = '🗑️';
-                deleteBtn.onclick = () => deleteTimeBlock(block.id);
+                deleteBtn.onclick = () => deleteTimeBlock(block);
 
                 actionsDiv.appendChild(editBtn);
                 actionsDiv.appendChild(deleteBtn);
@@ -4902,9 +4902,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         // 시간 블록 삭제
-        function deleteTimeBlock(id) {
+        function deleteTimeBlock(block) {
             showConfirm('정말 삭제하시겠습니까?', () => {
-                studyData.timeBlocks = studyData.timeBlocks.filter(b => b.id !== id);
+                // 블록 객체의 인덱스를 찾아서 삭제
+                const index = studyData.timeBlocks.indexOf(block);
+                if (index > -1) {
+                    studyData.timeBlocks.splice(index, 1);
+                    console.log('✅ 시간 블록 삭제됨:', block.subject);
+                } else {
+                    console.warn('⚠️ 삭제할 블록을 찾을 수 없음');
+                }
                 saveData();
                 renderTimeBlocks();
                 showToast('삭제되었습니다');
@@ -4912,12 +4919,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         // 시간 블록 수정 (모달 사용)
-        let editingBlockId = null;
+        let editingBlock = null;
 
-        function editTimeBlock(id) {
-            const block = studyData.timeBlocks.find(b => b.id === id);
+        function editTimeBlock(block) {
             if (block) {
-                editingBlockId = id;
+                editingBlock = block;
                 document.getElementById('blockTime').value = block.time;
                 document.getElementById('blockSubject').value = block.subject;
                 document.getElementById('blockHours').value = block.hours || 2;
@@ -5276,13 +5282,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const editBtn = document.createElement('button');
                 editBtn.className = 'score-action-btn';
                 editBtn.textContent = '✏️';
-                editBtn.onclick = () => editScore(score.id);
+                editBtn.onclick = () => editScore(score);
 
                 // 삭제 버튼
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'score-action-btn';
                 deleteBtn.textContent = '🗑️';
-                deleteBtn.onclick = () => deleteScore(score.id);
+                deleteBtn.onclick = () => deleteScore(score);
 
                 actionsDiv.appendChild(editBtn);
                 actionsDiv.appendChild(deleteBtn);
@@ -5363,9 +5369,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         // 점수 삭제
-        function deleteScore(id) {
+        function deleteScore(score) {
             showConfirm('정말 삭제하시겠습니까?', () => {
-                studyData.mockScores = studyData.mockScores.filter(s => s.id !== id);
+                // 점수 객체의 인덱스를 찾아서 삭제
+                const index = studyData.mockScores.indexOf(score);
+                if (index > -1) {
+                    studyData.mockScores.splice(index, 1);
+                    console.log('✅ 모의고사 점수 삭제됨:', score.score);
+                } else {
+                    console.warn('⚠️ 삭제할 점수를 찾을 수 없음');
+                }
                 saveData();
                 renderMockScores();
                 showToast('삭제되었습니다');
@@ -5373,12 +5386,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         // 점수 수정 - 모달 사용
-        let editingScoreId = null;
+        let editingScore = null;
 
-        function editScore(id) {
-            const score = studyData.mockScores.find(s => s.id === id);
+        function editScore(score) {
             if (score) {
-                editingScoreId = id;
+                editingScore = score;
                 document.getElementById('scoreDate').value = score.date;
                 document.getElementById('scoreValue').value = score.score;
                 document.getElementById('scoreMemo').value = score.memo || '';
@@ -6728,10 +6740,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
             // 각 탭별 섹션 ID 매핑
             const sectionMap = {
-                'overview': 'dday-container',
-                'planning': 'time-blocks-container',
-                'tracking': 'weekly-stats',
-                'analytics': 'analytics'
+                'overview': 'rotation-tracker',      // 개요 → 회독 추적기
+                'planning': 'time-blocks-container', // 계획 → 시간 블록
+                'tracking': 'weekly-stats',          // 추적 → 주간 통계
+                'analytics': 'analytics-section'     // 분석 → 분석 섹션
             };
 
             // 해당 섹션으로 스크롤
