@@ -6603,12 +6603,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         };
 
         // 타임블록 완료 시 분석 업데이트
-        const originalToggleTimeBlock = toggleTimeBlock;
-        toggleTimeBlock = function(id) {
-            originalToggleTimeBlock(id);
-            updateStreak();
-            renderAnalytics();
-        };
+        // (주석 처리 - 7422에서 재정의됨)
+        // const originalToggleTimeBlock = toggleTimeBlock;
+        // toggleTimeBlock = function(id) {
+        //     originalToggleTimeBlock(id);
+        //     updateStreak();
+        //     renderAnalytics();
+        // };
 
         // ===== PROPER INITIALIZATION SEQUENCE =====
         // This ensures correct order: DOMReady → setupChart → wrapFunctions → init → chartUpdate
