@@ -6710,7 +6710,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         // ===== v3.0.0 DASHBOARD TAB & STICKY PROGRESS FUNCTIONALITY =====
 
-        // 탭 전환 함수
+        // 탭 전환 함수 - 해당 섹션으로 스크롤
         function switchTab(tabName) {
             console.log(`🔄 탭 전환: ${tabName}`);
 
@@ -6726,46 +6726,35 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 console.log(`✅ 탭 버튼 활성화: ${tabName}`);
             }
 
-            // 각 탭별 섹션 정의
-            const tabSections = {
-                'overview': ['dday-container', 'sticky-progress-bar', 'rotation-tracker', 'streak-info', 'goals-section'],
-                'planning': ['time-blocks-section', 'time-blocks-container', 'add-time-block-btn'],
-                'tracking': ['weekly-stats', 'study-hours-summary'],
-                'analytics': ['analytics', 'subject-progress', 'mock-scores']
+            // 각 탭별 섹션 ID 매핑
+            const sectionMap = {
+                'overview': 'dday-container',
+                'planning': 'time-blocks-container',
+                'tracking': 'weekly-stats',
+                'analytics': 'analytics'
             };
 
-            // 모든 섹션 숨기기
-            const allSections = Object.values(tabSections).flat();
-            allSections.forEach(sectionId => {
+            // 해당 섹션으로 스크롤
+            const sectionId = sectionMap[tabName];
+            if (sectionId) {
                 const element = document.getElementById(sectionId);
                 if (element) {
-                    element.style.display = 'none';
+                    console.log(`✅ 섹션으로 스크롤: ${sectionId}`);
+                    setTimeout(() => {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                } else {
+                    console.warn(`⚠️ 섹션을 찾을 수 없음: ${sectionId}`);
                 }
-            });
-
-            // 선택한 탭의 섹션들 표시
-            const visibleSections = tabSections[tabName];
-            if (visibleSections) {
-                visibleSections.forEach(sectionId => {
-                    const element = document.getElementById(sectionId);
-                    if (element) {
-                        element.style.display = 'block';
-                        console.log(`✅ 섹션 표시: ${sectionId}`);
-                    }
-                });
-            } else {
-                console.warn(`⚠️ 탭 "${tabName}"에 대한 섹션이 없습니다`);
             }
 
-            // 스크롤을 탭 버튼 위치로
+            // 탭 버튼으로 스크롤 (탭 버튼 위치로)
             setTimeout(() => {
                 const tabBtn = document.querySelector(`[data-tab="${tabName}"]`);
                 if (tabBtn) {
                     tabBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 }
-                // 페이지 상단으로 스크롤
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 100);
+            }, 200);
         }
 
         // 섹션으로 점프하는 함수
