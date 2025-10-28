@@ -2,8 +2,24 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.0.3
+    Version: 3.0.4
     Last Updated: 2025-10-28
+
+    Changes in v3.0.4 - Learning Curve & Dark Mode Text Visibility:
+    - FIXED: NaN 에러 in learning curve analysis (actualStudyDays validation)
+      * Added safe day calculation (default to 1 if undefined)
+      * Proper handling of zero completed problems
+      * Fixed remaining problems calculation
+    - FIXED: Dark mode text visibility issues
+      * All analytics labels now explicitly white in dark mode
+      * Analytics values display correctly (removed gradient on dark mode)
+      * Cards have proper background (#1a1a1a) and text colors
+      * Form elements, buttons, modals all optimized for dark mode
+    - IMPROVED: Learning curve display
+      * "계산 중" shows when pace can't be calculated
+      * "완료!" shows when all problems are finished
+      * Dash "-" shows for zero pace instead of NaN
+      * Days display with validation
 
     Changes in v3.0.3 - Dark Mode UI Improvements:
     - FIXED: Dark mode now applies to entire page background (body + html)
@@ -715,6 +731,89 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         [data-theme="dark"] .progress-bar-track {
             background-color: #2d2d2d;
             border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Dark Mode Analytics Elements */
+        [data-theme="dark"] .analytics-label {
+            color: #d1d1d6;
+        }
+
+        [data-theme="dark"] .analytics-value {
+            -webkit-text-fill-color: unset;
+            background: unset;
+            background-clip: unset;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        [data-theme="dark"] .benchmark-label {
+            color: #a1a1a6;
+        }
+
+        [data-theme="dark"] .benchmark-percentage {
+            color: #2997ff;
+        }
+
+        [data-theme="dark"] .analytics-benchmark {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        [data-theme="dark"] .analytics-stat {
+            background-color: #1a1a1a;
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Dark Mode Card Elements */
+        [data-theme="dark"] .card {
+            background-color: #1a1a1a;
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        [data-theme="dark"] .card-title {
+            color: #ffffff;
+        }
+
+        /* Dark Mode General Text Override */
+        [data-theme="dark"] body,
+        [data-theme="dark"] .card,
+        [data-theme="dark"] .analytics-stat,
+        [data-theme="dark"] .time-block,
+        [data-theme="dark"] .modal-content {
+            color: #ffffff;
+        }
+
+        /* Light Mode: Gradient Cards with White Text */
+        .analytics-stat[style*="background: linear-gradient"] {
+            color: white !important;
+        }
+
+        .analytics-stat[style*="background: linear-gradient"] > div {
+            color: white !important;
+        }
+
+        .analytics-stat[style*="background: linear-gradient"] div[style*="font-size"],
+        .analytics-stat[style*="background: linear-gradient"] #completion-date-display,
+        .analytics-stat[style*="background: linear-gradient"] #days-remaining-display,
+        .analytics-stat[style*="background: linear-gradient"] #learning-pace-display,
+        .analytics-stat[style*="background: linear-gradient"] #metacognitive-feedback,
+        .analytics-stat[style*="background: linear-gradient"] #motivation-message {
+            color: white !important;
+        }
+
+        /* Dark Mode: Override gradient cards for better readability */
+        [data-theme="dark"] .analytics-stat[style*="background: linear-gradient"] {
+            background: linear-gradient(135deg, #2997ff, #1a5ccc) !important;
+            color: white !important;
+        }
+
+        [data-theme="dark"] .analytics-stat[style*="background: linear-gradient"] > div,
+        [data-theme="dark"] .analytics-stat[style*="background: linear-gradient"] div[style*="font-size"],
+        [data-theme="dark"] .analytics-stat[style*="background: linear-gradient"] #completion-date-display,
+        [data-theme="dark"] .analytics-stat[style*="background: linear-gradient"] #days-remaining-display,
+        [data-theme="dark"] .analytics-stat[style*="background: linear-gradient"] #learning-pace-display,
+        [data-theme="dark"] .analytics-stat[style*="background: linear-gradient"] #metacognitive-feedback,
+        [data-theme="dark"] .analytics-stat[style*="background: linear-gradient"] #motivation-message {
+            color: white !important;
         }
 
         /* Apple-style smooth transitions */
@@ -5946,15 +6045,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     return;
                 }
 
+                // 안전성 검사: actualStudyDays가 없거나 0이면 기본값 설정
+                let safeDays = Math.max(actualStudyDays || 1, 1);
+
                 // 1. 현재 학습 속도 계산 (문제/일)
-                const completedProblems = totalCompleted;
-                const remainingProblems = totalProblems - totalCompleted;
-                const learningPace = actualStudyDays > 0 ? completedProblems / actualStudyDays : 0;
+                const completedProblems = totalCompleted || 0;
+                const remainingProblems = Math.max(totalProblems - completedProblems, 0);
+                const learningPace = completedProblems > 0 ? completedProblems / safeDays : 0;
 
                 // 2. 예상 완료일 계산
                 let daysToCompletion = 0;
-                if (learningPace > 0) {
+                if (learningPace > 0 && remainingProblems > 0) {
                     daysToCompletion = Math.ceil(remainingProblems / learningPace);
+                } else if (remainingProblems === 0) {
+                    daysToCompletion = 0; // 완료됨
                 } else {
                     daysToCompletion = 999; // 아직 학습하지 않은 경우
                 }
@@ -5964,19 +6068,29 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const completionDate = new Date(today.getTime() + daysToCompletion * 24 * 60 * 60 * 1000);
 
                 // 한국 날짜 형식으로 변환
-                const completionDateStr = completionDate.toLocaleDateString('ko-KR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
+                const completionDateStr = daysToCompletion === 0
+                    ? '🎉 완료!'
+                    : completionDate.toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
 
-                // 남은 일수 (D-day 형식)
-                const dDay = daysToCompletion > 0 ? `D-${daysToCompletion}` : 'D-day! 🎉';
+                // 남은 일수 표시 (안전하게 처리)
+                const daysText = daysToCompletion === 0
+                    ? '완료!'
+                    : daysToCompletion === 999
+                    ? '계산 중'
+                    : `${daysToCompletion}`;
+
+                const paceText = learningPace > 0
+                    ? `${Math.round(learningPace)}`
+                    : '-';
 
                 // 4. UI 업데이트
                 document.getElementById('completion-date-display').textContent = completionDateStr;
-                document.getElementById('days-remaining-display').textContent = `남은 학습일: ${daysToCompletion} 일`;
-                document.getElementById('learning-pace-display').textContent = `학습 속도: ${Math.round(learningPace)} 문제/일`;
+                document.getElementById('days-remaining-display').textContent = `남은 학습일: ${daysText} 일`;
+                document.getElementById('learning-pace-display').textContent = `학습 속도: ${paceText} 문제/일`;
 
                 console.log(`✅ 학습 곡선 분석:
                     - 완료된 문제: ${completedProblems}/${totalProblems} (${Math.round((completedProblems/totalProblems)*100)}%)
