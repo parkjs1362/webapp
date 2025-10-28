@@ -4718,19 +4718,19 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             ],
             subjects: [],  // Will be set dynamically based on examType
             timeBlocks: [
-                { subject: '헌법', hours: 2.5, duration: 2.5, date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: true },
-                { subject: '민법', hours: 3, duration: 3, date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: true },
-                { subject: '상법', hours: 2, duration: 2, date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: true },
-                { subject: '부동산등기법', hours: 2.5, duration: 2.5, date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: false },
-                { subject: '헌법', hours: 1.5, duration: 1.5, date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: true },
-                { subject: '민사집행법', hours: 2, duration: 2, date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: true }
+                { id: Date.now() - 1000000, subject: '헌법', hours: 2.5, duration: 2.5, date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: true },
+                { id: Date.now() - 999000, subject: '민법', hours: 3, duration: 3, date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: true },
+                { id: Date.now() - 998000, subject: '상법', hours: 2, duration: 2, date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: true },
+                { id: Date.now() - 997000, subject: '부동산등기법', hours: 2.5, duration: 2.5, date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: false },
+                { id: Date.now() - 996000, subject: '헌법', hours: 1.5, duration: 1.5, date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: true },
+                { id: Date.now() - 995000, subject: '민사집행법', hours: 2, duration: 2, date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], completed: true }
             ],
             mockScores: [
-                { date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], score: 65, examType: '1차' },
-                { date: new Date(Date.now() - 23 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], score: 72, examType: '1차' },
-                { date: new Date(Date.now() - 16 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], score: 68, examType: '1차' },
-                { date: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], score: 78, examType: '1차' },
-                { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], score: 82, examType: '1차' }
+                { id: Date.now() - 100000, date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], score: 65, examType: '1차' },
+                { id: Date.now() - 90000, date: new Date(Date.now() - 23 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], score: 72, examType: '1차' },
+                { id: Date.now() - 80000, date: new Date(Date.now() - 16 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], score: 68, examType: '1차' },
+                { id: Date.now() - 70000, date: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], score: 78, examType: '1차' },
+                { id: Date.now() - 60000, date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], score: 82, examType: '1차' }
             ],
             weeklyHours: {},
             notes: {},
@@ -4756,7 +4756,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             },  // Track time spent per subject
             studyHistory: []  // Daily study records
         };
-        
+
+        // 전역 변수 선언
+        let editingBlockId = null;  // 시간 블록 편집 모드 추적
+        let editingScoreId = null;  // 모의고사 점수 편집 모드 추적
+
         // 로컬 스토리지에서 데이터 로드
         function loadData() {
             const saved = localStorage.getItem('studyData');
@@ -5775,11 +5779,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         // 점수 수정 - 모달 사용
-        let editingScore = null;
-
         function editScore(score) {
             if (score) {
-                editingScore = score;
+                editingScoreId = score.id;  // 수정할 점수 ID 저장
                 document.getElementById('scoreDate').value = score.date;
                 document.getElementById('scoreValue').value = score.score;
                 document.getElementById('scoreMemo').value = score.memo || '';
@@ -5791,6 +5793,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         // 모달 닫기
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
+
+            // 편집 상태 초기화
+            if (modalId === 'scoreModal') {
+                editingScoreId = null;
+            } else if (modalId === 'timeBlockModal') {
+                editingBlockId = null;
+            }
         }
 
         // 확인 모달 헬퍼 (confirm 대체)
