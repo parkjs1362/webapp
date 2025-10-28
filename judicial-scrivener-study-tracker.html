@@ -2,8 +2,23 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.0.4
+    Version: 3.0.5
     Last Updated: 2025-10-28
+
+    Changes in v3.0.5 - Enhanced Dashboard Features & Dark Mode Polish:
+    - ADDED: Dashboard analytics with 4 new metrics
+      * Efficiency Score (시간 대비 효율성 지수, 0-100)
+      * Weekly Study Days (주간 학습일 추적)
+      * Weak Subjects Analysis (진도율 50% 미만 과목 표시)
+      * Strong Subjects Analysis (진도율 80% 이상 과목 표시)
+    - FIXED: Dark mode styling for "합격자 평균" and "합격자 조언" sections
+      * Background color now dark gray (#2d2d2d) in dark mode
+      * Text color adjusted for readability (white)
+      * Section title color properly styled
+    - IMPROVED: Dashboard display with color-coded progress bars
+      * Green for excellent (≥80% efficiency)
+      * Blue-green for good (≥50% efficiency)
+      * Orange-yellow for needs improvement (<50% efficiency)
 
     Changes in v3.0.4 - Learning Curve & Dark Mode Text Visibility:
     - FIXED: NaN 에러 in learning curve analysis (actualStudyDays validation)
@@ -814,6 +829,21 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         [data-theme="dark"] .analytics-stat[style*="background: linear-gradient"] #metacognitive-feedback,
         [data-theme="dark"] .analytics-stat[style*="background: linear-gradient"] #motivation-message {
             color: white !important;
+        }
+
+        /* Dark Mode: Advice and Average Sections */
+        [data-theme="dark"] div[style*="background: #FFF5F5"] {
+            background-color: #2d2d2d !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            color: #ffffff !important;
+        }
+
+        [data-theme="dark"] div[style*="background: #FFF5F5"] div {
+            color: #ffffff !important;
+        }
+
+        [data-theme="dark"] div[style*="color: var(--danger)"] {
+            color: #ff453a !important;
         }
 
         /* Apple-style smooth transitions */
@@ -3996,6 +4026,53 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     </div>
                 </div>
 
+                <!-- 대시보드 추가 기능: 효율성 & 약점 분석 -->
+                <div class="analytics-grid" style="margin-top: 32px;">
+                    <!-- 학습 효율성 지수 -->
+                    <div class="analytics-stat">
+                        <div class="analytics-label">학습 효율성</div>
+                        <div class="analytics-value" id="efficiency-score">-</div>
+                        <div class="analytics-benchmark">
+                            <div class="benchmark-label">시간 대비 진도율</div>
+                            <div class="benchmark-bar">
+                                <div class="benchmark-fill" id="efficiency-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 주간 학습 일수 -->
+                    <div class="analytics-stat">
+                        <div class="analytics-label">주간 학습일</div>
+                        <div class="analytics-value" id="weekly-study-days">-</div>
+                        <div class="analytics-benchmark">
+                            <div class="benchmark-label">목표: 7일/주</div>
+                            <div class="benchmark-bar">
+                                <div class="benchmark-fill" id="weekly-days-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 취약 과목 수 -->
+                    <div class="analytics-stat">
+                        <div class="analytics-label">취약 과목</div>
+                        <div class="analytics-value" id="weak-subjects-count">-</div>
+                        <div class="analytics-benchmark">
+                            <div class="benchmark-label" style="color: var(--danger); font-weight: 600;">진도율 50% 미만</div>
+                            <div id="weak-subjects-list" style="font-size: 0.85rem; margin-top: 8px; color: var(--text-secondary);"></div>
+                        </div>
+                    </div>
+
+                    <!-- 강점 과목 -->
+                    <div class="analytics-stat">
+                        <div class="analytics-label">강점 과목</div>
+                        <div class="analytics-value" id="strong-subjects-count">-</div>
+                        <div class="analytics-benchmark">
+                            <div class="benchmark-label" style="color: var(--success-color); font-weight: 600;">진도율 80% 이상</div>
+                            <div id="strong-subjects-list" style="font-size: 0.85rem; margin-top: 8px; color: var(--text-secondary);"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Data Sync Status Dashboard -->
                 <div class="sync-status-grid" style="margin-top: 32px;">
                     <div class="sync-status-card">
@@ -5967,6 +6044,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // Render learning curve analysis and metacognitive feedback
             renderLearningCurveAnalysis(totalCompleted, totalProblems, totalHours, actualStudyDays);
             renderMetacognitiveFeedback(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
+
+            // Render enhanced dashboard features
+            renderDashboardAnalytics(totalHours, overallProgress, actualStudyDays);
+            renderWeakSubjectsAnalysis();
+            renderStrongSubjectsAnalysis();
             } catch (error) {
                 console.error('❌ renderAnalytics 에러:', error);
                 console.error('Stack:', error.stack);
@@ -6185,6 +6267,142 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             } catch (error) {
                 console.error('❌ renderMetacognitiveFeedback 에러:', error);
                 document.getElementById('metacognitive-feedback').textContent = '피드백을 생성할 수 없습니다.';
+            }
+        }
+
+        /**
+         * 대시보드 분석: 효율성 지수 & 주간 학습일
+         */
+        function renderDashboardAnalytics(totalHours, overallProgress, actualStudyDays) {
+            try {
+                // 1. 학습 효율성 지수 (0-100)
+                const hoursTarget = 1000; // 목표 시간
+                const progressTarget = 100; // 목표 진도
+                const efficiencyScore = Math.round(((totalHours / hoursTarget) * 60 + (overallProgress / progressTarget) * 40));
+
+                const efficiencyElement = document.getElementById('efficiency-score');
+                if (efficiencyElement) {
+                    efficiencyElement.textContent = Math.min(efficiencyScore, 100);
+                    const effBar = document.getElementById('efficiency-progress');
+                    if (effBar) {
+                        effBar.style.width = Math.min(efficiencyScore, 100) + '%';
+                        if (efficiencyScore >= 80) {
+                            effBar.style.background = 'linear-gradient(90deg, var(--success-color), #34D399)';
+                        } else if (efficiencyScore >= 50) {
+                            effBar.style.background = 'linear-gradient(90deg, var(--accent-color), var(--success-color))';
+                        } else {
+                            effBar.style.background = 'linear-gradient(90deg, var(--warning-color), var(--accent-color))';
+                        }
+                    }
+                }
+
+                // 2. 주간 학습일 계산
+                const today = new Date();
+                const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
+                let weeklyStudyDays = 0;
+
+                studyData.timeBlocks.forEach(block => {
+                    if (block.completed && block.date) {
+                        const blockDate = new Date(block.date);
+                        if (blockDate >= weekStart) {
+                            weeklyStudyDays = Math.max(weeklyStudyDays, blockDate.getDay() + 1);
+                        }
+                    }
+                });
+
+                const weeklyElement = document.getElementById('weekly-study-days');
+                if (weeklyElement) {
+                    weeklyElement.textContent = Math.min(weeklyStudyDays, 7);
+                    const weekBar = document.getElementById('weekly-days-progress');
+                    if (weekBar) {
+                        weekBar.style.width = Math.min((weeklyStudyDays / 7) * 100, 100) + '%';
+                        if (weeklyStudyDays >= 7) {
+                            weekBar.style.background = 'linear-gradient(90deg, var(--success-color), #34D399)';
+                        } else if (weeklyStudyDays >= 4) {
+                            weekBar.style.background = 'linear-gradient(90deg, var(--accent-color), var(--success-color))';
+                        } else {
+                            weekBar.style.background = 'linear-gradient(90deg, var(--warning-color), var(--accent-color))';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('❌ renderDashboardAnalytics 에러:', error);
+            }
+        }
+
+        /**
+         * 취약 과목 분석 (진도율 50% 미만)
+         */
+        function renderWeakSubjectsAnalysis() {
+            try {
+                const weakSubjects = studyData.subjects.filter(s => {
+                    const progress = (s.completed / s.total) * 100;
+                    return progress < 50;
+                }).sort((a, b) => {
+                    const progressA = (a.completed / a.total) * 100;
+                    const progressB = (b.completed / b.total) * 100;
+                    return progressA - progressB;
+                });
+
+                const countElement = document.getElementById('weak-subjects-count');
+                const listElement = document.getElementById('weak-subjects-list');
+
+                if (countElement) {
+                    countElement.textContent = weakSubjects.length;
+                }
+
+                if (listElement) {
+                    if (weakSubjects.length === 0) {
+                        listElement.textContent = '🎉 모든 과목의 진도가 50% 이상입니다!';
+                        listElement.style.color = 'var(--success-color)';
+                    } else {
+                        const subjectList = weakSubjects.map(s => {
+                            const progress = Math.round((s.completed / s.total) * 100);
+                            return `${s.name} (${progress}%)`;
+                        }).join(', ');
+                        listElement.textContent = subjectList;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ renderWeakSubjectsAnalysis 에러:', error);
+            }
+        }
+
+        /**
+         * 강점 과목 분석 (진도율 80% 이상)
+         */
+        function renderStrongSubjectsAnalysis() {
+            try {
+                const strongSubjects = studyData.subjects.filter(s => {
+                    const progress = (s.completed / s.total) * 100;
+                    return progress >= 80;
+                }).sort((a, b) => {
+                    const progressA = (a.completed / a.total) * 100;
+                    const progressB = (b.completed / b.total) * 100;
+                    return progressB - progressA;
+                });
+
+                const countElement = document.getElementById('strong-subjects-count');
+                const listElement = document.getElementById('strong-subjects-list');
+
+                if (countElement) {
+                    countElement.textContent = strongSubjects.length;
+                }
+
+                if (listElement) {
+                    if (strongSubjects.length === 0) {
+                        listElement.textContent = '💪 곧 80% 이상 도달할 수 있습니다!';
+                        listElement.style.color = 'var(--text-secondary)';
+                    } else {
+                        const subjectList = strongSubjects.map(s => {
+                            const progress = Math.round((s.completed / s.total) * 100);
+                            return `${s.name} (${progress}%)`;
+                        }).join(', ');
+                        listElement.textContent = subjectList;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ renderStrongSubjectsAnalysis 에러:', error);
             }
         }
 
