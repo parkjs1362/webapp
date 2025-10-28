@@ -2,8 +2,32 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.0.6
+    Version: 3.0.7
     Last Updated: 2025-10-28
+
+    Changes in v3.0.7 - UI/UX Enhancement & Cognitive Load Reduction:
+    - ADDED: Core metrics dashboard (3 key indicators only)
+      * Overall progress percentage
+      * Expected completion date (D-day format)
+      * Learning efficiency index (0-100)
+    - ADDED: Collapsible detailed analytics section
+      * Reduced cognitive load by hiding secondary metrics
+      * Toggle button for expanding/collapsing detailed stats
+    - ADDED: Today's Goals section with AI recommendations
+      * Prioritized study recommendations based on progress
+      * Weak subject (progress <50%)
+      * Mid-level subject (progress 50-70%)
+      * Strong subject (progress >70%)
+      * Concrete action items for each subject
+    - ADDED: Achievement badge system for motivation
+      * "3일 연속" badge (consecutiveDays >= 3)
+      * "주간 꾸준함" badge (weeklyStudyDays >= 5)
+      * "월간 목표" badge (monthlyHours >= 80)
+      * "약점 정복" badge (weak subject progress >= 50%)
+    - IMPROVED: Information hierarchy for better UX
+      * Critical info at top, detailed analysis below
+      * Clear visual separation between sections
+      * Reduced information overload on main dashboard
 
     Changes in v3.0.6 - Time Block Save Fix & Input Validation:
     - FIXED: Time block save issue
@@ -3960,10 +3984,44 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
             </div>
 
-        <!-- 학습 분석 대시보드 v2.13.0 - Enhanced with Chart.js -->
+        <!-- 학습 분석 대시보드 v3.0.7 - Enhanced with Core Metrics -->
         <div class="card">
-            <div class="card-header collapsible-header" onclick="toggleCollapse('analytics-section')">
+            <div class="card-header">
                 <h2 class="card-title">📊 학습 분석 대시보드</h2>
+            </div>
+
+            <!-- 🎯 핵심 메트릭 (Core Metrics) - v3.0.7 -->
+            <div style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: var(--radius-lg); margin: 0 20px 20px 20px;">
+                <h3 style="color: white; margin-bottom: 20px; font-size: 1.2rem;">🎯 핵심 메트릭</h3>
+                <div class="analytics-grid" style="gap: 16px;">
+                    <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.2);">
+                        <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 8px;">전체 진도율</div>
+                        <div id="core-progress" style="color: white; font-size: 2.5rem; font-weight: 700; line-height: 1;">0%</div>
+                        <div id="core-progress-bar" style="width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; margin-top: 12px; overflow: hidden;">
+                            <div id="core-progress-fill" style="height: 100%; background: white; width: 0%; transition: width 0.5s ease;"></div>
+                        </div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.2);">
+                        <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 8px;">예상 완료일</div>
+                        <div id="core-completion-date" style="color: white; font-size: 1.5rem; font-weight: 700; line-height: 1.2;">계산 중...</div>
+                        <div id="core-dday" style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-top: 8px; font-weight: 600;">D-day 계산 중</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.2);">
+                        <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 8px;">학습 효율성 지수</div>
+                        <div id="core-efficiency" style="color: white; font-size: 2.5rem; font-weight: 700; line-height: 1;">-</div>
+                        <div style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 8px;">시간 대비 진도율</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🏆 성취 뱃지 시스템 - v3.0.7 -->
+            <div id="achievement-badges" style="padding: 0 20px 20px 20px;">
+                <!-- 동적으로 생성됩니다 -->
+            </div>
+
+            <!-- 📈 상세 분석 (Collapsible) -->
+            <div class="card-header collapsible-header" onclick="toggleCollapse('analytics-section')" style="cursor: pointer; padding: 15px 20px; margin: 0; border-top: 1px solid var(--border-color);">
+                <h3 style="font-size: 1rem; color: var(--text-secondary); margin: 0;">📈 상세 분석</h3>
                 <span class="collapse-icon" id="analytics-icon">▼</span>
             </div>
             <div class="collapsible-content" id="analytics-section">
@@ -4194,6 +4252,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
             </div>
             <div id="goals-container">
+                <!-- 동적으로 생성됩니다 -->
+            </div>
+        </div>
+
+        <!-- 🎯 오늘의 학습 우선순위 (AI 추천) - v3.0.7 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">🎯 오늘의 학습 우선순위 (AI 추천)</h2>
+            </div>
+            <div id="today-goals" style="padding: 20px;">
                 <!-- 동적으로 생성됩니다 -->
             </div>
         </div>
@@ -6078,6 +6146,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             renderDashboardAnalytics(totalHours, overallProgress, actualStudyDays);
             renderWeakSubjectsAnalysis();
             renderStrongSubjectsAnalysis();
+
+            // Render v3.0.7 new features
+            renderCoreMetrics(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
+            renderAchievementBadges(actualStudyDays, totalHours);
+            renderTodayGoals();
             } catch (error) {
                 console.error('❌ renderAnalytics 에러:', error);
                 console.error('Stack:', error.stack);
@@ -6432,6 +6505,350 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 }
             } catch (error) {
                 console.error('❌ renderStrongSubjectsAnalysis 에러:', error);
+            }
+        }
+
+        /**
+         * v3.0.7 - 핵심 메트릭 렌더링
+         * 대시보드 상단에 3개 핵심 지표만 표시
+         */
+        function renderCoreMetrics(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays) {
+            try {
+                // 1. 전체 진도율
+                const coreProgressEl = document.getElementById('core-progress');
+                const coreProgressFill = document.getElementById('core-progress-fill');
+                if (coreProgressEl && coreProgressFill) {
+                    coreProgressEl.textContent = overallProgress + '%';
+                    coreProgressFill.style.width = overallProgress + '%';
+                }
+
+                // 2. 예상 완료일 & D-day
+                const safeDays = Math.max(actualStudyDays || 1, 1);
+                const completedProblems = totalCompleted || 0;
+                const remainingProblems = Math.max(totalProblems - completedProblems, 0);
+                const learningPace = completedProblems > 0 ? completedProblems / safeDays : 0;
+
+                let daysToCompletion = 0;
+                if (learningPace > 0 && remainingProblems > 0) {
+                    daysToCompletion = Math.ceil(remainingProblems / learningPace);
+                } else if (remainingProblems === 0) {
+                    daysToCompletion = 0;
+                } else {
+                    daysToCompletion = 999;
+                }
+
+                const today = new Date();
+                const completionDate = new Date(today.getTime() + daysToCompletion * 24 * 60 * 60 * 1000);
+
+                const coreDateEl = document.getElementById('core-completion-date');
+                const coreDdayEl = document.getElementById('core-dday');
+                if (coreDateEl && coreDdayEl) {
+                    if (daysToCompletion === 0) {
+                        coreDateEl.textContent = '완료!';
+                        coreDdayEl.textContent = '축하합니다! 🎉';
+                    } else if (daysToCompletion === 999) {
+                        coreDateEl.textContent = '계산 중...';
+                        coreDdayEl.textContent = '학습 데이터 부족';
+                    } else {
+                        const dateStr = completionDate.toLocaleDateString('ko-KR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                        coreDateEl.textContent = dateStr;
+                        coreDdayEl.textContent = `D-${daysToCompletion}`;
+                    }
+                }
+
+                // 3. 학습 효율성 지수
+                const hoursTarget = 1000;
+                const progressTarget = 100;
+                const efficiencyScore = Math.round(((totalHours / hoursTarget) * 60 + (overallProgress / progressTarget) * 40));
+
+                const coreEffEl = document.getElementById('core-efficiency');
+                if (coreEffEl) {
+                    coreEffEl.textContent = Math.min(efficiencyScore, 100);
+                }
+
+                console.log('✅ 핵심 메트릭 렌더링 완료:', {
+                    progress: overallProgress,
+                    daysToCompletion,
+                    efficiency: efficiencyScore
+                });
+            } catch (error) {
+                console.error('❌ renderCoreMetrics 에러:', error);
+            }
+        }
+
+        /**
+         * v3.0.7 - 성취 뱃지 시스템
+         * 학습 성과에 따른 뱃지 표시
+         */
+        function renderAchievementBadges(actualStudyDays, totalHours) {
+            try {
+                const badgesContainer = document.getElementById('achievement-badges');
+                if (!badgesContainer) return;
+
+                const badges = [];
+
+                // Calculate weekly study days
+                const today = new Date();
+                const weekStart = new Date(today);
+                weekStart.setDate(today.getDate() - today.getDay());
+
+                const weeklyDates = new Set();
+                studyData.timeBlocks.forEach(block => {
+                    if (block.completed && block.date) {
+                        const blockDate = new Date(block.date);
+                        if (blockDate >= weekStart) {
+                            weeklyDates.add(block.date);
+                        }
+                    }
+                });
+                const weeklyStudyDays = weeklyDates.size;
+
+                // Calculate monthly hours
+                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                let monthlyHours = 0;
+                studyData.timeBlocks.forEach(block => {
+                    if (block.completed && block.date) {
+                        const blockDate = new Date(block.date);
+                        if (blockDate >= monthStart) {
+                            monthlyHours += block.hours || 0;
+                        }
+                    }
+                });
+
+                // Badge 1: 3일 연속
+                if (studyData.streak.currentStreak >= 3) {
+                    badges.push({
+                        icon: '🔥',
+                        title: '3일 연속',
+                        description: `${studyData.streak.currentStreak}일 연속 학습 중!`,
+                        color: '#FF6B6B'
+                    });
+                }
+
+                // Badge 2: 주간 꾸준함
+                if (weeklyStudyDays >= 5) {
+                    badges.push({
+                        icon: '⭐',
+                        title: '주간 꾸준함',
+                        description: `이번 주 ${weeklyStudyDays}일 학습`,
+                        color: '#4ECDC4'
+                    });
+                }
+
+                // Badge 3: 월간 목표
+                if (monthlyHours >= 80) {
+                    badges.push({
+                        icon: '💎',
+                        title: '월간 목표',
+                        description: `이번 달 ${Math.round(monthlyHours)}시간 달성`,
+                        color: '#95E1D3'
+                    });
+                }
+
+                // Badge 4: 약점 정복
+                const weakSubjects = studyData.subjects.filter(s => {
+                    const progress = (s.completed / s.total) * 100;
+                    return progress >= 50 && progress < 80;
+                });
+                if (weakSubjects.length > 0) {
+                    badges.push({
+                        icon: '🏆',
+                        title: '약점 정복',
+                        description: `${weakSubjects.length}개 과목 50% 돌파!`,
+                        color: '#F38181'
+                    });
+                }
+
+                // Render badges
+                if (badges.length > 0) {
+                    badgesContainer.innerHTML = `
+                        <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 20px;">
+                            <h3 style="margin-bottom: 16px; font-size: 1.1rem; color: #2d3748;">🏆 성취 뱃지</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                                ${badges.map(badge => `
+                                    <div style="background: white; padding: 16px; border-radius: var(--radius-md); border-left: 4px solid ${badge.color}; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="font-size: 2rem;">${badge.icon}</div>
+                                            <div style="flex: 1;">
+                                                <div style="font-weight: 600; color: #2d3748; margin-bottom: 4px;">${badge.title}</div>
+                                                <div style="font-size: 0.85rem; color: #718096;">${badge.description}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    badgesContainer.innerHTML = '';
+                }
+
+                console.log('✅ 성취 뱃지 렌더링 완료:', badges.length + '개');
+            } catch (error) {
+                console.error('❌ renderAchievementBadges 에러:', error);
+            }
+        }
+
+        /**
+         * v3.0.7 - 오늘의 학습 목표 (AI 추천)
+         * 진도율 기반으로 우선순위 과목 3개 추천
+         */
+        function renderTodayGoals() {
+            try {
+                const goalsContainer = document.getElementById('today-goals');
+                if (!goalsContainer) return;
+
+                // Calculate progress for all subjects
+                const subjectsWithProgress = studyData.subjects.map(s => ({
+                    ...s,
+                    progress: s.total > 0 ? Math.round((s.completed / s.total) * 100) : 0,
+                    remaining: s.total - s.completed
+                })).filter(s => s.total > 0);
+
+                // Categorize subjects
+                const weakSubjects = subjectsWithProgress.filter(s => s.progress < 50).sort((a, b) => a.progress - b.progress);
+                const midSubjects = subjectsWithProgress.filter(s => s.progress >= 50 && s.progress < 70).sort((a, b) => a.progress - b.progress);
+                const strongSubjects = subjectsWithProgress.filter(s => s.progress >= 70).sort((a, b) => b.progress - a.progress);
+
+                const recommendations = [];
+
+                // Recommendation 1: Weak subject (highest priority)
+                if (weakSubjects.length > 0) {
+                    const subject = weakSubjects[0];
+                    const targetProgress = Math.min(subject.progress + 5, 50);
+                    const problemsNeeded = Math.ceil((targetProgress - subject.progress) * subject.total / 100);
+                    recommendations.push({
+                        priority: 1,
+                        subject: subject.name,
+                        progress: subject.progress,
+                        targetProgress: targetProgress,
+                        action: `기출문제 ${problemsNeeded}문제 풀이`,
+                        reason: '취약 과목 집중 보완',
+                        icon: '🎯',
+                        color: '#FF6B6B'
+                    });
+                } else if (midSubjects.length > 0) {
+                    const subject = midSubjects[0];
+                    const targetProgress = Math.min(subject.progress + 5, 70);
+                    const problemsNeeded = Math.ceil((targetProgress - subject.progress) * subject.total / 100);
+                    recommendations.push({
+                        priority: 1,
+                        subject: subject.name,
+                        progress: subject.progress,
+                        targetProgress: targetProgress,
+                        action: `심화 문제 ${problemsNeeded}문제`,
+                        reason: '중간 과목 강화',
+                        icon: '📚',
+                        color: '#4ECDC4'
+                    });
+                }
+
+                // Recommendation 2: Mid-level subject
+                if (midSubjects.length > 0) {
+                    const subject = midSubjects[0];
+                    const targetProgress = Math.min(subject.progress + 5, 70);
+                    const problemsNeeded = Math.ceil((targetProgress - subject.progress) * subject.total / 100);
+                    recommendations.push({
+                        priority: 2,
+                        subject: subject.name,
+                        progress: subject.progress,
+                        targetProgress: targetProgress,
+                        action: `개념 복습 30분`,
+                        reason: '중급 단계 안정화',
+                        icon: '📖',
+                        color: '#95E1D3'
+                    });
+                } else if (weakSubjects.length > 1) {
+                    const subject = weakSubjects[1];
+                    const targetProgress = Math.min(subject.progress + 5, 50);
+                    const problemsNeeded = Math.ceil((targetProgress - subject.progress) * subject.total / 100);
+                    recommendations.push({
+                        priority: 2,
+                        subject: subject.name,
+                        progress: subject.progress,
+                        targetProgress: targetProgress,
+                        action: `기본 개념 정리`,
+                        reason: '두 번째 취약 과목',
+                        icon: '📝',
+                        color: '#FFE66D'
+                    });
+                }
+
+                // Recommendation 3: Strong subject
+                if (strongSubjects.length > 0) {
+                    const subject = strongSubjects[0];
+                    const targetProgress = Math.min(subject.progress + 3, 100);
+                    recommendations.push({
+                        priority: 3,
+                        subject: subject.name,
+                        progress: subject.progress,
+                        targetProgress: targetProgress,
+                        action: `모의고사 검토 1시간`,
+                        reason: '강점 유지 및 완성',
+                        icon: '⭐',
+                        color: '#A8E6CF'
+                    });
+                } else if (midSubjects.length > 1) {
+                    const subject = midSubjects[1];
+                    recommendations.push({
+                        priority: 3,
+                        subject: subject.name,
+                        progress: subject.progress,
+                        targetProgress: Math.min(subject.progress + 5, 70),
+                        action: `응용 문제 풀이`,
+                        reason: '추가 강화 과목',
+                        icon: '💪',
+                        color: '#FFD3B6'
+                    });
+                }
+
+                // Render recommendations
+                if (recommendations.length > 0) {
+                    goalsContainer.innerHTML = `
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; border-radius: var(--radius-lg); color: white;">
+                            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 20px;">
+                                AI가 당신의 학습 데이터를 분석하여 오늘 집중해야 할 과목을 추천합니다.
+                            </div>
+                            ${recommendations.map((rec, idx) => `
+                                <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: var(--radius-md); margin-bottom: ${idx < recommendations.length - 1 ? '16px' : '0'}; border: 1px solid rgba(255,255,255,0.2);">
+                                    <div style="display: flex; align-items: center; gap: 16px;">
+                                        <div style="font-size: 2.5rem;">${rec.icon}</div>
+                                        <div style="flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                                <div style="font-size: 1.1rem; font-weight: 700;">${rec.priority}. ${rec.subject}</div>
+                                                <div style="background: rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">
+                                                    진도: ${rec.progress}% → ${rec.targetProgress}%
+                                                </div>
+                                            </div>
+                                            <div style="font-size: 0.95rem; margin-bottom: 6px; opacity: 0.95;">
+                                                → ${rec.action}
+                                            </div>
+                                            <div style="font-size: 0.85rem; opacity: 0.8;">
+                                                이유: ${rec.reason}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    goalsContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                            <div style="font-size: 3rem; margin-bottom: 16px;">🎯</div>
+                            <div style="font-size: 1.1rem; margin-bottom: 8px;">과목을 추가하면 AI가 학습 목표를 추천합니다</div>
+                            <div style="font-size: 0.9rem;">과목 설정에서 과목을 추가해주세요</div>
+                        </div>
+                    `;
+                }
+
+                console.log('✅ 오늘의 학습 목표 렌더링 완료:', recommendations.length + '개 추천');
+            } catch (error) {
+                console.error('❌ renderTodayGoals 에러:', error);
             }
         }
 
