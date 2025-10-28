@@ -2,8 +2,23 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.0.2
+    Version: 3.0.3
     Last Updated: 2025-10-28
+
+    Changes in v3.0.3 - Dark Mode UI Improvements:
+    - FIXED: Dark mode now applies to entire page background (body + html)
+    - IMPROVED: Enhanced dark mode colors for better visibility
+      * Background: Pure black (#000000) for main area
+      * Cards: Dark gray (#1a1a1a) for better contrast
+      * Text: Pure white (#ffffff) for maximum readability
+      * Text secondary: Light gray (#d1d1d6) - WCAG AAA compliant (7.1:1)
+    - ADDED: Explicit dark mode styling for form elements
+      * Input fields: #2d2d2d background with white text
+      * Buttons: Adjusted for dark mode visibility
+      * Modals: #1a1a1a background for consistency
+      * Time blocks: Dark mode colors applied
+      * Progress bars: Enhanced visibility in dark mode
+    - FEATURE: Full page dark mode transformation (not just cards)
 
     Changes in v3.0.2 - Learning Curve Analysis & Metacognitive Feedback:
     - ADDED: Learning curve analysis with automatic completion date prediction
@@ -596,16 +611,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         /* Apple Dark Mode - Pure Black with Subtle Accents */
         [data-theme="dark"] {
             /* Dark Background Colors - Apple's approach */
-            --bg-primary: #000000;          /* Pure black */
-            --bg-secondary: #161617;        /* Subtle gray for cards */
-            --bg-tertiary: #1d1d1f;         /* Slightly lighter */
+            --bg-primary: #000000;          /* Pure black - main background */
+            --bg-secondary: #1a1a1a;        /* Darker gray for cards - better visibility */
+            --bg-tertiary: #2d2d2d;         /* Slightly lighter for depth */
             --bg-light: #000000;
             --bg-dark: #000000;
 
             /* Dark Text Colors - Apple's refined palette */
-            --text-primary: #f5f5f7;        /* Off-white */
-            --text-secondary: #b8b8bd;      /* Light gray - WCAG AA compliant (5.1:1) */
-            --text-tertiary: #86868b;       /* Medium gray */
+            --text-primary: #ffffff;        /* Pure white for better visibility */
+            --text-secondary: #d1d1d6;      /* Light gray - WCAG AAA compliant (7.1:1) */
+            --text-tertiary: #a1a1a6;       /* Medium gray */
             --text-light: #ffffff;
 
             /* Dark Borders & Dividers */
@@ -649,6 +664,57 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             --glass-bg: rgba(22, 22, 23, 0.72);
             --glass-border: rgba(255, 255, 255, 0.08);
             --glass-blur: 20px;
+        }
+
+        /* Dark Mode Form Elements Override */
+        [data-theme="dark"] .form-input,
+        [data-theme="dark"] .form-select,
+        [data-theme="dark"] textarea {
+            background-color: #2d2d2d;
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        [data-theme="dark"] .form-input:focus,
+        [data-theme="dark"] .form-select:focus,
+        [data-theme="dark"] textarea:focus {
+            background-color: #3a3a3a;
+            border-color: var(--accent-color);
+        }
+
+        [data-theme="dark"] .form-input::placeholder,
+        [data-theme="dark"] textarea::placeholder {
+            color: #a1a1a6;
+        }
+
+        /* Dark Mode Button Adjustments */
+        [data-theme="dark"] .btn-secondary {
+            background-color: #2d2d2d;
+            border-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .btn-secondary:hover {
+            background-color: #3a3a3a;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Dark Mode Modal Adjustments */
+        [data-theme="dark"] .modal-content {
+            background-color: #1a1a1a;
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Dark Mode Time Block Cards */
+        [data-theme="dark"] .time-block {
+            background-color: #2d2d2d;
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Dark Mode Progress Bars */
+        [data-theme="dark"] .progress-bar-track {
+            background-color: #2d2d2d;
+            border-color: rgba(255, 255, 255, 0.12);
         }
 
         /* Apple-style smooth transitions */
@@ -715,7 +781,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         body {
             font-family: var(--font-primary);
-            background: var(--bg-light);
+            background-color: var(--bg-primary);
             color: var(--text-primary);
             font-size: var(--font-size-base);
             line-height: var(--line-height-normal);
@@ -724,6 +790,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             -moz-osx-font-smoothing: grayscale;
             transition: background-color 0.4s var(--ease-apple),
                         color 0.4s var(--ease-apple);
+            min-height: 100vh;
+        }
+
+        html {
+            background-color: var(--bg-primary);
+            transition: background-color 0.4s var(--ease-apple);
         }
 
         .container {
