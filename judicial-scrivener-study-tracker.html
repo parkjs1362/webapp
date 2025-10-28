@@ -2,8 +2,22 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.0.5
+    Version: 3.0.6
     Last Updated: 2025-10-28
+
+    Changes in v3.0.6 - Time Block Save Fix & Input Validation:
+    - FIXED: Time block save issue
+      * Added placeholder option "과목을 선택하세요" to select dropdown
+      * Added required attribute to subject select
+      * Improved validation messages with clear instructions
+    - ADDED: Better error feedback
+      * Toast notifications for missing fields (시간대, 과목, 학습 내용)
+      * Each field now shows specific error message
+      * User guidance: "예: 06:00-08:00" for time format
+    - IMPROVED: Form UX
+      * Required fields now clearly marked
+      * Error messages appear as toast notifications
+      * Prevents accidental empty submissions
 
     Changes in v3.0.5 - Enhanced Dashboard Features & Dark Mode Polish:
     - ADDED: Dashboard analytics with 4 new metrics
@@ -4390,7 +4404,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
                 <div class="form-group">
                     <label class="form-label">과목</label>
-                    <select class="form-select" id="blockSubject">
+                    <select class="form-select" id="blockSubject" required>
+                        <option value="" disabled selected>과목을 선택하세요</option>
                         <optgroup label="1차 시험">
                             <option value="헌법">헌법</option>
                             <option value="민법">민법</option>
@@ -5151,6 +5166,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             const detail = document.getElementById('blockDetail').value;
             // Get today's date in YYYY-MM-DD format for daily tracking
             const today = new Date().toISOString().split('T')[0];
+
+            // 검증: 필수 필드 확인
+            if (!time) {
+                showToast('⚠️ 시간대를 입력해주세요 (예: 06:00-08:00)', 'warning');
+                return;
+            }
+            if (!subject) {
+                showToast('⚠️ 과목을 선택해주세요', 'warning');
+                return;
+            }
+            if (!detail) {
+                showToast('⚠️ 학습 내용을 입력해주세요', 'warning');
+                return;
+            }
 
             if (time && subject && detail) {
                 if (editingBlockId) {
