@@ -2,8 +2,23 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.0.1
-    Last Updated: 2025-10-24
+    Version: 3.0.2
+    Last Updated: 2025-10-28
+
+    Changes in v3.0.2 - Learning Curve Analysis & Metacognitive Feedback:
+    - ADDED: Learning curve analysis with automatic completion date prediction
+      * Calculates current learning pace (problems/day)
+      * Predicts completion date based on remaining problems
+      * Displays days remaining and learning velocity
+    - ADDED: Metacognitive feedback system with context-aware insights
+      * Interprets progress percentage with positive reinforcement
+      * Provides efficiency metrics (hours per problem, problems per day)
+      * Delivers personalized motivation messages based on progress level
+      * Shows consistency feedback for learning duration
+    - IMPROVED: Analytics dashboard with dual new cards
+      * Blue card for learning curve predictions
+      * Green card for motivational feedback
+    - FEATURE: D-day style countdown for exam preparation
 
     Changes in v3.0.1 - Critical Bug Fix for Exam Type Selection:
     - FIXED: Exam type buttons (1차/2차) now properly update all UI components
@@ -3781,6 +3796,35 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     </div>
                 </div>
 
+                <!-- 학습 곡선 분석 & 메타인지 피드백 섹션 -->
+                <div class="analytics-grid" style="margin-top: 24px;">
+                    <!-- 학습 곡선 분석 (예상 완료일) -->
+                    <div class="analytics-stat" style="grid-column: span 2; background: linear-gradient(135deg, var(--accent-light), var(--accent-color)); color: white; border-radius: var(--radius-lg);">
+                        <div class="analytics-label" style="color: rgba(255,255,255,0.9);">📈 학습 곡선 분석</div>
+                        <div style="margin-top: 12px;">
+                            <div style="font-size: 0.95rem; margin-bottom: 8px; opacity: 0.95;">예상 완료일</div>
+                            <div id="completion-date-display" style="font-size: 1.8rem; font-weight: 700; margin-bottom: 12px;">계산 중...</div>
+                            <div style="font-size: 0.85rem; opacity: 0.9;">
+                                <div id="days-remaining-display">남은 학습일: - 일</div>
+                                <div id="learning-pace-display" style="margin-top: 6px;">학습 속도: - 문제/일</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 메타인지 피드백 -->
+                    <div class="analytics-stat" style="grid-column: span 2; background: linear-gradient(135deg, var(--success-color), #34D399); color: white; border-radius: var(--radius-lg);">
+                        <div class="analytics-label" style="color: rgba(255,255,255,0.9);">🎯 맞춤형 학습 피드백</div>
+                        <div style="margin-top: 12px;">
+                            <div id="metacognitive-feedback" style="font-size: 0.95rem; line-height: 1.6; opacity: 0.95;">
+                                데이터를 분석 중입니다...
+                            </div>
+                            <div id="motivation-message" style="margin-top: 12px; font-size: 0.9rem; font-weight: 600; padding: 8px 12px; background: rgba(255,255,255,0.2); border-radius: var(--radius-md);">
+                                💪 계속 화이팅하세요!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Data Sync Status Dashboard -->
                 <div class="sync-status-grid" style="margin-top: 32px;">
                     <div class="sync-status-card">
@@ -5748,6 +5792,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // Render enhanced charts with real data
             renderSubjectTimeChart();
             renderMockScoreChart();
+
+            // Render learning curve analysis and metacognitive feedback
+            renderLearningCurveAnalysis(totalCompleted, totalProblems, totalHours, actualStudyDays);
+            renderMetacognitiveFeedback(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
             } catch (error) {
                 console.error('❌ renderAnalytics 에러:', error);
                 console.error('Stack:', error.stack);
@@ -5812,8 +5860,149 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
 
+        /**
+         * 학습 곡선 분석 함수
+         * - 현재 학습 속도 기반 예상 완료일 계산
+         * - 남은 학습일 수 및 학습 속도 표시
+         */
+        function renderLearningCurveAnalysis(totalCompleted, totalProblems, totalHours, actualStudyDays) {
+            try {
+                if (totalProblems === 0) {
+                    document.getElementById('completion-date-display').textContent = '과목 설정 필요';
+                    document.getElementById('days-remaining-display').textContent = '남은 학습일: - 일';
+                    document.getElementById('learning-pace-display').textContent = '학습 속도: - 문제/일';
+                    return;
+                }
 
-        
+                // 1. 현재 학습 속도 계산 (문제/일)
+                const completedProblems = totalCompleted;
+                const remainingProblems = totalProblems - totalCompleted;
+                const learningPace = actualStudyDays > 0 ? completedProblems / actualStudyDays : 0;
+
+                // 2. 예상 완료일 계산
+                let daysToCompletion = 0;
+                if (learningPace > 0) {
+                    daysToCompletion = Math.ceil(remainingProblems / learningPace);
+                } else {
+                    daysToCompletion = 999; // 아직 학습하지 않은 경우
+                }
+
+                // 3. 예상 완료 날짜 계산
+                const today = new Date();
+                const completionDate = new Date(today.getTime() + daysToCompletion * 24 * 60 * 60 * 1000);
+
+                // 한국 날짜 형식으로 변환
+                const completionDateStr = completionDate.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                // 남은 일수 (D-day 형식)
+                const dDay = daysToCompletion > 0 ? `D-${daysToCompletion}` : 'D-day! 🎉';
+
+                // 4. UI 업데이트
+                document.getElementById('completion-date-display').textContent = completionDateStr;
+                document.getElementById('days-remaining-display').textContent = `남은 학습일: ${daysToCompletion} 일`;
+                document.getElementById('learning-pace-display').textContent = `학습 속도: ${Math.round(learningPace)} 문제/일`;
+
+                console.log(`✅ 학습 곡선 분석:
+                    - 완료된 문제: ${completedProblems}/${totalProblems} (${Math.round((completedProblems/totalProblems)*100)}%)
+                    - 남은 문제: ${remainingProblems}
+                    - 학습 속도: ${learningPace.toFixed(1)} 문제/일
+                    - 남은 일수: ${daysToCompletion} 일
+                    - 예상 완료일: ${completionDateStr}`);
+            } catch (error) {
+                console.error('❌ renderLearningCurveAnalysis 에러:', error);
+                document.getElementById('completion-date-display').textContent = '계산 오류';
+            }
+        }
+
+        /**
+         * 메타인지 피드백 함수
+         * - 현재 진행도를 해석적으로 설명
+         * - 학습 효율성 기반 맞춤형 피드백 제공
+         * - 동기부여 메시지 표시
+         */
+        function renderMetacognitiveFeedback(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays) {
+            try {
+                if (totalProblems === 0) {
+                    document.getElementById('metacognitive-feedback').textContent = '과목을 추가하여 학습을 시작하세요!';
+                    document.getElementById('motivation-message').textContent = '🚀 새로운 여정을 시작해봅시다!';
+                    return;
+                }
+
+                // 1. 효율성 지수 계산 (학습량 대비 성과)
+                const completionRate = (totalCompleted / totalProblems) * 100;
+                const hoursPerProblem = totalHours > 0 ? totalHours / totalCompleted : 0;
+                const problemsPerDay = totalCompleted > 0 ? totalCompleted / actualStudyDays : 0;
+
+                // 2. 학습 진행도 평가
+                let progressMessage = '';
+                let motivationEmoji = '';
+                let motivationMessage = '';
+
+                if (overallProgress >= 90) {
+                    progressMessage = `🌟 놀라운 진행이에요! 이미 ${overallProgress}%를 완료했습니다! 마지막 스퍼트를 이겨낼 준비가 되셨나요?`;
+                    motivationEmoji = '🏆';
+                    motivationMessage = '거의 다 왔어요! 이대로만 계속하면 확실히 성공할 수 있습니다!';
+                } else if (overallProgress >= 70) {
+                    progressMessage = `👏 정말 잘하고 계세요! ${overallProgress}%까지 오셨습니다. 이 속도면 충분히 완성할 수 있어요.`;
+                    motivationEmoji = '💪';
+                    motivationMessage = '역시 실력이 느껴져요! 조금만 더 힘내세요.';
+                } else if (overallProgress >= 50) {
+                    progressMessage = `✨ 중간 지점을 넘으셨어요! 현재 ${overallProgress}% 완료. 지금까지의 노력이 정말 훌륭합니다!`;
+                    motivationEmoji = '⚡';
+                    motivationMessage = '좋은 페이스를 유지하고 있어요. 계속 화이팅하세요!';
+                } else if (overallProgress >= 30) {
+                    progressMessage = `📈 좋은 진행 중입니다! ${overallProgress}%를 달성했어요. 이대로 계속하면 목표에 도달할 수 있습니다.`;
+                    motivationEmoji = '🎯';
+                    motivationMessage = '기초를 탄탄히 다지는 중이군요. 계속 진행하세요!';
+                } else {
+                    progressMessage = `🌱 시작이 반이라고 했잖아요! ${overallProgress}%를 완료했습니다. 이 발걸음이 가장 소중한 순간입니다.`;
+                    motivationEmoji = '🔥';
+                    motivationMessage = '지금이 가장 중요한 순간입니다. 계속 진행하세요!';
+                }
+
+                // 3. 학습 효율성 피드백
+                let efficiencyFeedback = '';
+                if (hoursPerProblem > 0) {
+                    if (hoursPerProblem < 0.3) {
+                        efficiencyFeedback = ` 효율성이 우수해요! (평균 ${hoursPerProblem.toFixed(2)}시간/문제)`;
+                    } else if (hoursPerProblem < 0.5) {
+                        efficiencyFeedback = ` 학습 속도가 좋습니다! (평균 ${hoursPerProblem.toFixed(2)}시간/문제)`;
+                    } else {
+                        efficiencyFeedback = ` 깊이 있는 학습을 하고 계세요. (평균 ${hoursPerProblem.toFixed(2)}시간/문제)`;
+                    }
+                }
+
+                // 4. 학습 일수 기반 피드백
+                const consistencyFeedback = actualStudyDays >= 7
+                    ? ` 꾸준히 ${actualStudyDays}일 동안 학습 중이에요!`
+                    : ` 시작한 지 ${actualStudyDays}일입니다. 꾸준함이 가장 중요해요!`;
+
+                // 5. 최종 피드백 메시지
+                const finalFeedback = progressMessage + efficiencyFeedback + consistencyFeedback;
+
+                // 6. 동기부여 메시지
+                const motivationText = `${motivationEmoji} ${motivationMessage}`;
+
+                // 7. UI 업데이트
+                document.getElementById('metacognitive-feedback').textContent = finalFeedback;
+                document.getElementById('motivation-message').textContent = motivationText;
+
+                console.log(`✅ 메타인지 피드백 생성:
+                    - 진행도: ${overallProgress}%
+                    - 효율성: ${hoursPerProblem.toFixed(2)}시간/문제
+                    - 학습일수: ${actualStudyDays}일
+                    - 일일속도: ${problemsPerDay.toFixed(1)}문제/일`);
+            } catch (error) {
+                console.error('❌ renderMetacognitiveFeedback 에러:', error);
+                document.getElementById('metacognitive-feedback').textContent = '피드백을 생성할 수 없습니다.';
+            }
+        }
+
+
         function renderSubjectTimeChart() {
             const container = document.getElementById('subject-time-chart');
             if (!container) {
