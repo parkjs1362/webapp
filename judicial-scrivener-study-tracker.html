@@ -2,8 +2,25 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.0.8
+    Version: 3.0.9
     Last Updated: 2025-10-29
+
+    Changes in v3.0.9 - Dashboard Cleanup & Chart Enhancement:
+    - REMOVED: "오늘의 학습 우선순위 (AI 추천)" section
+      * Simplified dashboard by removing redundant AI recommendations
+      * Reduced cognitive load with focused core information
+    - REMOVED: "과목별 진도율" visualization section
+      * Consolidated progress tracking to essential metrics
+      * Cleaner dashboard layout for better focus
+    - IMPROVED: Subject time distribution chart visibility
+      * Increased font sizes (0.8rem → 0.95rem for labels, 0.75rem → 0.9rem for values)
+      * Added minimum bar height (40px) for better visibility
+      * Enhanced spacing and visual hierarchy with improved margins
+      * Added shadow effects for depth perception
+      * Better color contrast with dark text on gradients
+    - IMPROVED: Dashboard information hierarchy
+      * Removed duplicate progress information
+      * Focus on core metrics and essential visualizations
 
     Changes in v3.0.8 - Bug Fixes & UI Improvements:
     - FIXED: Chart rendering element ID mismatches
@@ -2399,36 +2416,44 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 0 5px;
+            margin: 0 8px;
+            min-height: 280px;
         }
 
         .bar {
             width: 100%;
+            min-height: 40px;
             background: linear-gradient(to top, var(--accent), var(--success));
             border-radius: 4px 4px 0 0;
             transition: all 0.3s;
             position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .bar:hover {
-            opacity: 0.8;
+            opacity: 0.9;
             transform: scaleY(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .bar-label {
-            margin-top: 8px;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
+            margin-top: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+            word-break: break-word;
+            max-width: 100%;
         }
 
         .bar-value {
             position: absolute;
-            top: -25px;
+            top: -30px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.75rem;
+            font-size: 0.9rem;
             font-weight: bold;
-            color: var(--primary-dark);
+            color: var(--accent);
         }
 
         /* 목표 설정 스타일 */
@@ -4217,16 +4242,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         </div>
                     </div>
 
-                    <!-- Subject Progress Visualization (Progress Bars) -->
-                    <div class="chart-wrapper">
-                        <div class="chart-header">
-                            <h3 class="chart-title">📊 과목별 진도율</h3>
-                        </div>
-                        <div class="progress-bars-container" id="subjectProgressBars">
-                            <!-- 동적으로 생성됩니다 -->
-                        </div>
-                    </div>
-
                     <!-- Mock Exam Score Trend Chart (Line) -->
                     <div class="chart-wrapper">
                         <div class="chart-header">
@@ -4264,16 +4279,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
             </div>
             <div id="goals-container">
-                <!-- 동적으로 생성됩니다 -->
-            </div>
-        </div>
-
-        <!-- 🎯 오늘의 학습 우선순위 (AI 추천) - v3.0.7 -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">🎯 오늘의 학습 우선순위 (AI 추천)</h2>
-            </div>
-            <div id="today-goals" style="padding: 20px;">
                 <!-- 동적으로 생성됩니다 -->
             </div>
         </div>
@@ -4915,7 +4920,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             renderTimeBlocks();
             renderRotationTracker();
             renderWeeklyStats();
-            renderSubjectProgress();
             renderMockScores();
             updateTimerDisplay();
             updatePomodoroDisplay();
@@ -5082,7 +5086,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             renderTimeBlocks();        // Refresh time blocks with new subjects
             renderRotationTracker();   // Update rotation tracker
             renderWeeklyStats();       // Refresh weekly statistics
-            renderSubjectProgress();   // Update subject progress bars
             renderMockScores();        // Refresh mock exam scores display
             renderAnalytics();         // Update analytics dashboard
             initAllCharts();          // Update all charts with new subjects
@@ -5656,7 +5659,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 }
 
                 saveData();
-                renderSubjectProgress();
                 closeModal('subjectProgressModal');
                 showToast(`${subject.name} 진도가 업데이트되었습니다 (${subject.completed}/${subject.total})`);
 
@@ -6182,7 +6184,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // Render v3.0.7 new features
             renderCoreMetrics(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
             renderAchievementBadges(actualStudyDays, totalHours);
-            renderTodayGoals();
             } catch (error) {
                 console.error('❌ renderAnalytics 에러:', error);
                 console.error('Stack:', error.stack);
