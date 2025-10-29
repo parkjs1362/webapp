@@ -4687,6 +4687,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             renderTimeBlocks();
             renderRotationTracker();
             renderWeeklyStats();
+            renderSubjectProgress();
             renderMockScores();
             updateTimerDisplay();
             updatePomodoroDisplay();
@@ -4852,6 +4853,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             renderTimeBlocks();        // Refresh time blocks with new subjects
             renderRotationTracker();   // Update rotation tracker
             renderWeeklyStats();       // Refresh weekly statistics
+            renderSubjectProgress();   // Update subject progress bars
             renderMockScores();        // Refresh mock exam scores display
             renderAnalytics();         // Update analytics dashboard
             initAllCharts();          // Update all charts with new subjects
@@ -5425,6 +5427,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 }
 
                 saveData();
+                renderSubjectProgress();  // Refresh the progress display
+                renderAnalytics();        // Update analytics dashboard
                 closeModal('subjectProgressModal');
                 showToast(`${subject.name} 진도가 업데이트되었습니다 (${subject.completed}/${subject.total})`);
 
