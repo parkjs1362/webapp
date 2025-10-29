@@ -2,8 +2,17 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.1.0
+    Version: 3.1.1
     Last Updated: 2025-10-29
+
+    Changes in v3.1.1 - Timer UI Consolidation:
+    - MERGED: Combined study time and pomodoro timer cards into single unified card
+      * Integrated "오늘의 학습 시간" and "포모도로 타이머" into one card
+      * Study hours section displayed at top with timer, controls, and weekly stats
+      * Pomodoro timer section displayed below with session tracking
+      * Used CSS Grid for clean two-row layout with visual separator
+      * Maintained all existing functionality and button IDs
+      * Improved dashboard organization and reduced visual clutter
 
     Changes in v3.1.0 - Major Dashboard Simplification:
     - REMOVED: Detailed analytics section
@@ -4113,38 +4122,42 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
             </div>
             
-            <!-- 학습 타이머 -->
+            <!-- 통합 학습 타이머 -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">⏱️ 오늘의 학습 시간</h2>
+                    <h2 class="card-title">⏱️ 오늘의 학습 시간 & 포모도로</h2>
                 </div>
-                <div class="timer-display" id="timer">00:00:00</div>
-                <div class="timer-controls">
-                    <button class="timer-btn start" onclick="startTimer()">시작</button>
-                    <button class="timer-btn pause" onclick="pauseTimer()">일시정지</button>
-                    <button class="timer-btn reset" onclick="resetTimer()">리셋</button>
-                </div>
-                <div class="weekly-stats" id="weekly-stats">
-                    <!-- 동적으로 생성됩니다 -->
-                </div>
-            </div>
-            
-            <!-- 포모도로 타이머 -->
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">🍅 포모도로 타이머</h2>
-                </div>
-                <div class="pomodoro-display">
-                    <div class="pomodoro-mode" id="pomodoro-mode">작업 세션</div>
-                    <div class="timer-display" id="pomodoro-timer">25:00</div>
-                    <div class="pomodoro-session-count">
-                        완료된 세션: <span id="pomodoro-count">0</span>개
+                <div class="card-body" style="display: grid; grid-template-columns: 1fr; gap: 20px; padding: 20px;">
+                    <!-- 오늘의 학습 시간 섹션 -->
+                    <div style="border-bottom: 2px solid #e9ecef; padding-bottom: 20px;">
+                        <h3 style="font-size: 1rem; font-weight: 600; color: #495057; margin-bottom: 15px;">⏱️ 오늘의 학습 시간</h3>
+                        <div class="timer-display" id="timer">00:00:00</div>
+                        <div class="timer-controls">
+                            <button class="timer-btn start" onclick="startTimer()">시작</button>
+                            <button class="timer-btn pause" onclick="pauseTimer()">일시정지</button>
+                            <button class="timer-btn reset" onclick="resetTimer()">리셋</button>
+                        </div>
+                        <div class="weekly-stats" id="weekly-stats">
+                            <!-- 동적으로 생성됩니다 -->
+                        </div>
                     </div>
-                </div>
-                <div class="timer-controls">
-                    <button class="timer-btn start" id="pomodoro-start" onclick="startPomodoro()">시작</button>
-                    <button class="timer-btn pause" id="pomodoro-pause" onclick="pausePomodoro()" style="display:none;">일시정지</button>
-                    <button class="timer-btn reset" onclick="resetPomodoro()">리셋</button>
+
+                    <!-- 포모도로 타이머 섹션 -->
+                    <div>
+                        <h3 style="font-size: 1rem; font-weight: 600; color: #495057; margin-bottom: 15px;">🍅 포모도로 타이머</h3>
+                        <div class="pomodoro-display">
+                            <div class="pomodoro-mode" id="pomodoro-mode">작업 세션</div>
+                            <div class="timer-display" id="pomodoro-timer">25:00</div>
+                            <div class="pomodoro-session-count">
+                                완료된 세션: <span id="pomodoro-count">0</span>개
+                            </div>
+                        </div>
+                        <div class="timer-controls">
+                            <button class="timer-btn start" id="pomodoro-start" onclick="startPomodoro()">시작</button>
+                            <button class="timer-btn pause" id="pomodoro-pause" onclick="pausePomodoro()" style="display:none;">일시정지</button>
+                            <button class="timer-btn reset" onclick="resetPomodoro()">리셋</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -4194,23 +4207,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             </div>
         </div>
         
-        <!-- 학습 노트 섹션 -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">📝 오늘의 학습 노트</h2>
-            </div>
-            <div class="notes-section">
-                <textarea class="notes-input" placeholder="오늘 학습한 핵심 내용, 틀린 문제, 헷갈리는 개념을 정리하세요..." id="study-notes"></textarea>
-                <div class="notes-toolbar">
-                    <button class="notes-btn" onclick="saveNotes()">저장</button>
-                    <button class="notes-btn" onclick="showPreviousNotes()">이전 노트</button>
-                    <button class="notes-btn" onclick="exportNotes()">내보내기</button>
-                    <button class="notes-btn" onclick="addErrorNote()">오답노트 추가</button>
-                    <button class="notes-btn" onclick="clearNotes()">초기화</button>
-                </div>
-            </div>
-        </div>
-
         <!-- 데이터 관리 섹션 -->
         <div class="card data-management-card">
             <div class="card-header">
@@ -4692,7 +4688,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             updateTimerDisplay();
             updatePomodoroDisplay();
             document.getElementById('pomodoro-count').textContent = studyData.pomodoro.completedSessions || 0;
-            loadTodayNotes();
             rotateMotivation();
             renderAnalytics();
             updateSyncStatus(); // Update data size display on initial load
