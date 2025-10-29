@@ -4757,9 +4757,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             studyHistory: []  // Daily study records
         };
 
-        // 전역 변수 선언
+        // 전역 변수 선언 (모달 편집 상태 추적)
         let editingBlockId = null;  // 시간 블록 편집 모드 추적
         let editingScoreId = null;  // 모의고사 점수 편집 모드 추적
+        let editingGoalId = null;   // 학습 목표 편집 모드 추적
 
         // 로컬 스토리지에서 데이터 로드
         function loadData() {
@@ -7188,8 +7189,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 container.appendChild(div);
             });
         }
-
-        let editingGoalId = null;
 
         function addGoal() {
             editingGoalId = null;  // 편집 모드 초기화
