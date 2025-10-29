@@ -2,8 +2,25 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.1.3
+    Version: 3.1.4
     Last Updated: 2025-10-29
+
+    Changes in v3.1.4 - Complete Console Error Cleanup:
+    - FIXED: renderSubjectTimeChart console warning
+      * Removed console.warn message when chart container doesn't exist
+      * Function silently returns if element is not found
+    - FIXED: renderMockScoreChart console warning
+      * Removed console.warn message when chart container doesn't exist
+      * Function silently returns if element is not found
+    - FIXED: renderMetacognitiveFeedback null reference errors
+      * Added element existence checks at start of function
+      * Early return if 'metacognitive-feedback' or 'motivation-message' elements don't exist
+      * Updated all DOM references to use cached element variables
+      * Fixed error handler to safely check element existence
+    - COMPLETED: All page load console errors resolved
+      * No more warnings about missing chart elements
+      * No more null reference errors when updating deleted analytics section elements
+      * Clean console output on page load
 
     Changes in v3.1.3 - Console Errors Fixed & Time Entry UI Improved:
     - FIXED: renderAnalytics null reference error
@@ -6046,10 +6063,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
          */
         function renderLearningCurveAnalysis(totalCompleted, totalProblems, totalHours, actualStudyDays) {
             try {
+                // Check if required elements exist (they are in deleted analytics section)
+                const completionDateDisplay = document.getElementById('completion-date-display');
+                const daysRemainingDisplay = document.getElementById('days-remaining-display');
+                const learningPaceDisplay = document.getElementById('learning-pace-display');
+
+                // If elements don't exist, skip this function (analytics section was deleted)
+                if (!completionDateDisplay || !daysRemainingDisplay || !learningPaceDisplay) {
+                    return;
+                }
+
                 if (totalProblems === 0) {
-                    document.getElementById('completion-date-display').textContent = '과목 설정 필요';
-                    document.getElementById('days-remaining-display').textContent = '남은 학습일: - 일';
-                    document.getElementById('learning-pace-display').textContent = '학습 속도: - 문제/일';
+                    completionDateDisplay.textContent = '과목 설정 필요';
+                    daysRemainingDisplay.textContent = '남은 학습일: - 일';
+                    learningPaceDisplay.textContent = '학습 속도: - 문제/일';
                     return;
                 }
 
@@ -6096,9 +6123,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     : '-';
 
                 // 4. UI 업데이트
-                document.getElementById('completion-date-display').textContent = completionDateStr;
-                document.getElementById('days-remaining-display').textContent = `남은 학습일: ${daysText} 일`;
-                document.getElementById('learning-pace-display').textContent = `학습 속도: ${paceText} 문제/일`;
+                completionDateDisplay.textContent = completionDateStr;
+                daysRemainingDisplay.textContent = `남은 학습일: ${daysText} 일`;
+                learningPaceDisplay.textContent = `학습 속도: ${paceText} 문제/일`;
 
                 console.log(`✅ 학습 곡선 분석:
                     - 완료된 문제: ${completedProblems}/${totalProblems} (${Math.round((completedProblems/totalProblems)*100)}%)
@@ -6120,9 +6147,18 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
          */
         function renderMetacognitiveFeedback(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays) {
             try {
+                // Check if required elements exist (they are in deleted analytics section)
+                const feedbackElement = document.getElementById('metacognitive-feedback');
+                const motivationElement = document.getElementById('motivation-message');
+
+                // If elements don't exist, skip this function (analytics section was deleted)
+                if (!feedbackElement || !motivationElement) {
+                    return;
+                }
+
                 if (totalProblems === 0) {
-                    document.getElementById('metacognitive-feedback').textContent = '과목을 추가하여 학습을 시작하세요!';
-                    document.getElementById('motivation-message').textContent = '🚀 새로운 여정을 시작해봅시다!';
+                    feedbackElement.textContent = '과목을 추가하여 학습을 시작하세요!';
+                    motivationElement.textContent = '🚀 새로운 여정을 시작해봅시다!';
                     return;
                 }
 
@@ -6182,8 +6218,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const motivationText = `${motivationEmoji} ${motivationMessage}`;
 
                 // 7. UI 업데이트
-                document.getElementById('metacognitive-feedback').textContent = finalFeedback;
-                document.getElementById('motivation-message').textContent = motivationText;
+                feedbackElement.textContent = finalFeedback;
+                motivationElement.textContent = motivationText;
 
                 console.log(`✅ 메타인지 피드백 생성:
                     - 진행도: ${overallProgress}%
@@ -6192,7 +6228,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     - 일일속도: ${problemsPerDay.toFixed(1)}문제/일`);
             } catch (error) {
                 console.error('❌ renderMetacognitiveFeedback 에러:', error);
-                document.getElementById('metacognitive-feedback').textContent = '피드백을 생성할 수 없습니다.';
+                if (feedbackElement) {
+                    feedbackElement.textContent = '피드백을 생성할 수 없습니다.';
+                }
             }
         }
 
@@ -6680,7 +6718,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         function renderSubjectTimeChart() {
             const container = document.getElementById('subject-time-chart');
             if (!container) {
-                console.warn('⚠️ subject-time-chart 요소가 없습니다. 건너뜀.');
                 return;
             }
             container.innerHTML = '';
@@ -6772,7 +6809,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         function renderMockScoreChart() {
             const container = document.getElementById('mock-score-chart');
             if (!container) {
-                console.warn('⚠️ mock-score-chart 요소가 없습니다. 건너뜀.');
                 return;
             }
             container.innerHTML = '';
