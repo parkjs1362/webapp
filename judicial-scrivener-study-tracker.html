@@ -2,8 +2,22 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.1.4
+    Version: 3.1.5
     Last Updated: 2025-10-29
+
+    Changes in v3.1.5 - Core Metrics Removal & Pomodoro Sync:
+    - REMOVED: Core metrics section (🎯 핵심 메트릭)
+      * Deleted glassmorphism core metrics display from dashboard
+      * Removed renderCoreMetrics function call from analytics
+      * Cleaner dashboard interface without redundant metrics
+    - FIXED: Pomodoro timer sync with study time
+      * When pomodoro work session completes, automatically adds 25 minutes to study time
+      * Study time display updates immediately after pomodoro completion
+      * Dashboard analytics refresh to reflect new study time
+      * Toast notification confirms time has been added to study tracker
+    - IMPROVED: User experience
+      * Pomodoro timer now contributes directly to total study time
+      * Better visual feedback when pomodoro work sessions complete
 
     Changes in v3.1.4 - Complete Console Error Cleanup:
     - FIXED: renderSubjectTimeChart console warning
@@ -4092,29 +4106,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <h2 class="card-title">📊 학습 분석 대시보드</h2>
             </div>
 
-            <!-- 🎯 핵심 메트릭 (Core Metrics) - v3.0.7 -->
-            <div style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: var(--radius-lg); margin: 0 20px 20px 20px;">
-                <h3 style="color: white; margin-bottom: 20px; font-size: 1.2rem;">🎯 핵심 메트릭</h3>
-                <div class="analytics-grid" style="gap: 16px;">
-                    <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.2);">
-                        <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 8px;">전체 진도율</div>
-                        <div id="core-progress" style="color: white; font-size: 2.5rem; font-weight: 700; line-height: 1;">0%</div>
-                        <div id="core-progress-bar" style="width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; margin-top: 12px; overflow: hidden;">
-                            <div id="core-progress-fill" style="height: 100%; background: white; width: 0%; transition: width 0.5s ease;"></div>
-                        </div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.2);">
-                        <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 8px;">예상 완료일</div>
-                        <div id="core-completion-date" style="color: white; font-size: 1.5rem; font-weight: 700; line-height: 1.2;">계산 중...</div>
-                        <div id="core-dday" style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-top: 8px; font-weight: 600;">D-day 계산 중</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.2);">
-                        <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 8px;">학습 효율성 지수</div>
-                        <div id="core-efficiency" style="color: white; font-size: 2.5rem; font-weight: 700; line-height: 1;">-</div>
-                        <div style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 8px;">시간 대비 진도율</div>
-                    </div>
-                </div>
-            </div>
 
             <!-- 🏆 성취 뱃지 시스템 - v3.0.7 -->
             <div id="achievement-badges" style="padding: 0 20px 20px 20px;">
@@ -5290,9 +5281,15 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         if (studyData.pomodoro.mode === 'work') {
                             // Work session completed
                             studyData.pomodoro.completedSessions++;
+
+                            // Sync pomodoro time (25 minutes) with study time
+                            studyData.timer.seconds += 1500; // Add 25 minutes (1500 seconds)
+                            updateTimerDisplay();
+                            renderAnalytics(); // Refresh dashboard analytics
+
                             studyData.pomodoro.mode = 'break';
                             studyData.pomodoro.seconds = 300; // 5 minutes break
-                            showToast('작업 세션 완료! 5분 휴식 시작 🎉');
+                            showToast('작업 세션 완료! 5분 휴식 시작 🎉 | 📚 학습 시간에 25분 추가됨');
                             document.getElementById('pomodoro-mode').textContent = '휴식 시간';
                             document.getElementById('pomodoro-mode').className = 'pomodoro-mode break';
                         } else {
@@ -5988,7 +5985,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 renderMetacognitiveFeedback(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
 
                 // Render v3.0.7+ new features
-                renderCoreMetrics(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
                 renderAchievementBadges(actualStudyDays, totalHours);
 
                 console.log('✅ renderAnalytics 완료');
