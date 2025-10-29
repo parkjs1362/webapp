@@ -2,8 +2,20 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.0.7
-    Last Updated: 2025-10-28
+    Version: 3.0.8
+    Last Updated: 2025-10-29
+
+    Changes in v3.0.8 - Bug Fixes & UI Improvements:
+    - FIXED: Chart rendering element ID mismatches
+      * Added missing container divs with correct IDs (subject-time-chart, mock-score-chart)
+      * Resolved console warnings about missing chart elements
+    - FIXED: Modal functionality for all add/edit operations
+      * Ensured proper global variable declarations (editingBlockId, editingScoreId, editingGoalId)
+      * Fixed add mode to reset editing state properly
+      * Fixed edit mode to use correct variable names and field mappings
+    - IMPROVED: Dashboard data visualization
+      * Charts now render correctly in their designated containers
+      * Removed unused canvas elements that conflicted with bar chart rendering
 
     Changes in v3.0.7 - UI/UX Enhancement & Cognitive Load Reduction:
     - ADDED: Core metrics dashboard (3 key indicators only)
@@ -4200,8 +4212,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                                 </button>
                             </div>
                         </div>
-                        <div class="chart-canvas-container small">
-                            <canvas id="subjectTimeChart" role="img" aria-label="과목별 학습 시간 분포 차트"></canvas>
+                        <div id="subject-time-chart" class="bar-chart-container">
+                            <!-- 동적으로 생성됩니다 -->
                         </div>
                     </div>
 
@@ -4234,8 +4246,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                                 </button>
                             </div>
                         </div>
-                        <div class="chart-canvas-container">
-                            <canvas id="mockScoreChart" role="img" aria-label="모의고사 점수 추이 차트"></canvas>
+                        <div id="mock-score-chart" class="bar-chart-container">
+                            <!-- 동적으로 생성됩니다 -->
                         </div>
                     </div>
 
