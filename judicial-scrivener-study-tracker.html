@@ -2,8 +2,28 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.1.2
+    Version: 3.1.3
     Last Updated: 2025-10-29
+
+    Changes in v3.1.3 - Console Errors Fixed & Time Entry UI Improved:
+    - FIXED: renderAnalytics null reference error
+      * Removed references to deleted HTML elements (total-study-hours, avg-daily-hours, etc.)
+      * Removed updateBenchmarkProgress call that referenced non-existent elements
+      * Simplified function to only render actual dashboard components
+    - FIXED: jumpToSection console errors
+      * Removed onclick="jumpToSection(...)" from sticky progress bar metrics
+      * No longer trying to navigate to non-existent sections
+      * Sticky progress bar is now display-only (no navigation)
+    - IMPROVED: Time entry UI for study plan
+      * Changed from text input "06:00-08:00" to structured time inputs
+      * Added separate "시작 시간" (start time) input with type="time"
+      * Added separate "끝 시간" (end time) input with type="time"
+      * Automatic calculation of study hours from time difference
+      * Better validation with error messages for time ranges
+    - IMPROVED: User experience
+      * Time input is now more intuitive with native time picker
+      * Study hours are automatically calculated (no manual entry needed)
+      * Cleaner console output without error messages
 
     Changes in v3.1.2 - Dashboard Tab System Removal:
     - REMOVED: Dashboard navigation tabs
@@ -3988,7 +4008,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         <!-- v3.0.0 STICKY PROGRESS BAR (항상 보이는 진도 표시) -->
         <div class="sticky-progress-bar" id="stickyProgressBar">
-            <div class="progress-metric" onclick="jumpToSection('analytics')">
+            <div class="progress-metric">
                 <span class="metric-icon">📊</span>
                 <div class="metric-info">
                     <span class="metric-label">전체 진도</span>
@@ -3996,7 +4016,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
             </div>
 
-            <div class="progress-metric" onclick="jumpToSection('streak')">
+            <div class="progress-metric">
                 <span class="metric-icon">🔥</span>
                 <div class="metric-info">
                     <span class="metric-label">연속 학습</span>
@@ -4004,7 +4024,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
             </div>
 
-            <div class="progress-metric" onclick="jumpToSection('timeblocks')">
+            <div class="progress-metric">
                 <span class="metric-icon">✅</span>
                 <div class="metric-info">
                     <span class="metric-label">오늘 완료</span>
@@ -4012,7 +4032,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
             </div>
 
-            <div class="progress-metric" onclick="jumpToSection('hours')">
+            <div class="progress-metric">
                 <span class="metric-icon">⏱️</span>
                 <div class="metric-info">
                     <span class="metric-label">오늘 학습시간</span>
@@ -4272,8 +4292,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">시간대</label>
-                    <input type="text" class="form-input" id="blockTime" placeholder="예: 06:00-08:00">
+                    <label class="form-label">시작 시간</label>
+                    <input type="time" class="form-input" id="blockStartTime">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">끝 시간</label>
+                    <input type="time" class="form-input" id="blockEndTime">
                 </div>
                 <div class="form-group">
                     <label class="form-label">과목</label>
@@ -5005,9 +5029,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         // 시간 블록 추가
         function addTimeBlock() {
             editingBlockId = null;  // 편집 모드 초기화
-            document.getElementById('blockTime').value = '';
+            document.getElementById('blockStartTime').value = '';
+            document.getElementById('blockEndTime').value = '';
             document.getElementById('blockSubject').value = '';
-            document.getElementById('blockHours').value = '2';
             document.getElementById('blockDetail').value = '';
             document.querySelector('#timeBlockModal .modal-title').textContent = '학습 시간 블록 추가';
             document.getElementById('timeBlockModal').classList.add('show');
@@ -5015,16 +5039,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         // 시간 블록 저장
         function saveTimeBlock() {
-            const time = document.getElementById('blockTime').value;
+            const startTime = document.getElementById('blockStartTime').value;
+            const endTime = document.getElementById('blockEndTime').value;
             const subject = document.getElementById('blockSubject').value;
-            const hours = parseFloat(document.getElementById('blockHours').value) || 2;
             const detail = document.getElementById('blockDetail').value;
             // Get today's date in YYYY-MM-DD format for daily tracking
             const today = new Date().toISOString().split('T')[0];
 
             // 검증: 필수 필드 확인
-            if (!time) {
-                showToast('⚠️ 시간대를 입력해주세요 (예: 06:00-08:00)', 'warning');
+            if (!startTime) {
+                showToast('⚠️ 시작 시간을 선택해주세요', 'warning');
+                return;
+            }
+            if (!endTime) {
+                showToast('⚠️ 끝 시간을 선택해주세요', 'warning');
                 return;
             }
             if (!subject) {
@@ -5036,7 +5064,22 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 return;
             }
 
-            if (time && subject && detail) {
+            // 시간 차이 계산 (HH:MM 형식)
+            const [startHour, startMin] = startTime.split(':').map(Number);
+            const [endHour, endMin] = endTime.split(':').map(Number);
+            const startTotalMins = startHour * 60 + startMin;
+            const endTotalMins = endHour * 60 + endMin;
+
+            let diffMins = endTotalMins - startTotalMins;
+            if (diffMins <= 0) {
+                showToast('⚠️ 끝 시간이 시작 시간보다 이후여야 합니다', 'warning');
+                return;
+            }
+
+            const hours = diffMins / 60; // 시간으로 변환
+            const time = `${startTime}-${endTime}`; // "HH:MM-HH:MM" 형식
+
+            if (startTime && endTime && subject && detail) {
                 if (editingBlockId) {
                     // 수정 모드
                     const block = studyData.timeBlocks.find(b => b.id === editingBlockId);
@@ -5067,12 +5110,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 }
                 saveData();
                 renderTimeBlocks();
+                renderAnalytics();
                 closeModal('timeBlockModal');
 
                 // Reset form
-                document.getElementById('blockTime').value = '';
+                document.getElementById('blockStartTime').value = '';
+                document.getElementById('blockEndTime').value = '';
                 document.getElementById('blockDetail').value = '';
-                document.getElementById('blockHours').value = '2';
                 document.querySelector('#timeBlockModal .modal-title').textContent = '학습 시간 블록 추가';
             }
         }
@@ -5100,9 +5144,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         function editTimeBlock(block) {
             if (block) {
                 editingBlockId = block.id;  // 수정할 블록 ID 저장
-                document.getElementById('blockTime').value = block.time;
+                // Parse time format "HH:MM-HH:MM"
+                const [startTime, endTime] = block.time.split('-');
+                document.getElementById('blockStartTime').value = startTime;
+                document.getElementById('blockEndTime').value = endTime;
                 document.getElementById('blockSubject').value = block.subject;
-                document.getElementById('blockHours').value = block.hours || 2;
                 document.getElementById('blockDetail').value = block.detail;
                 document.querySelector('#timeBlockModal .modal-title').textContent = '학습 시간 블록 수정';
                 document.getElementById('timeBlockModal').classList.add('show');
@@ -5875,71 +5921,60 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 // Calculate REAL total study hours from single source of truth
                 let totalHours = 0;
 
-            // FIXED (v2.15.0): Use ONLY completed time blocks as single source of truth
-            // Do NOT add timer (it's already included via block completion)
-            // Do NOT add weeklyHours (deprecated/redundant)
-            studyData.timeBlocks.forEach(block => {
-                if (block.completed) {
-                    totalHours += block.hours || 0;
-                }
-            });
-
-            document.getElementById('total-study-hours').textContent = Math.round(totalHours) + 'h';
-
-            // Calculate actual study days from history (use correct date field, not time)
-            const uniqueStudyDays = new Set();
-            studyData.timeBlocks.forEach(block => {
-                if (block.completed && block.date) {
-                    // Use the actual date field, not the time slot
-                    uniqueStudyDays.add(block.date);
-                }
-            });
-
-            if (studyData.studyHistory && studyData.studyHistory.length > 0) {
-                studyData.studyHistory.forEach(day => {
-                    uniqueStudyDays.add(day.date);
+                // Use ONLY completed time blocks as single source of truth
+                studyData.timeBlocks.forEach(block => {
+                    if (block.completed) {
+                        totalHours += block.hours || 0;
+                    }
                 });
-            }
 
-            const actualStudyDays = Math.max(uniqueStudyDays.size, studyData.streak.totalDays || 1, 1);
-            const avgHours = totalHours / actualStudyDays;
-            document.getElementById('avg-daily-hours').textContent = avgHours.toFixed(1) + 'h';
+                // Calculate actual study days from history (use correct date field, not time)
+                const uniqueStudyDays = new Set();
+                studyData.timeBlocks.forEach(block => {
+                    if (block.completed && block.date) {
+                        uniqueStudyDays.add(block.date);
+                    }
+                });
 
-            // Calculate overall progress from BOTH 1st and 2nd exam subjects
-            let totalCompleted = 0;
-            let totalProblems = 0;
+                if (studyData.studyHistory && studyData.studyHistory.length > 0) {
+                    studyData.studyHistory.forEach(day => {
+                        uniqueStudyDays.add(day.date);
+                    });
+                }
 
-            studyData.subjects.forEach(s => {
-                totalCompleted += s.completed;
-                totalProblems += s.total;
-            });
+                const actualStudyDays = Math.max(uniqueStudyDays.size, studyData.streak.totalDays || 1, 1);
+                const avgHours = totalHours / actualStudyDays;
 
-            const overallProgress = totalProblems > 0 ? Math.round((totalCompleted / totalProblems) * 100) : 0;
-            document.getElementById('overall-progress').textContent = overallProgress + '%';
+                // Calculate overall progress from BOTH 1st and 2nd exam subjects
+                let totalCompleted = 0;
+                let totalProblems = 0;
 
-            // Calculate mock exam average from REAL user data
-            let avgScore = 0;
-            if (studyData.mockScores.length > 0) {
-                avgScore = studyData.mockScores.reduce((sum, s) => sum + s.score, 0) / studyData.mockScores.length;
-                document.getElementById('avg-mock-score').textContent = avgScore.toFixed(1) + '점';
-            } else {
-                document.getElementById('avg-mock-score').textContent = '-';
-            }
+                studyData.subjects.forEach(s => {
+                    totalCompleted += s.completed;
+                    totalProblems += s.total;
+                });
 
-            // Update benchmark progress bars
-            updateBenchmarkProgress(totalHours, avgHours, overallProgress, avgScore);
+                const overallProgress = totalProblems > 0 ? Math.round((totalCompleted / totalProblems) * 100) : 0;
 
-            // Render enhanced charts with real data
-            renderSubjectTimeChart();
-            renderMockScoreChart();
+                // Calculate mock exam average from REAL user data
+                let avgScore = 0;
+                if (studyData.mockScores && studyData.mockScores.length > 0) {
+                    avgScore = studyData.mockScores.reduce((sum, s) => sum + s.score, 0) / studyData.mockScores.length;
+                }
 
-            // Render learning curve analysis and metacognitive feedback
-            renderLearningCurveAnalysis(totalCompleted, totalProblems, totalHours, actualStudyDays);
-            renderMetacognitiveFeedback(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
+                // Render enhanced charts with real data
+                renderSubjectTimeChart();
+                renderMockScoreChart();
 
-            // Render v3.0.7 new features
-            renderCoreMetrics(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
-            renderAchievementBadges(actualStudyDays, totalHours);
+                // Render learning curve analysis and metacognitive feedback
+                renderLearningCurveAnalysis(totalCompleted, totalProblems, totalHours, actualStudyDays);
+                renderMetacognitiveFeedback(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
+
+                // Render v3.0.7+ new features
+                renderCoreMetrics(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
+                renderAchievementBadges(actualStudyDays, totalHours);
+
+                console.log('✅ renderAnalytics 완료');
             } catch (error) {
                 console.error('❌ renderAnalytics 에러:', error);
                 console.error('Stack:', error.stack);
