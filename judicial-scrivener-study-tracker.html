@@ -2,8 +2,29 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.0.9
+    Version: 3.1.0
     Last Updated: 2025-10-29
+
+    Changes in v3.1.0 - Major Dashboard Simplification:
+    - REMOVED: Detailed analytics section
+      * Eliminated detailed statistics grid (총 학습 시간, 일평균, 전체 진도율, 모의고사 평균)
+      * Removed learning curve analysis visualization
+      * Removed metacognitive feedback section
+      * Removed efficiency analysis metrics
+      * Removed data sync status dashboard
+      * Removed data visualization charts from collapsible section
+    - REMOVED: Goals management section
+      * Deleted goal setting card from dashboard
+      * Removed goal modal and all goal management UI
+      * Simplified user interface by eliminating goal tracking features
+    - IMPROVED: Dashboard focus
+      * Cleaner, more minimal interface
+      * Focus on essential learning information
+      * Reduced information overload for better user experience
+    - TECHNICAL: Cleaned up related function calls
+      * Removed renderGoals() calls from initialization
+      * Removed renderDashboardAnalytics() call
+      * Removed renderWeakSubjectsAnalysis() and renderStrongSubjectsAnalysis() calls
 
     Changes in v3.0.9 - Dashboard Cleanup & Chart Enhancement:
     - REMOVED: "오늘의 학습 우선순위 (AI 추천)" section
@@ -4056,233 +4077,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <!-- 동적으로 생성됩니다 -->
             </div>
 
-            <!-- 📈 상세 분석 (Collapsible) -->
-            <div class="card-header collapsible-header" onclick="toggleCollapse('analytics-section')" style="cursor: pointer; padding: 15px 20px; margin: 0; border-top: 1px solid var(--border-color);">
-                <h3 style="font-size: 1rem; color: var(--text-secondary); margin: 0;">📈 상세 분석</h3>
-                <span class="collapse-icon" id="analytics-icon">▼</span>
-            </div>
-            <div class="collapsible-content" id="analytics-section">
-                <!-- Basic Statistics Grid -->
-                <div class="analytics-grid">
-                    <div class="analytics-stat">
-                        <div class="analytics-label">총 학습 시간</div>
-                        <div class="analytics-value" id="total-study-hours">0h</div>
-                        <div class="analytics-benchmark">
-                            <div class="benchmark-label">합격자 평균: 800-1200h</div>
-                            <div class="benchmark-bar">
-                                <div class="benchmark-fill" id="total-hours-progress"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="analytics-stat">
-                        <div class="analytics-label">일평균 학습</div>
-                        <div class="analytics-value" id="avg-daily-hours">0h</div>
-                        <div class="analytics-benchmark">
-                            <div class="benchmark-label">합격자 평균: 4-5h/day</div>
-                            <div class="benchmark-bar">
-                                <div class="benchmark-fill" id="daily-hours-progress"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="analytics-stat">
-                        <div class="analytics-label">전체 진도율</div>
-                        <div class="analytics-value" id="overall-progress">0%</div>
-                        <div class="analytics-benchmark">
-                            <div class="benchmark-label">목표: 100%</div>
-                            <div class="benchmark-bar">
-                                <div class="benchmark-fill" id="progress-bar"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="analytics-stat">
-                        <div class="analytics-label">모의고사 평균</div>
-                        <div class="analytics-value" id="avg-mock-score">0점</div>
-                        <div class="analytics-benchmark">
-                            <div class="benchmark-label">합격선: 60점</div>
-                            <div class="benchmark-bar">
-                                <div class="benchmark-fill" id="mock-score-progress"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 학습 곡선 분석 & 메타인지 피드백 섹션 -->
-                <div class="analytics-grid" style="margin-top: 24px;">
-                    <!-- 학습 곡선 분석 (예상 완료일) -->
-                    <div class="analytics-stat" style="grid-column: span 2; background: linear-gradient(135deg, var(--accent-light), var(--accent-color)); color: white; border-radius: var(--radius-lg);">
-                        <div class="analytics-label" style="color: rgba(255,255,255,0.9);">📈 학습 곡선 분석</div>
-                        <div style="margin-top: 12px;">
-                            <div style="font-size: 0.95rem; margin-bottom: 8px; opacity: 0.95;">예상 완료일</div>
-                            <div id="completion-date-display" style="font-size: 1.8rem; font-weight: 700; margin-bottom: 12px;">계산 중...</div>
-                            <div style="font-size: 0.85rem; opacity: 0.9;">
-                                <div id="days-remaining-display">남은 학습일: - 일</div>
-                                <div id="learning-pace-display" style="margin-top: 6px;">학습 속도: - 문제/일</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 메타인지 피드백 -->
-                    <div class="analytics-stat" style="grid-column: span 2; background: linear-gradient(135deg, var(--success-color), #34D399); color: white; border-radius: var(--radius-lg);">
-                        <div class="analytics-label" style="color: rgba(255,255,255,0.9);">🎯 맞춤형 학습 피드백</div>
-                        <div style="margin-top: 12px;">
-                            <div id="metacognitive-feedback" style="font-size: 0.95rem; line-height: 1.6; opacity: 0.95;">
-                                데이터를 분석 중입니다...
-                            </div>
-                            <div id="motivation-message" style="margin-top: 12px; font-size: 0.9rem; font-weight: 600; padding: 8px 12px; background: rgba(255,255,255,0.2); border-radius: var(--radius-md);">
-                                💪 계속 화이팅하세요!
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 대시보드 추가 기능: 효율성 & 약점 분석 -->
-                <div class="analytics-grid" style="margin-top: 32px;">
-                    <!-- 학습 효율성 지수 -->
-                    <div class="analytics-stat">
-                        <div class="analytics-label">학습 효율성</div>
-                        <div class="analytics-value" id="efficiency-score">-</div>
-                        <div class="analytics-benchmark">
-                            <div class="benchmark-label">시간 대비 진도율</div>
-                            <div class="benchmark-bar">
-                                <div class="benchmark-fill" id="efficiency-progress" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 주간 학습 일수 -->
-                    <div class="analytics-stat">
-                        <div class="analytics-label">주간 학습일</div>
-                        <div class="analytics-value" id="weekly-study-days">-</div>
-                        <div class="analytics-benchmark">
-                            <div class="benchmark-label">목표: 7일/주</div>
-                            <div class="benchmark-bar">
-                                <div class="benchmark-fill" id="weekly-days-progress" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 취약 과목 수 -->
-                    <div class="analytics-stat">
-                        <div class="analytics-label">취약 과목</div>
-                        <div class="analytics-value" id="weak-subjects-count">-</div>
-                        <div class="analytics-benchmark">
-                            <div class="benchmark-label" style="color: var(--danger); font-weight: 600;">진도율 50% 미만</div>
-                            <div id="weak-subjects-list" style="font-size: 0.85rem; margin-top: 8px; color: var(--text-secondary);"></div>
-                        </div>
-                    </div>
-
-                    <!-- 강점 과목 -->
-                    <div class="analytics-stat">
-                        <div class="analytics-label">강점 과목</div>
-                        <div class="analytics-value" id="strong-subjects-count">-</div>
-                        <div class="analytics-benchmark">
-                            <div class="benchmark-label" style="color: var(--success-color); font-weight: 600;">진도율 80% 이상</div>
-                            <div id="strong-subjects-list" style="font-size: 0.85rem; margin-top: 8px; color: var(--text-secondary);"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Data Sync Status Dashboard -->
-                <div class="sync-status-grid" style="margin-top: 32px;">
-                    <div class="sync-status-card">
-                        <div class="sync-status-header">
-                            <div class="sync-status-icon success" id="sync-icon">
-                                ✓
-                            </div>
-                            <div class="sync-status-title">동기화 상태</div>
-                        </div>
-                        <div class="sync-status-value" id="sync-status-text">정상</div>
-                        <div class="sync-status-timestamp" id="last-sync-time">
-                            마지막 업데이트: 방금 전
-                        </div>
-                    </div>
-
-                    <div class="sync-status-card">
-                        <div class="sync-status-header">
-                            <div class="sync-status-icon success">
-                                📊
-                            </div>
-                            <div class="sync-status-title">동기화 성공률</div>
-                        </div>
-                        <div class="sync-status-value" id="sync-success-rate">100%</div>
-                        <div class="sync-status-timestamp">
-                            총 <span id="total-syncs">0</span>회 동기화
-                        </div>
-                    </div>
-
-                    <div class="sync-status-card">
-                        <div class="sync-status-header">
-                            <div class="sync-status-icon success">
-                                💾
-                            </div>
-                            <div class="sync-status-title">데이터 상태</div>
-                        </div>
-                        <div class="sync-status-value" id="data-status">안정적</div>
-                        <div class="sync-status-timestamp" id="data-size">
-                            저장된 데이터: <span>계산 중...</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Data Visualization Container -->
-                <div class="data-viz-container" style="margin-top: 32px;">
-
-                    <!-- Subject Study Time Distribution Chart (Doughnut) -->
-                    <div class="chart-wrapper">
-                        <div class="chart-header">
-                            <h3 class="chart-title">📈 과목별 학습 시간 분포</h3>
-                            <div class="chart-actions">
-                                <button class="chart-btn" onclick="exportChart('subjectTimeChart')">
-                                    📷 저장
-                                </button>
-                            </div>
-                        </div>
-                        <div id="subject-time-chart" class="bar-chart-container">
-                            <!-- 동적으로 생성됩니다 -->
-                        </div>
-                    </div>
-
-                    <!-- Mock Exam Score Trend Chart (Line) -->
-                    <div class="chart-wrapper">
-                        <div class="chart-header">
-                            <h3 class="chart-title">📝 모의고사 점수 추이</h3>
-                            <div class="chart-actions date-range-selector">
-                                <button class="chart-btn active" onclick="setScoreDateRange('all')" id="score-range-all">
-                                    전체
-                                </button>
-                                <button class="chart-btn" onclick="setScoreDateRange('month')" id="score-range-month">
-                                    1개월
-                                </button>
-                                <button class="chart-btn" onclick="setScoreDateRange('week')" id="score-range-week">
-                                    1주일
-                                </button>
-                                <button class="chart-btn" onclick="exportChart('mockScoreChart')">
-                                    📷 저장
-                                </button>
-                            </div>
-                        </div>
-                        <div id="mock-score-chart" class="bar-chart-container">
-                            <!-- 동적으로 생성됩니다 -->
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- 목표 설정 -->
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">🎯 학습 목표</h2>
-                <div class="card-actions">
-                    <button class="action-btn" onclick="addGoal()" aria-label="목표 추가">➕</button>
-                </div>
-            </div>
-            <div id="goals-container">
-                <!-- 동적으로 생성됩니다 -->
-            </div>
-        </div>
-
         <!-- 대시보드 그리드 -->
         <div class="dashboard-grid">
             <!-- 오늘의 학습 계획 -->
@@ -4523,33 +4317,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             <div class="modal-footer">
                 <button class="modal-btn cancel" onclick="closeModal('timeBlockModal')">취소</button>
                 <button class="modal-btn save" onclick="saveTimeBlock()">저장</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="goalModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">학습 목표 추가</h3>
-                <button class="modal-close" aria-label="닫기" onclick="closeModal('goalModal')">✕</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">목표 내용</label>
-                    <input type="text" class="form-input" id="goalTitle" placeholder="예: 민법 3회독 완료">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">목표 날짜</label>
-                    <input type="date" class="form-input" id="goalDate">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">현재 진도 (%)</label>
-                    <input type="number" min="0" max="100" class="form-input" id="goalProgress" placeholder="0-100" value="0">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('goalModal')">취소</button>
-                <button class="modal-btn save" onclick="saveGoal()">저장</button>
             </div>
         </div>
     </div>
@@ -4927,7 +4694,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             loadTodayNotes();
             rotateMotivation();
             renderAnalytics();
-            renderGoals();
             updateSyncStatus(); // Update data size display on initial load
 
             // 시험 타입 및 모드 설정
@@ -5822,8 +5588,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 editingScoreId = null;
             } else if (modalId === 'timeBlockModal') {
                 editingBlockId = null;
-            } else if (modalId === 'goalModal') {
-                editingGoalId = null;
             }
         }
 
@@ -6175,11 +5939,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             // Render learning curve analysis and metacognitive feedback
             renderLearningCurveAnalysis(totalCompleted, totalProblems, totalHours, actualStudyDays);
             renderMetacognitiveFeedback(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
-
-            // Render enhanced dashboard features
-            renderDashboardAnalytics(totalHours, overallProgress, actualStudyDays);
-            renderWeakSubjectsAnalysis();
-            renderStrongSubjectsAnalysis();
 
             // Render v3.0.7 new features
             renderCoreMetrics(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
