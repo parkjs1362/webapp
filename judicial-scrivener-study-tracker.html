@@ -2,8 +2,25 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.1.1
+    Version: 3.1.2
     Last Updated: 2025-10-29
+
+    Changes in v3.1.2 - Dashboard Tab System Removal:
+    - REMOVED: Dashboard navigation tabs
+      * Deleted 📋 개요, 📅 계획, 📈 추적, 📊 분석 tabs
+      * Removed tab navigation UI completely
+      * Simplified dashboard layout by eliminating tab switching
+    - REMOVED: Today's notes section
+      * Deleted 📝 오늘의 학습 노트 card entirely
+    - FIXED: Console warnings for missing sections
+      * Removed sectionMap from switchTab function
+      * Removed sectionToTabMap from jumpToSection function
+      * Simplified jumpToSection to only scroll to element
+      * Fixed warning messages (warn → error for missing sections)
+    - IMPROVED: Error handling
+      * jumpToSection now only handles scrolling (tabs removed)
+      * Better error reporting when elements not found
+      * Cleaner console output without tab-related messages
 
     Changes in v3.1.1 - Timer UI Consolidation:
     - MERGED: Combined study time and pomodoro timer cards into single unified card
@@ -4005,25 +4022,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         </div>
 
         <!-- v3.0.0 DASHBOARD TAB NAVIGATION -->
-        <div class="dashboard-tabs">
-            <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">
-                <span class="tab-icon">📋</span>
-                <span class="tab-label">개요</span>
-            </button>
-            <button class="tab-btn" data-tab="planning" onclick="switchTab('planning')">
-                <span class="tab-icon">📅</span>
-                <span class="tab-label">계획</span>
-            </button>
-            <button class="tab-btn" data-tab="tracking" onclick="switchTab('tracking')">
-                <span class="tab-icon">📈</span>
-                <span class="tab-label">추적</span>
-            </button>
-            <button class="tab-btn" data-tab="analytics" onclick="switchTab('analytics')">
-                <span class="tab-icon">📊</span>
-                <span class="tab-label">분석</span>
-            </button>
-        </div>
-
         <!-- 학습 스트릭 & 추천 (최상단 강조) -->
         <div class="dashboard-grid">
             <!-- 학습 스트릭 트래커 -->
@@ -7554,64 +7552,15 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         // 탭 전환 함수 - 해당 섹션으로 스크롤
         function switchTab(tabName) {
-            console.log(`🔄 탭 전환: ${tabName}`);
-
-            // 모든 탭 버튼의 active 클래스 제거
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // 클릭한 탭 버튼에 active 클래스 추가
-            const tabBtn = document.querySelector(`[data-tab="${tabName}"]`);
-            if (tabBtn) {
-                tabBtn.classList.add('active');
-                console.log(`✅ 탭 버튼 활성화: ${tabName}`);
-            }
-
-            // 각 탭별 섹션 ID 매핑
-            const sectionMap = {
-                'overview': 'rotation-tracker',      // 개요 → 회독 추적기
-                'planning': 'time-blocks-container', // 계획 → 시간 블록
-                'tracking': 'weekly-stats',          // 추적 → 주간 통계
-                'analytics': 'analytics-section'     // 분석 → 분석 섹션
-            };
-
-            // 해당 섹션으로 스크롤 (섹션만 - 탭 버튼 스크롤 제거)
-            const sectionId = sectionMap[tabName];
-            if (sectionId) {
-                const element = document.getElementById(sectionId);
-                if (element) {
-                    console.log(`✅ 섹션으로 스크롤: ${sectionId}`);
-                    setTimeout(() => {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
-                } else {
-                    console.warn(`⚠️ 섹션을 찾을 수 없음: ${sectionId}`);
-                }
-            }
+            // Tab functionality removed - tabs deleted from dashboard
+            console.log(`ℹ️ switchTab 함수는 더 이상 사용되지 않습니다 (탭이 삭제됨)`);
         }
 
-        // 섹션으로 점프하는 함수 (고정된 섹션 ID 매핑)
+        // 섹션으로 점프하는 함수 (스크롤만 수행)
         function jumpToSection(sectionId) {
-            // 섹션 ID와 탭 매핑 (실제 HTML 요소 ID)
-            const sectionToTabMap = {
-                'rotation-tracker': 'overview',
-                'time-blocks-container': 'planning',
-                'weekly-stats': 'tracking',
-                'analytics-section': 'analytics'
-            };
-
             const element = document.getElementById(sectionId);
             if (element) {
-                // 먼저 적절한 탭으로 전환
-                const correspondingTab = sectionToTabMap[sectionId];
-                if (correspondingTab) {
-                    switchTab(correspondingTab);
-                    console.log(`✅ jumpToSection: ${sectionId} → switchTab('${correspondingTab}')`);
-                } else {
-                    console.warn(`⚠️ 섹션 ID를 탭과 매핑할 수 없음: ${sectionId}`);
-                }
-
+                console.log(`✅ 섹션으로 점프: ${sectionId}`);
                 // 요소로 스크롤 및 강조 효과
                 setTimeout(() => {
                     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -7625,7 +7574,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     }, 500);
                 }, 100);
             } else {
-                console.warn(`⚠️ 찾을 수 없는 섹션 ID: ${sectionId}`);
+                console.error(`❌ 찾을 수 없는 섹션 ID: ${sectionId}`);
             }
         }
 
