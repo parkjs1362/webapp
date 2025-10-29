@@ -5227,6 +5227,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         // 시간 블록 추가
         function addTimeBlock() {
+            editingBlockId = null;  // 편집 모드 초기화
+            document.getElementById('blockTime').value = '';
+            document.getElementById('blockSubject').value = '';
+            document.getElementById('blockHours').value = '2';
+            document.getElementById('blockDetail').value = '';
+            document.querySelector('#timeBlockModal .modal-title').textContent = '학습 시간 블록 추가';
             document.getElementById('timeBlockModal').classList.add('show');
         }
         
@@ -5316,7 +5322,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         function editTimeBlock(block) {
             if (block) {
-                editingBlock = block;
+                editingBlockId = block.id;  // 수정할 블록 ID 저장
                 document.getElementById('blockTime').value = block.time;
                 document.getElementById('blockSubject').value = block.subject;
                 document.getElementById('blockHours').value = block.hours || 2;
@@ -5710,9 +5716,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         // 점수 모달 표시
         function showScoreModal() {
+            editingScoreId = null;  // 편집 모드 초기화
             document.getElementById('scoreDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('scoreValue').value = '';
             document.getElementById('scoreMemo').value = '';
+            document.querySelector('#scoreModal .modal-title').textContent = '모의고사 점수 추가';
             document.getElementById('scoreModal').classList.add('show');
         }
         
@@ -5799,6 +5807,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 editingScoreId = null;
             } else if (modalId === 'timeBlockModal') {
                 editingBlockId = null;
+            } else if (modalId === 'goalModal') {
+                editingGoalId = null;
             }
         }
 
@@ -7182,9 +7192,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         let editingGoalId = null;
 
         function addGoal() {
+            editingGoalId = null;  // 편집 모드 초기화
             document.getElementById('goalTitle').value = '';
             document.getElementById('goalDate').value = '';
             document.getElementById('goalProgress').value = '0';
+            document.querySelector('#goalModal .modal-title').textContent = '학습 목표 추가';
             document.getElementById('goalModal').classList.add('show');
         }
 
@@ -7237,7 +7249,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             if (goal) {
                 editingGoalId = id;
                 document.getElementById('goalTitle').value = goal.title;
-                document.getElementById('goalDate').value = goal.deadline;
+                document.getElementById('goalDate').value = goal.date;  // deadline → date
                 document.getElementById('goalProgress').value = goal.progress;
                 document.querySelector('#goalModal .modal-title').textContent = '학습 목표 수정';
                 document.getElementById('goalModal').classList.add('show');
