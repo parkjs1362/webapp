@@ -2,8 +2,32 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.2.1
-    Last Updated: 2025-10-29
+    Version: 3.3.0
+    Last Updated: 2025-10-30
+
+    Changes in v3.3.0 - Pomodoro Enhancement & UI Improvements:
+    - ADDED: Pomodoro timer duration configuration
+      * Users can now customize work time (1-120 minutes, default: 25)
+      * Users can now customize break time (1-30 minutes, default: 5)
+      * Settings modal with clear guidance and validation
+      * Timer automatically uses configured durations
+      * Settings persist across sessions
+    - FIXED: Weekly stats display now shows actual study hours
+      * Automatically calculates from studyHistory instead of manual entry
+      * Displays real-time study hours for each day of the week
+      * Removed manual editing feature (auto-calculation only)
+      * Shows hours with decimal precision (e.g., 2.5h)
+    - REMOVED: Achievement badges section
+      * Deleted HTML container (achievement-badges)
+      * Removed renderAchievementBadges function
+      * Removed function calls from analytics
+      * Cleaner dashboard with reduced visual clutter
+    - IMPROVED: Dark mode text visibility for exam type tabs
+      * Unselected exam type buttons now have better contrast
+      * Light text color (70% opacity) for inactive buttons
+      * Hover state with 90% opacity
+      * Active state maintains full visibility
+      * Better UX when switching between 1차/2차 exams
 
     Changes in v3.2.1 - Cleanup of v3.0.0 Legacy Code:
     - REMOVED: v3.0.0 module loading warnings
@@ -3742,6 +3766,22 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             color: white;
         }
 
+        /* Dark mode: Exam type buttons (1차/2차) */
+        body.dark-mode .mode-btn {
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        body.dark-mode .mode-btn:hover {
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .mode-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
         body.dark-mode .progress-bar-track {
             background: rgba(255, 255, 255, 0.1);
         }
@@ -4145,11 +4185,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             </div>
 
 
-            <!-- 🏆 성취 뱃지 시스템 - v3.0.7 -->
-            <div id="achievement-badges" style="padding: 0 20px 20px 20px;">
-                <!-- 동적으로 생성됩니다 -->
-            </div>
-
         <!-- 대시보드 그리드 -->
         <div class="dashboard-grid">
             <!-- 오늘의 학습 계획 -->
@@ -4220,6 +4255,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                             <button class="timer-btn start" id="pomodoro-start" onclick="startPomodoro()">시작</button>
                             <button class="timer-btn pause" id="pomodoro-pause" onclick="pausePomodoro()" style="display:none;">일시정지</button>
                             <button class="timer-btn reset" onclick="resetPomodoro()">리셋</button>
+                            <button class="timer-btn" onclick="showPomodoroSettings()" style="background: #6c757d;">⚙️ 시간 설정</button>
                         </div>
                     </div>
                 </div>
@@ -4453,6 +4489,32 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         </div>
     </div>
 
+    <!-- 포모도로 타이머 설정 모달 -->
+    <div id="pomodoroSettingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">⚙️ 포모도로 타이머 설정</h3>
+                <button class="modal-close" aria-label="닫기" onclick="closeModal('pomodoroSettingsModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">작업 시간 (분)</label>
+                    <input type="number" class="form-input" id="pomodoroWorkMinutes" min="1" max="120" step="1" value="25">
+                    <small style="color: #6c757d; font-size: 0.85rem; display: block; margin-top: 5px;">권장: 25분 (기본 포모도로)</small>
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label class="form-label">휴식 시간 (분)</label>
+                    <input type="number" class="form-input" id="pomodoroBreakMinutes" min="1" max="30" step="1" value="5">
+                    <small style="color: #6c757d; font-size: 0.85rem; display: block; margin-top: 5px;">권장: 5분</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeModal('pomodoroSettingsModal')">취소</button>
+                <button class="modal-btn save" onclick="savePomodoroSettings()">저장</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 확인 모달 (confirm 대체) -->
     <div id="confirmModal" class="modal confirm-modal">
         <div class="modal-content">
@@ -4540,7 +4602,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 interval: null
             },
             pomodoro: {
-                seconds: 1500, // 25 minutes
+                workMinutes: 25, // Configurable work time
+                breakMinutes: 5, // Configurable break time
+                seconds: 1500, // 25 minutes (will be updated based on workMinutes)
                 isRunning: false,
                 interval: null,
                 mode: 'work', // 'work' or 'break'
@@ -5335,20 +5399,21 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                             // Work session completed
                             studyData.pomodoro.completedSessions++;
 
-                            // Sync pomodoro time (25 minutes) with study time
-                            studyData.timer.seconds += 1500; // Add 25 minutes (1500 seconds)
+                            // Sync pomodoro time (configurable work minutes) with study time
+                            const workSeconds = (studyData.pomodoro.workMinutes || 25) * 60;
+                            studyData.timer.seconds += workSeconds;
                             updateTimerDisplay();
                             renderAnalytics(); // Refresh dashboard analytics
 
                             studyData.pomodoro.mode = 'break';
-                            studyData.pomodoro.seconds = 300; // 5 minutes break
-                            showToast('작업 세션 완료! 5분 휴식 시작 🎉 | 📚 학습 시간에 25분 추가됨');
+                            studyData.pomodoro.seconds = (studyData.pomodoro.breakMinutes || 5) * 60;
+                            showToast(`작업 세션 완료! ${studyData.pomodoro.breakMinutes}분 휴식 시작 🎉 | 📚 학습 시간에 ${studyData.pomodoro.workMinutes}분 추가됨`);
                             document.getElementById('pomodoro-mode').textContent = '휴식 시간';
                             document.getElementById('pomodoro-mode').className = 'pomodoro-mode break';
                         } else {
                             // Break completed
                             studyData.pomodoro.mode = 'work';
-                            studyData.pomodoro.seconds = 1500; // 25 minutes work
+                            studyData.pomodoro.seconds = (studyData.pomodoro.workMinutes || 25) * 60;
                             showToast('휴식 완료! 새로운 작업 세션 시작 💪');
                             document.getElementById('pomodoro-mode').textContent = '작업 세션';
                             document.getElementById('pomodoro-mode').className = 'pomodoro-mode work';
@@ -5373,7 +5438,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         function resetPomodoro() {
             showConfirm('포모도로 타이머를 리셋하시겠습니까?', () => {
                 pausePomodoro();
-                studyData.pomodoro.seconds = 1500; // Reset to 25 minutes
+                studyData.pomodoro.seconds = (studyData.pomodoro.workMinutes || 25) * 60; // Reset to configured work minutes
                 studyData.pomodoro.mode = 'work';
                 studyData.pomodoro.completedSessions = 0;
                 updatePomodoroDisplay();
@@ -5390,6 +5455,45 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             const secs = studyData.pomodoro.seconds % 60;
             document.getElementById('pomodoro-timer').textContent =
                 `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function showPomodoroSettings() {
+            // Populate current settings
+            document.getElementById('pomodoroWorkMinutes').value = studyData.pomodoro.workMinutes || 25;
+            document.getElementById('pomodoroBreakMinutes').value = studyData.pomodoro.breakMinutes || 5;
+            document.getElementById('pomodoroSettingsModal').classList.add('show');
+        }
+
+        function savePomodoroSettings() {
+            const workMinutes = parseInt(document.getElementById('pomodoroWorkMinutes').value);
+            const breakMinutes = parseInt(document.getElementById('pomodoroBreakMinutes').value);
+
+            if (!workMinutes || workMinutes < 1 || workMinutes > 120) {
+                showToast('작업 시간은 1-120분 사이로 설정해주세요', 'error');
+                return;
+            }
+
+            if (!breakMinutes || breakMinutes < 1 || breakMinutes > 30) {
+                showToast('휴식 시간은 1-30분 사이로 설정해주세요', 'error');
+                return;
+            }
+
+            studyData.pomodoro.workMinutes = workMinutes;
+            studyData.pomodoro.breakMinutes = breakMinutes;
+
+            // Update seconds if timer is not running
+            if (!studyData.pomodoro.isRunning) {
+                if (studyData.pomodoro.mode === 'work') {
+                    studyData.pomodoro.seconds = workMinutes * 60;
+                } else {
+                    studyData.pomodoro.seconds = breakMinutes * 60;
+                }
+                updatePomodoroDisplay();
+            }
+
+            saveData();
+            closeModal('pomodoroSettingsModal');
+            showToast(`포모도로 타이머 설정이 업데이트되었습니다 (작업: ${workMinutes}분, 휴식: ${breakMinutes}분)`);
         }
 
         function playNotificationSound() {
@@ -5419,54 +5523,44 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         function renderWeeklyStats() {
             const container = document.getElementById('weekly-stats');
             container.innerHTML = '';
-            
+
             const days = ['월', '화', '수', '목', '금', '토', '일'];
-            const today = new Date().getDay();
-            const adjustedToday = today === 0 ? 6 : today - 1;
-            
+            const today = new Date();
+            const adjustedToday = today.getDay() === 0 ? 6 : today.getDay() - 1;
+
+            // Calculate actual study hours from studyHistory for the past 7 days
+            const weeklyHoursCalculated = {};
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - adjustedToday);
+
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + i);
+                const dateString = date.toISOString().split('T')[0];
+                const dayName = days[i];
+
+                // Find study history for this date
+                const historyEntry = studyData.studyHistory?.find(h => h.date === dateString);
+                weeklyHoursCalculated[dayName] = historyEntry ? historyEntry.totalHours : 0;
+            }
+
             days.forEach((day, idx) => {
-                const hours = studyData.weeklyHours[day] || 0;
+                const hours = weeklyHoursCalculated[day] || 0;
                 const isToday = idx === adjustedToday;
                 const isCompleted = hours >= 4;
-                
+
                 const div = document.createElement('div');
                 div.className = `day-stat ${isToday ? 'today' : ''} ${isCompleted ? 'completed' : ''}`;
                 div.innerHTML = `
                     <div class="day-name">${day}</div>
-                    <div class="day-hours">${hours}h</div>
+                    <div class="day-hours">${hours.toFixed(1)}h</div>
                 `;
-                div.onclick = () => updateDayHours(day);
                 container.appendChild(div);
             });
         }
         
-        // 일일 시간 업데이트 - 모달 사용
-        let editingWeekDay = null;
-
-        function updateDayHours(day) {
-            editingWeekDay = day;
-            document.getElementById('weeklyHoursModalTitle').textContent = `${day}요일 학습 시간 수정`;
-            document.getElementById('weeklyHoursInput').value = studyData.weeklyHours[day] || 0;
-            document.getElementById('weeklyHoursModal').classList.add('show');
-        }
-
-        function saveWeeklyHours() {
-            if (!editingWeekDay) return;
-
-            const hours = parseFloat(document.getElementById('weeklyHoursInput').value);
-
-            if (!isNaN(hours) && hours >= 0) {
-                studyData.weeklyHours[editingWeekDay] = hours;
-                saveData();
-                renderWeeklyStats();
-                updateAnalytics();
-                closeModal('weeklyHoursModal');
-                showToast(`${editingWeekDay}요일 학습 시간이 업데이트되었습니다`);
-                editingWeekDay = null;
-            } else {
-                showToast('올바른 시간을 입력해주세요', 'error');
-            }
-        }
+        // Note: Weekly hours are now automatically calculated from studyHistory
+        // Manual editing removed as it should reflect actual completed study blocks
         
         // 과목별 진도 렌더링
         function renderSubjectProgress() {
@@ -6038,7 +6132,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 renderMetacognitiveFeedback(overallProgress, totalCompleted, totalProblems, totalHours, actualStudyDays);
 
                 // Render v3.0.7+ new features
-                renderAchievementBadges(actualStudyDays, totalHours);
+                // Achievement badges removed in v3.3.0
 
                 console.log('✅ renderAnalytics 완료');
             } catch (error) {
@@ -6488,119 +6582,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 });
             } catch (error) {
                 console.error('❌ renderCoreMetrics 에러:', error);
-            }
-        }
-
-        /**
-         * v3.0.7 - 성취 뱃지 시스템
-         * 학습 성과에 따른 뱃지 표시
-         */
-        function renderAchievementBadges(actualStudyDays, totalHours) {
-            try {
-                const badgesContainer = document.getElementById('achievement-badges');
-                if (!badgesContainer) return;
-
-                const badges = [];
-
-                // Calculate weekly study days
-                const today = new Date();
-                const weekStart = new Date(today);
-                weekStart.setDate(today.getDate() - today.getDay());
-
-                const weeklyDates = new Set();
-                studyData.timeBlocks.forEach(block => {
-                    if (block.completed && block.date) {
-                        const blockDate = new Date(block.date);
-                        if (blockDate >= weekStart) {
-                            weeklyDates.add(block.date);
-                        }
-                    }
-                });
-                const weeklyStudyDays = weeklyDates.size;
-
-                // Calculate monthly hours
-                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-                let monthlyHours = 0;
-                studyData.timeBlocks.forEach(block => {
-                    if (block.completed && block.date) {
-                        const blockDate = new Date(block.date);
-                        if (blockDate >= monthStart) {
-                            monthlyHours += block.hours || 0;
-                        }
-                    }
-                });
-
-                // Badge 1: 3일 연속
-                if (studyData.streak.currentStreak >= 3) {
-                    badges.push({
-                        icon: '🔥',
-                        title: '3일 연속',
-                        description: `${studyData.streak.currentStreak}일 연속 학습 중!`,
-                        color: '#FF6B6B'
-                    });
-                }
-
-                // Badge 2: 주간 꾸준함
-                if (weeklyStudyDays >= 5) {
-                    badges.push({
-                        icon: '⭐',
-                        title: '주간 꾸준함',
-                        description: `이번 주 ${weeklyStudyDays}일 학습`,
-                        color: '#4ECDC4'
-                    });
-                }
-
-                // Badge 3: 월간 목표
-                if (monthlyHours >= 80) {
-                    badges.push({
-                        icon: '💎',
-                        title: '월간 목표',
-                        description: `이번 달 ${Math.round(monthlyHours)}시간 달성`,
-                        color: '#95E1D3'
-                    });
-                }
-
-                // Badge 4: 약점 정복
-                const weakSubjects = studyData.subjects.filter(s => {
-                    const progress = (s.completed / s.total) * 100;
-                    return progress >= 50 && progress < 80;
-                });
-                if (weakSubjects.length > 0) {
-                    badges.push({
-                        icon: '🏆',
-                        title: '약점 정복',
-                        description: `${weakSubjects.length}개 과목 50% 돌파!`,
-                        color: '#F38181'
-                    });
-                }
-
-                // Render badges
-                if (badges.length > 0) {
-                    badgesContainer.innerHTML = `
-                        <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 20px;">
-                            <h3 style="margin-bottom: 16px; font-size: 1.1rem; color: #2d3748;">🏆 성취 뱃지</h3>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                                ${badges.map(badge => `
-                                    <div style="background: white; padding: 16px; border-radius: var(--radius-md); border-left: 4px solid ${badge.color}; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="font-size: 2rem;">${badge.icon}</div>
-                                            <div style="flex: 1;">
-                                                <div style="font-weight: 600; color: #2d3748; margin-bottom: 4px;">${badge.title}</div>
-                                                <div style="font-size: 0.85rem; color: #718096;">${badge.description}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    badgesContainer.innerHTML = '';
-                }
-
-                console.log('✅ 성취 뱃지 렌더링 완료:', badges.length + '개');
-            } catch (error) {
-                console.error('❌ renderAchievementBadges 에러:', error);
             }
         }
 
