@@ -2,8 +2,49 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.4.0
+    Version: 3.5.0
     Last Updated: 2025-10-30
+
+    Changes in v3.5.0 - Major UX/UI Enhancement & Visual Design System Upgrade:
+    - ENHANCED: Modern visual design system with improved hierarchy
+      * Redesigned color palette with better contrast and visual impact
+      * Enhanced typography scale for clearer information hierarchy
+      * Improved spacing system for better content breathing room
+      * Refined shadow system for depth perception
+    - REDESIGNED: Study time & Pomodoro section with hero-style prominence
+      * Larger timer displays (4.5rem → 5.5rem) for primary focus
+      * Enhanced visual weight with bold gradients and shadows
+      * Improved quick-time buttons with better interaction feedback
+      * Color-coded session indicators for instant recognition
+    - IMPROVED: Learning streak section with rewarding visuals
+      * Enhanced progress bar with animated gradient effects
+      * Larger streak numbers (3rem → 4rem) for achievement emphasis
+      * Glowing effects on milestone achievements (7, 30, 100 days)
+      * Better stat cards with hover interactions
+    - ENHANCED: Button system with clear state differentiation
+      * Improved hover effects with scale and elevation changes
+      * Active state indicators with color shifts
+      * Better disabled state visibility
+      * Enhanced exam type toggle buttons (1차/2차) with clear selection
+    - OPTIMIZED: Card system with modern depth and interaction
+      * Refined hover effects (subtle lift + shadow enhancement)
+      * Better focus states for accessibility
+      * Improved border radius for modern aesthetic
+      * Enhanced glassmorphism effects on overlays
+    - IMPROVED: Dark mode color harmony
+      * Better contrast ratios for text readability
+      * Refined accent colors for dark backgrounds
+      * Enhanced gradient visibility in dark mode
+      * Improved form element styling
+    - ADDED: Smooth micro-animations throughout
+      * Fade-in effects for cards and sections
+      * Pulse animations for timers and progress indicators
+      * Smooth color transitions on interactions
+      * Reduced motion support maintained
+    - POLISHED: Responsive design refinements
+      * Better mobile spacing and touch targets
+      * Improved tablet layout optimizations
+      * Enhanced small screen readability
 
     Changes in v3.4.0 - Streak Enhancement & Pomodoro Quick Time:
     - ENHANCED: Learning streak section with more details
@@ -711,7 +752,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v3.0.0</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v3.4.0</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -793,12 +834,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             --border-dark: rgba(0, 0, 0, 0.12);
             --border-hover: rgba(0, 0, 0, 0.12);
 
-            /* Shadows - Apple's subtle approach */
-            --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.05);
-            --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.06);
-            --shadow-xl: 0 8px 40px rgba(0, 0, 0, 0.08);
-            --shadow-2xl: 0 12px 60px rgba(0, 0, 0, 0.1);
+            /* Shadows - Enhanced depth perception */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            --shadow-glow: 0 0 20px rgba(0, 113, 227, 0.3);
 
             /* Spacing Scale - Apple uses 12px/16px base */
             --spacing-2xs: 4px;
@@ -906,12 +948,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             --border-dark: rgba(255, 255, 255, 0.16);
             --border-hover: rgba(255, 255, 255, 0.16);
 
-            /* Dark Shadows - Deeper */
-            --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.5);
-            --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.6);
-            --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.7);
-            --shadow-xl: 0 8px 40px rgba(0, 0, 0, 0.8);
-            --shadow-2xl: 0 12px 60px rgba(0, 0, 0, 0.85);
+            /* Dark Shadows - Enhanced with subtle glow */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8), 0 10px 10px -5px rgba(0, 0, 0, 0.6);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+            --shadow-glow: 0 0 20px rgba(41, 151, 255, 0.25);
 
             /* Adjusted Colors for Dark Mode */
             --primary-color: #f5f5f7;
@@ -1041,6 +1084,45 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         [data-theme="dark"] .time-block,
         [data-theme="dark"] .modal-content {
             color: #ffffff;
+        }
+
+        /* Dark Mode Timer Display */
+        [data-theme="dark"] .timer-display {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #409cff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        [data-theme="dark"] .timer-display::before {
+            background: linear-gradient(90deg, var(--accent-color), #409cff);
+        }
+
+        /* Dark Mode Streak Enhancements */
+        [data-theme="dark"] .streak-number {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E72 50%, #FFA07A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        [data-theme="dark"] .streak-stat-item {
+            background: var(--bg-tertiary);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        [data-theme="dark"] .streak-stat-item:hover {
+            border-color: var(--accent-color);
+        }
+
+        /* Dark Mode Progress Bar */
+        [data-theme="dark"] .progress-bar {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        [data-theme="dark"] .progress-fill {
+            background: linear-gradient(90deg, var(--accent-color), #409cff, var(--success-color));
         }
 
         /* Light Mode: Gradient Cards with White Text */
@@ -1254,18 +1336,51 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .mode-btn {
-            padding: 8px 16px;
-            border: none;
-            background: transparent;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-full);
             cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
+            transition: all var(--transition-base) var(--ease-apple);
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .mode-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 113, 227, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .mode-btn:hover::before {
+            left: 100%;
+        }
+
+        .mode-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
         .mode-btn.active {
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
             color: white;
+            border-color: transparent;
+            box-shadow: var(--shadow-lg);
+            transform: scale(1.05);
+        }
+
+        .mode-btn.active:hover {
+            transform: scale(1.05) translateY(-2px);
         }
         
         /* 대시보드 그리드 - Apple/Google style with max-width cards */
@@ -1309,10 +1424,32 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         background-color var(--transition-base) var(--ease-apple);
             position: relative;
             width: 100%;
+            animation: cardFadeIn 0.6s var(--ease-apple) backwards;
         }
 
+        @keyframes cardFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Stagger card animations */
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.15s; }
+        .card:nth-child(4) { animation-delay: 0.2s; }
+        .card:nth-child(5) { animation-delay: 0.25s; }
+        .card:nth-child(6) { animation-delay: 0.3s; }
+        .card:nth-child(7) { animation-delay: 0.35s; }
+        .card:nth-child(8) { animation-delay: 0.4s; }
+
         .card:hover {
-            transform: translateY(-3px) scale(1.01);
+            transform: translateY(-5px);
             box-shadow: var(--shadow-xl);
         }
 
@@ -1539,6 +1676,78 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             color: var(--success);
         }
 
+        /* Pomodoro Quick Time Buttons */
+        .pomodoro-quick-time {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .quick-time-btn {
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(0, 113, 227, 0.08), rgba(0, 122, 255, 0.12));
+            border: 1.5px solid rgba(0, 113, 227, 0.25);
+            color: var(--accent-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all var(--transition-base) var(--ease-apple);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-time-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(0, 113, 227, 0.3), transparent);
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+            border-radius: 50%;
+        }
+
+        .quick-time-btn:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .quick-time-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 113, 227, 0.15), rgba(0, 122, 255, 0.2));
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .quick-time-btn:active {
+            transform: translateY(0) scale(0.97);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .quick-time-hint {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Dark mode quick time buttons */
+        [data-theme="dark"] .quick-time-btn {
+            background: linear-gradient(135deg, rgba(41, 151, 255, 0.12), rgba(64, 156, 255, 0.18));
+            border-color: rgba(41, 151, 255, 0.3);
+            color: var(--accent-color);
+        }
+
+        [data-theme="dark"] .quick-time-btn:hover {
+            background: linear-gradient(135deg, rgba(41, 151, 255, 0.2), rgba(64, 156, 255, 0.3));
+            border-color: var(--accent-color);
+        }
+
         .pomodoro-mode.work {
             color: var(--danger);
         }
@@ -1648,12 +1857,33 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         
         /* 학습 타이머 */
         .timer-display {
-            font-size: 3rem;
-            font-weight: bold;
+            font-size: 5.5rem;
+            font-weight: 700;
             text-align: center;
-            margin: 20px 0;
-            font-family: 'SF Mono', monospace;
-            color: var(--primary-dark);
+            margin: 30px 0;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--info-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            text-shadow: 0 4px 20px rgba(0, 113, 227, 0.2);
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timer-display::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color), var(--info-color));
+            border-radius: 2px;
+            opacity: 0.6;
         }
         
         .timer-controls {
@@ -1663,32 +1893,77 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .timer-btn {
-            padding: 10px 20px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 8px;
-            font-weight: 500;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all var(--transition-base) var(--ease-apple);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
         }
-        
+
+        .timer-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .timer-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
         .timer-btn.start {
-            background: var(--success);
+            background: linear-gradient(135deg, var(--success-color), var(--success-light));
             color: white;
         }
-        
+
+        .timer-btn.start:hover {
+            background: linear-gradient(135deg, var(--success-dark), var(--success-color));
+        }
+
         .timer-btn.pause {
-            background: var(--warning);
+            background: linear-gradient(135deg, var(--warning-color), var(--warning-light));
             color: white;
         }
-        
+
+        .timer-btn.pause:hover {
+            background: linear-gradient(135deg, var(--warning-dark), var(--warning-color));
+        }
+
         .timer-btn.reset {
-            background: var(--danger);
+            background: linear-gradient(135deg, var(--danger-color), var(--danger-light));
             color: white;
         }
-        
+
+        .timer-btn.reset:hover {
+            background: linear-gradient(135deg, var(--danger-dark), var(--danger-color));
+        }
+
         .timer-btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .timer-btn:active {
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .timer-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
         
         /* 주간 학습 통계 */
@@ -1755,16 +2030,25 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .progress-bar {
-            height: 20px;
-            background: var(--bg-light);
-            border-radius: 10px;
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
             overflow: hidden;
             cursor: pointer;
+            border: 1px solid var(--border-color);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: relative;
         }
-        
+
+        .progress-bar:hover {
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), var(--shadow-sm);
+        }
+
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--success));
+            background: linear-gradient(90deg, var(--accent-color), var(--info-color), var(--success-color));
+            background-size: 200% 100%;
+            animation: progressShine 3s ease-in-out infinite;
             border-radius: 10px;
             transition: width 0.5s ease;
             display: flex;
@@ -1862,6 +2146,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+
+        @keyframes progressShine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .modal.show {
@@ -2412,15 +2702,43 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         .streak-number {
-            font-size: 3rem;
-            font-weight: bold;
-            margin: 10px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin: 20px 0;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E72 50%, #FFA07A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            position: relative;
+            animation: streakPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes streakPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .streak-number.milestone {
+            animation: streakGlow 1.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(255, 107, 107, 0.6));
+        }
+
+        @keyframes streakGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(255, 107, 107, 0.6));
+            }
+            50% {
+                filter: drop-shadow(0 0 25px rgba(255, 107, 107, 0.9));
+            }
         }
 
         .streak-label {
-            font-size: 1.1rem;
-            opacity: 0.95;
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 500;
+            color: var(--text-secondary);
         }
 
         .streak-stats {
@@ -2433,16 +2751,35 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         .streak-stat-item {
             text-align: center;
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-base) var(--ease-apple);
+            cursor: default;
+        }
+
+        .streak-stat-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-color);
         }
 
         .streak-stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-color), var(--info-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
         }
 
         .streak-stat-label {
-            font-size: 0.85rem;
-            opacity: 0.9;
+            font-size: 0.9rem;
+            opacity: 0.85;
+            font-weight: 500;
+            color: var(--text-secondary);
         }
 
         /* 분석 대시보드 스타일 - Enhanced Professional Design */
@@ -3297,6 +3634,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 justify-content: flex-end;
             }
 
+            .timer-display {
+                font-size: 3.5rem;
+                margin: 20px 0;
+                padding: 15px 0;
+            }
+
+            .streak-number {
+                font-size: 3rem;
+            }
+
+            .streak-stat-value {
+                font-size: 1.8rem;
+            }
+
             .analytics-grid {
                 grid-template-columns: 1fr;
                 gap: var(--spacing-xs);
@@ -3786,21 +4137,25 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         /* Dark mode: Exam type buttons (1차/2차) */
-        body.dark-mode .mode-btn {
-            color: rgba(255, 255, 255, 0.95);
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+        body.dark-mode .mode-btn,
+        [data-theme="dark"] .mode-btn {
+            color: var(--text-secondary);
+            background: var(--bg-tertiary);
+            border: 2px solid rgba(255, 255, 255, 0.12);
         }
 
-        body.dark-mode .mode-btn:hover {
-            color: rgba(255, 255, 255, 1);
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.25);
+        body.dark-mode .mode-btn:hover,
+        [data-theme="dark"] .mode-btn:hover {
+            color: var(--accent-color);
+            background: rgba(41, 151, 255, 0.1);
+            border-color: var(--accent-color);
         }
 
-        body.dark-mode .mode-btn.active {
-            background: var(--accent);
+        body.dark-mode .mode-btn.active,
+        [data-theme="dark"] .mode-btn.active {
+            background: linear-gradient(135deg, var(--accent-color), #409cff);
             color: white;
+            border-color: transparent;
         }
 
         body.dark-mode .progress-bar-track {
@@ -4111,7 +4466,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.0.0</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.4.0</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -4296,15 +4651,15 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         </div>
 
                         <!-- 빠른 시간 옵션 -->
-                        <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-                            <button onclick="setPomodoroQuickTime(15)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">15분</button>
-                            <button onclick="setPomodoroQuickTime(25)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">25분</button>
-                            <button onclick="setPomodoroQuickTime(45)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">45분</button>
-                            <button onclick="setPomodoroQuickTime(60)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">1시간</button>
-                            <button onclick="setPomodoroQuickTime(90)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">90분</button>
-                            <button onclick="setPomodoroQuickTime(120)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">2시간</button>
+                        <div class="pomodoro-quick-time">
+                            <button onclick="setPomodoroQuickTime(15)" class="quick-time-btn">15분</button>
+                            <button onclick="setPomodoroQuickTime(25)" class="quick-time-btn">25분</button>
+                            <button onclick="setPomodoroQuickTime(45)" class="quick-time-btn">45분</button>
+                            <button onclick="setPomodoroQuickTime(60)" class="quick-time-btn">1시간</button>
+                            <button onclick="setPomodoroQuickTime(90)" class="quick-time-btn">90분</button>
+                            <button onclick="setPomodoroQuickTime(120)" class="quick-time-btn">2시간</button>
                         </div>
-                        <div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary); text-align: center;">
+                        <div class="quick-time-hint">
                             💡 작업 시간 빠른 선택
                         </div>
                     </div>
