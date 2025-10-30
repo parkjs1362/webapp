@@ -2,8 +2,27 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.1.5
+    Version: 3.2.0
     Last Updated: 2025-10-29
+
+    Changes in v3.2.0 - Complete Bidirectional Study Time Sync:
+    - ENHANCED: Bidirectional sync between study blocks and study time
+      * Study block modification now updates study time (edit time change)
+      * Study block deletion from completed blocks removes from study time
+      * Time difference automatically calculated and applied to total
+    - IMPROVED: Study time & Pomodoro perfect integration
+      * Study blocks: time added to timer when block is marked complete
+      * Pomodoro: 25 minutes added to timer when work session completes
+      * Time modifications instantly reflected in both components
+      * All time sources (blocks + pomodoro) contribute to single study time
+    - OPTIMIZED: Analytics refresh on all time modifications
+      * renderAnalytics() called on block deletion for dashboard update
+      * Complete real-time synchronization between UI components
+    - FEATURES: Complete study tracking ecosystem
+      * Manual time blocks (학습 전략)
+      * Pomodoro timer sessions
+      * Study history tracking
+      * All contributing to unified "오늘의 학습 시간"
 
     Changes in v3.1.5 - Core Metrics Removal & Pomodoro Sync:
     - REMOVED: Core metrics section (🎯 핵심 메트릭)
@@ -5092,6 +5111,14 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     // 수정 모드
                     const block = studyData.timeBlocks.find(b => b.id === editingBlockId);
                     if (block) {
+                        // 양방향 동기화: 완료된 블록의 시간 변경 시 timer에 반영
+                        if (block.completed) {
+                            const oldSeconds = block.hours * 3600;
+                            const newSeconds = hours * 3600;
+                            const diffSeconds = newSeconds - oldSeconds;
+                            studyData.timer.seconds = Math.max(0, studyData.timer.seconds + diffSeconds);
+                        }
+
                         block.time = time;
                         block.subject = subject;
                         block.hours = hours;
@@ -5135,6 +5162,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 // 블록 객체의 인덱스를 찾아서 삭제
                 const index = studyData.timeBlocks.indexOf(block);
                 if (index > -1) {
+                    // 양방향 동기화: 완료된 블록 삭제 시 timer에서 차감
+                    if (block.completed) {
+                        const seconds = block.hours * 3600;
+                        studyData.timer.seconds = Math.max(0, studyData.timer.seconds - seconds);
+                    }
+
                     studyData.timeBlocks.splice(index, 1);
                     console.log('✅ 시간 블록 삭제됨:', block.subject);
                 } else {
@@ -5142,6 +5175,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 }
                 saveData();
                 renderTimeBlocks();
+                renderAnalytics();
                 showToast('삭제되었습니다');
             });
         }
