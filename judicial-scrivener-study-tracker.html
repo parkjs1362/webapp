@@ -2,8 +2,20 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.6.1
+    Version: 3.6.2
     Last Updated: 2025-10-30
+
+    Changes in v3.6.2 - Dark Mode Streak Display Visibility Fix:
+    - FIXED: Streak number visibility in dark mode
+      * Changed from gradient text fill to solid color (#ff9a9a) for better clarity
+      * Replaced -webkit-background-clip gradient with direct text-shadow glow effect
+      * Updated background from dark gray (#1f1f1f→#2a2a2a) to lighter gray (#333333) for contrast
+      * Enhanced streak labels to pure white (#ffffff) with 700 font-weight and proper letter-spacing
+      * Added text-shadow glow layers for depth and visibility
+    - OPTIMIZED: Overall text readability in streak and data management sections
+      * Improved contrast ratios for all streak elements
+      * Enhanced visibility on various background conditions
+      * Maintained smooth animations and transitions
 
     Changes in v3.6.1 - Dark Mode Readability Enhancement for Streak & Data Management:
     - ENHANCED: Ultra-bright streak display section for maximum visibility
@@ -815,7 +827,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v3.6.1</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v3.6.2</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -1216,27 +1228,32 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         /* Dark Mode Streak Enhancements - Ultra Bright & Clear (v3.6.1) */
         /* 스트릭 디스플레이 배경 오버라이드 - 다크모드에서 명확한 배경 */
         [data-theme="dark"] .streak-display {
-            background: linear-gradient(135deg, #1f1f1f 0%, #2a2a2a 100%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #2a2a2a 0%, #333333 100%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 117, 117, 0.15);
+            padding: 24px !important;
         }
 
-        /* 스트릭 메인 숫자 - 초강력 밝기 */
+        /* 스트릭 메인 숫자 - 직접 색상 (텍스트 색상) */
         [data-theme="dark"] .streak-number {
-            background: linear-gradient(135deg, #ffb0b0 0%, #ffd0b8 50%, #ffe4d4 100%) !important;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: drop-shadow(0 0 20px rgba(255, 180, 180, 0.6)) drop-shadow(0 0 8px rgba(255, 200, 180, 0.4));
+            color: #ff9a9a !important;
             font-weight: 900 !important;
+            font-size: 4.5rem !important;
+            text-shadow: 0 0 20px rgba(255, 117, 117, 0.6), 0 0 10px rgba(255, 154, 154, 0.4);
+            filter: none !important;
+            -webkit-text-fill-color: initial !important;
+            background: none !important;
+            background-clip: unset !important;
         }
 
-        /* 스트릭 라벨 - 매우 밝게 */
+        /* 스트릭 라벨 - 매우 밝고 명확하게 */
         [data-theme="dark"] .streak-label {
             color: #ffffff !important;
-            font-weight: 600 !important;
-            text-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+            font-weight: 700 !important;
+            font-size: 1rem !important;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
             opacity: 1 !important;
+            letter-spacing: 0.5px;
         }
 
         /* 스트릭 통계 아이템 - 밝은 배경 */
@@ -4833,7 +4850,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.6.1</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.6.2</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
