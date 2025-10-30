@@ -2,8 +2,27 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.3.0
+    Version: 3.4.0
     Last Updated: 2025-10-30
+
+    Changes in v3.4.0 - Streak Enhancement & Pomodoro Quick Time:
+    - ENHANCED: Learning streak section with more details
+      * Added visual progress bar (based on longest streak record)
+      * Shows last study date with relative time (오늘, 어제, N일 전)
+      * Dynamic streak status display (오늘 학습 완료!, N일 연속 진행 중, 스트릭 시작하기)
+      * Color-coded status indicators for visual feedback
+      * Better visual hierarchy with improved styling
+    - ADDED: Pomodoro quick time options
+      * 6 preset buttons: 15분, 25분, 45분, 1시간, 90분, 2시간
+      * One-click setup without modal dialog
+      * Automatic timer display update
+      * Preset times persist after clicking
+      * Quick selection for common work durations
+    - IMPROVED: Dark mode text visibility
+      * Enhanced contrast for exam type buttons (1차/2차)
+      * Better hover states with increased opacity
+      * Added subtle border for better distinction
+      * Full visibility text color (95-100%)
 
     Changes in v3.3.0 - Pomodoro Enhancement & UI Improvements:
     - ADDED: Pomodoro timer duration configuration
@@ -3768,13 +3787,15 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 
         /* Dark mode: Exam type buttons (1차/2차) */
         body.dark-mode .mode-btn {
-            color: rgba(255, 255, 255, 0.7);
-            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         body.dark-mode .mode-btn:hover {
-            color: rgba(255, 255, 255, 0.9);
-            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
 
         body.dark-mode .mode-btn.active {
@@ -4165,6 +4186,12 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                     <div class="streak-label">현재 연속 학습일</div>
                     <div class="streak-number" id="current-streak">0</div>
                     <div class="streak-label">일 연속 🔥</div>
+
+                    <!-- 스트릭 진행 바 -->
+                    <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; margin: 16px 0; overflow: hidden;">
+                        <div id="streak-progress-bar" style="height: 100%; background: linear-gradient(90deg, #FF6B6B, #FF8E72); width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+
                     <div class="streak-stats">
                         <div class="streak-stat-item">
                             <div class="streak-stat-value" id="longest-streak">0</div>
@@ -4173,6 +4200,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         <div class="streak-stat-item">
                             <div class="streak-stat-value" id="total-study-days">0</div>
                             <div class="streak-stat-label">총 학습일</div>
+                        </div>
+                    </div>
+
+                    <!-- 추가 정보 -->
+                    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">
+                            <span>📅 마지막 학습: <span id="last-study-date">-</span></span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                            <span id="streak-status" style="display: inline-block; padding: 4px 12px; border-radius: 20px; background: rgba(255, 107, 107, 0.2); color: #FF6B6B;">📊 진행 중</span>
                         </div>
                     </div>
                 </div>
@@ -4256,6 +4293,19 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                             <button class="timer-btn pause" id="pomodoro-pause" onclick="pausePomodoro()" style="display:none;">일시정지</button>
                             <button class="timer-btn reset" onclick="resetPomodoro()">리셋</button>
                             <button class="timer-btn" onclick="showPomodoroSettings()" style="background: #6c757d;">⚙️ 시간 설정</button>
+                        </div>
+
+                        <!-- 빠른 시간 옵션 -->
+                        <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                            <button onclick="setPomodoroQuickTime(15)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">15분</button>
+                            <button onclick="setPomodoroQuickTime(25)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">25분</button>
+                            <button onclick="setPomodoroQuickTime(45)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">45분</button>
+                            <button onclick="setPomodoroQuickTime(60)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">1시간</button>
+                            <button onclick="setPomodoroQuickTime(90)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">90분</button>
+                            <button onclick="setPomodoroQuickTime(120)" style="padding: 8px; background: rgba(100, 150, 200, 0.2); border: 1px solid rgba(100, 150, 200, 0.4); color: #6496C8; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;">2시간</button>
+                        </div>
+                        <div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary); text-align: center;">
+                            💡 작업 시간 빠른 선택
                         </div>
                     </div>
                 </div>
@@ -5496,6 +5546,22 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             showToast(`포모도로 타이머 설정이 업데이트되었습니다 (작업: ${workMinutes}분, 휴식: ${breakMinutes}분)`);
         }
 
+        // 포모도로 빠른 시간 설정
+        function setPomodoroQuickTime(minutes) {
+            if (studyData.pomodoro.isRunning) {
+                showToast('타이머 실행 중에는 시간을 변경할 수 없습니다', 'warning');
+                return;
+            }
+
+            studyData.pomodoro.workMinutes = minutes;
+            studyData.pomodoro.seconds = minutes * 60;
+            studyData.pomodoro.mode = 'work';
+
+            updatePomodoroDisplay();
+            saveData();
+            showToast(`작업 시간이 ${minutes}분으로 설정되었습니다 🎯`);
+        }
+
         function playNotificationSound() {
             // Create a simple beep sound using Web Audio API
             try {
@@ -6065,6 +6131,55 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             document.getElementById('current-streak').textContent = studyData.streak.current || 0;
             document.getElementById('longest-streak').textContent = studyData.streak.longest || 0;
             document.getElementById('total-study-days').textContent = studyData.streak.totalDays || 0;
+
+            // 스트릭 진행 바 업데이트 (최장 기록 기준)
+            const longestStreak = studyData.streak.longest || 1;
+            const progressPercent = Math.min((studyData.streak.current / longestStreak) * 100, 100);
+            const progressBar = document.getElementById('streak-progress-bar');
+            if (progressBar) {
+                progressBar.style.width = progressPercent + '%';
+            }
+
+            // 마지막 학습 날짜 표시
+            const lastStudyEl = document.getElementById('last-study-date');
+            if (lastStudyEl && studyData.streak.lastStudyDate) {
+                const lastDate = new Date(studyData.streak.lastStudyDate);
+                const today = new Date();
+                const daysDiff = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+
+                if (daysDiff === 0) {
+                    lastStudyEl.textContent = '오늘 🎯';
+                    lastStudyEl.style.color = '#FF6B6B';
+                } else if (daysDiff === 1) {
+                    lastStudyEl.textContent = '어제 📅';
+                    lastStudyEl.style.color = 'var(--text-secondary)';
+                } else {
+                    lastStudyEl.textContent = daysDiff + '일 전 ⏰';
+                    lastStudyEl.style.color = 'var(--text-secondary)';
+                }
+            }
+
+            // 스트릭 상태 표시
+            const streakStatus = document.getElementById('streak-status');
+            if (streakStatus) {
+                const lastDate = studyData.streak.lastStudyDate ? new Date(studyData.streak.lastStudyDate) : null;
+                const today = new Date().toISOString().split('T')[0];
+                const lastStudyToday = lastDate && lastDate.toISOString().split('T')[0] === today;
+
+                if (lastStudyToday) {
+                    streakStatus.innerHTML = '✅ 오늘 학습 완료!';
+                    streakStatus.style.background = 'rgba(52, 211, 153, 0.2)';
+                    streakStatus.style.color = '#34D399';
+                } else if (studyData.streak.current > 0) {
+                    streakStatus.innerHTML = '🔥 ' + studyData.streak.current + '일 연속 진행 중';
+                    streakStatus.style.background = 'rgba(255, 107, 107, 0.2)';
+                    streakStatus.style.color = '#FF6B6B';
+                } else {
+                    streakStatus.innerHTML = '🌱 스트릭 시작하기';
+                    streakStatus.style.background = 'rgba(100, 200, 255, 0.2)';
+                    streakStatus.style.color = '#64C8FF';
+                }
+            }
         }
 
         function resetStreak() {
