@@ -2,8 +2,27 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.2.0
+    Version: 3.2.1
     Last Updated: 2025-10-29
+
+    Changes in v3.2.1 - Cleanup of v3.0.0 Legacy Code:
+    - REMOVED: v3.0.0 module loading warnings
+      * Deleted v3.0.0 module load check script
+      * Removed migration-v2-to-v3.js, sync-manager-v3.0.js, analytics-engine-v3.0.js references
+      * Removed monitoring-v3.0.js (monitoring system)
+    - REMOVED: v3.0.0 initialization code
+      * Deleted initializeV3() function
+      * Deleted setupV3Observers() function
+      * Removed v3Data, syncMgr, analytics global variables
+      * Removed updateV3Analytics() function
+    - REMOVED: v3.0.0 integration overrides
+      * Deleted toggleTimeBlock() v3 override
+      * Deleted saveScore() v3 override
+    - REMOVED: Sync badge (dynamic sync status display)
+    - IMPROVED: Clean console output
+      * No more v3.0.0 module load warnings
+      * No more initialization warnings
+      * Focus on v3.2.x features
 
     Changes in v3.2.0 - Complete Bidirectional Study Time Sync:
     - ENHANCED: Bidirectional sync between study blocks and study time
@@ -7619,34 +7638,6 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 console.error('Chart.js not loaded');
             }
 
-            // Step 6: Initialize v3.0.0 (data normalization, auto-sync, analytics)
-            setTimeout(() => {
-                const v3Success = initializeV3();
-                if (v3Success) {
-                    console.log('✅ v3.0.0 fully initialized and ready');
-
-                    // 모니터링 시스템에 v3 데이터 검증
-                    if (window.monitoring && v3Data) {
-                        const validation = window.monitoring.validateV3Data(v3Data);
-                        console.log('✅ v3Data validation:', validation);
-                    }
-
-                    // Show v3 initialization success message
-                    showToast('📊 v3.0.0 데이터 연동 시스템 활성화됨', 'success');
-
-                    // 모니터링 대시보드 표시
-                    setTimeout(() => {
-                        if (window.monitoring) {
-                            const healthUI = window.monitoring.createHealthCheckUI();
-                            document.body.insertAdjacentHTML('beforeend', healthUI);
-                            // 주기적 리포팅 시작 (10분마다)
-                            window.monitoring.startPeriodicReporting(10 * 60 * 1000);
-                        }
-                    }, 1000);
-                } else {
-                    console.warn('⚠️ v3.0.0 initialization had issues, v2.14.0 mode active');
-                }
-            }, 500);  // 500ms 지연으로 모든 초기화 완료 후 실행
         });
 
         // ===== v3.0.0 DASHBOARD TAB & STICKY PROGRESS FUNCTIONALITY =====
@@ -8232,251 +8223,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             }
         }
 
-        // ================================================================
-        // v3.0.0 초기화 코드
-        // ================================================================
-
-        let v3Data = null;
-        let syncMgr = null;
-        let analytics = null;
-
-        /**
-         * v3.0.0 자동 초기화 함수
-         * - 자동 마이그레이션 (v2.14.0 → v3.0.0)
-         * - SyncManager 초기화
-         * - AnalyticsEngine 초기화
-         */
-        function initializeV3() {
-            try {
-                console.log('🚀 Starting v3.0.0 initialization...');
-
-                // Step 1: 자동 마이그레이션
-                if (window.DataMigration && window.DataMigration.autoMigrate) {
-                    v3Data = window.DataMigration.autoMigrate();
-
-                    if (!v3Data) {
-                        console.error('❌ v3.0.0 migration failed, using v2.14.0 fallback');
-                        return false;
-                    }
-
-                    console.log('✅ v3.0.0 data migration successful');
-                    console.log('v3Data:', v3Data);
-                } else {
-                    console.warn('⚠️ DataMigration module not loaded');
-                    return false;
-                }
-
-                // Step 2: SyncManager 초기화
-                if (window.SyncManager) {
-                    syncMgr = new window.SyncManager(v3Data);
-
-                    // Observer 리스너 등록
-                    setupV3Observers();
-
-                    console.log('✅ SyncManager initialized');
-                } else {
-                    console.warn('⚠️ SyncManager module not loaded');
-                }
-
-                // Step 3: AnalyticsEngine 초기화
-                if (window.AnalyticsEngine) {
-                    analytics = new window.AnalyticsEngine(v3Data);
-                    console.log('✅ AnalyticsEngine initialized');
-                } else {
-                    console.warn('⚠️ AnalyticsEngine module not loaded');
-                }
-
-                console.log('✅ v3.0.0 initialization completed');
-                return true;
-
-            } catch (error) {
-                console.error('❌ v3.0.0 initialization error:', error);
-                return false;
-            }
-        }
-
-        /**
-         * v3.0.0 Observer 리스너 설정 + 모니터링 통합
-         */
-        function setupV3Observers() {
-            if (!syncMgr) return;
-
-            // TimeBlock 완료 시
-            syncMgr.on('timeBlockCompleted', (data) => {
-                console.log('📌 Event: timeBlockCompleted', data.timeBlock.id);
-                if (window.monitoring) {
-                    window.monitoring.trackUserAction('timeBlockCompleted', {
-                        blockId: data.timeBlock.id,
-                        subjectId: data.subjectId
-                    });
-                }
-                // UI 업데이트 (필요시)
-                renderTimeBlocks();
-                updateStreak();
-                renderAnalytics();
-            });
-
-            // 데이터 동기화 완료 + 모니터링
-            syncMgr.on('synced', (data) => {
-                console.log('📌 Event: synced', data.timestamp);
-                if (window.monitoring) {
-                    window.monitoring.monitorSync(
-                        data.timestamp - 500,  // 대략적인 시작 시간
-                        data.timestamp,
-                        v3Data
-                    );
-                }
-                updateSyncStatus();
-            });
-
-            // 취약 과목 식별
-            syncMgr.on('weakSubjectsIdentified', (data) => {
-                console.log('📌 Event: weakSubjectsIdentified', data.weakSubjects);
-                if (window.monitoring) {
-                    window.monitoring.trackUserAction('weakSubjectsIdentified', {
-                        count: data.weakSubjects.length
-                    });
-                }
-            });
-
-            // Streak 업데이트
-            syncMgr.on('streakUpdated', (streak) => {
-                console.log('📌 Event: streakUpdated', streak);
-                if (window.monitoring) {
-                    window.monitoring.trackUserAction('streakUpdated', streak);
-                }
-            });
-        }
-
-        /**
-         * toggleTimeBlock() 개선 - v3 연동
-         */
-        const originalToggleTimeBlock = toggleTimeBlock;
-        toggleTimeBlock = function(id) {
-            // 기존 v2 로직 실행
-            originalToggleTimeBlock(id);
-
-            // v3 연동
-            if (v3Data && syncMgr) {
-                const v3Block = v3Data.timeBlocks.find(b => b.id === id);
-                const v2Block = studyData.timeBlocks.find(b => b.id === id);
-
-                if (v3Block && v2Block && v2Block.completed) {
-                    syncMgr.onTimeBlockCompleted(v3Block);
-                }
-            }
-        };
-
-        /**
-         * saveScore() 개선 - v3 연동
-         */
-        const originalSaveScore = saveScore;
-        saveScore = function() {
-            // 기존 v2 로직 실행
-            originalSaveScore();
-
-            // v3 연동
-            if (v3Data && syncMgr) {
-                const latestScore = studyData.mockScores[studyData.mockScores.length - 1];
-                if (latestScore) {
-                    const v3Exam = {
-                        id: latestScore.id.toString(),
-                        userId: v3Data.user.id,
-                        planId: v3Data.studyPlans[0].id,
-                        examType: latestScore.examType,
-                        examName: latestScore.memo || '모의고사',
-                        examDate: latestScore.date,
-                        scores: {
-                            overall: {
-                                score: latestScore.score,
-                                maxScore: 100
-                            }
-                        },
-                        totalScore: latestScore.score,
-                        maxTotalScore: 100,
-                        isPassed: latestScore.score >= 60
-                    };
-                    syncMgr.onMockExamRecorded(v3Exam);
-                }
-            }
-        };
-
-        /**
-         * v3.0.0 분석 대시보드 업데이트 함수 (선택사항)
-         */
-        function updateV3Analytics() {
-            if (!analytics) return;
-
-            try {
-                // 종합 리포트 생성
-                const report = analytics.generateComprehensiveReport();
-
-                // 콘솔에 출력
-                console.log('📊 v3.0.0 Analysis Report:', report);
-
-                // 토스트 메시지로 효율성 점수 표시
-                if (report.efficiencyScore) {
-                    const score = report.efficiencyScore.overall;
-                    const rating = report.efficiencyScore.rating;
-                    showToast(
-                        `📊 학습 효율성: ${score}점 (${rating.label}) ${rating.emoji}`,
-                        'success'
-                    );
-                }
-
-                return report;
-            } catch (error) {
-                console.error('❌ v3 analytics update error:', error);
-                return null;
-            }
-        }
 
     </script>
 
     <!-- ================================================================ -->
-    <!-- v3.0.0 모듈 로드 (데이터 정규화, 자동 동기화, 분석 엔진) -->
-    <!-- ================================================================ -->
-
-    <!-- 마이그레이션 모듈 (v2.14.0 → v3.0.0) -->
-    <script>
-        // v3.0.0 모듈 로드 체크 (콘솔 전용)
-        window.addEventListener('load', function() {
-            const modules = {
-                'DataMigration': 'migration-v2-to-v3.js',
-                'SyncManager': 'sync-manager-v3.0.js',
-                'AnalyticsEngine': 'analytics-engine-v3.0.js',
-                'MonitoringSystem': 'monitoring-v3.0.js'
-            };
-
-            const missingModules = [];
-            for (const [name, file] of Object.entries(modules)) {
-                if (!window[name]) {
-                    missingModules.push(file);
-                }
-            }
-
-            if (missingModules.length > 0) {
-                console.warn('⚠️ v3.0.0 모듈 로드 경고:');
-                console.log('다음 파일들이 로드되지 않았습니다:', missingModules);
-            } else {
-                console.log('✅ v3.0.0 모든 모듈 로드됨');
-            }
-        });
-    </script>
-
-    <!-- v3.0.0 모듈 로드 (비활성화 - 버튼 테스트 중) -->
-    <!-- <script src="migration-v2-to-v3.js"></script> -->
-    <!-- <script src="sync-manager-v3.0.js"></script> -->
-    <!-- <script src="analytics-engine-v3.0.js"></script> -->
-    <!-- 모니터링 시스템 (배포 후 실시간 모니터링) -->
-    <!-- <script src="monitoring-v3.0.js"></script> -->
-
-    <!-- v3.0.0 동기화 표시 (고정 위치) -->
-    <div id="syncBadge" class="sync-badge">
-        <span class="sync-badge-icon">✓</span>
-        <span class="sync-badge-text">저장됨</span>
-        <span class="sync-badge-time" id="syncTime">방금 전</span>
-    </div>
 
 </body>
 </html>
