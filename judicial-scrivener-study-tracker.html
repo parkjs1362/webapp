@@ -2,8 +2,20 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.6.6
+    Version: 3.6.7
     Last Updated: 2025-10-30
+
+    Changes in v3.6.7 - Soft Tone Color Adjustment for Streak Display:
+    - ADJUSTED: All colors to softer, more pleasant tones while maintaining visibility
+      * Background: Golden yellow (#ffd700) → Warm taupe (#e6c966)
+      * Border: Orange (#ff6b00) → Dark goldenrod (#b8860b)
+      * Stat card background: Light cream (#ffedcc) → Warm beige (#e8dcc0)
+      * Progress bar background: Tan (#ccaa66) → Warm gray-tan (#d9c5a0)
+      * Hover state: Updated to complement warm tones with #f0e8d8 and #d4af37
+    - MAINTAINED: All contrast ratios and visibility standards
+      * Black text still provides excellent visibility
+      * Softer appearance while keeping WCAG AAA compliance
+      * More aesthetically pleasing design
 
     Changes in v3.6.6 - FINAL STREAK VISIBILITY FIX - Maximum Contrast:
     - COMPLETELY REDESIGNED with ultra-high contrast for human visibility
@@ -878,7 +890,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v3.6.6</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v3.6.7</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -1276,11 +1288,11 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             background: linear-gradient(90deg, #3da1ff, #5cb3ff, #7dc5ff);
         }
 
-        /* Dark Mode Streak FINAL FIX - Maximum Contrast (v3.6.6) */
-        /* 스트릭 디스플레이 - 극도의 높은 대비 */
+        /* Dark Mode Streak FINAL FIX - Maximum Contrast (v3.6.7) */
+        /* 스트릭 디스플레이 - 은은한 색상의 높은 대비 */
         [data-theme="dark"] .streak-display {
-            background: #ffd700 !important;
-            border: 4px solid #ff6b00 !important;
+            background: #e6c966 !important;
+            border: 4px solid #b8860b !important;
             border-radius: 20px !important;
             box-shadow: 0 0 50px rgba(255, 107, 0, 0.8),
                         0 8px 16px rgba(0, 0, 0, 0.9) !important;
@@ -1324,19 +1336,19 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             text-transform: uppercase !important;
         }
 
-        /* 스트릭 통계 아이템 - 밝은 카드 */
+        /* 스트릭 통계 아이템 - 은은한 카드 */
         [data-theme="dark"] .streak-stat-item {
-            background: #ffedcc !important;
-            border: 2px solid #ff6b00 !important;
+            background: #e8dcc0 !important;
+            border: 2px solid #b8860b !important;
             box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3) !important;
             border-radius: 12px !important;
             padding: 24px 20px !important;
         }
 
         [data-theme="dark"] .streak-stat-item:hover {
-            background: #ffe4b5 !important;
-            border-color: #ff8800 !important;
-            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.5) !important;
+            background: #f0e8d8 !important;
+            border-color: #d4af37 !important;
+            box-shadow: 0 6px 20px rgba(184, 134, 11, 0.4) !important;
             transform: translateY(-4px) !important;
         }
 
@@ -1362,10 +1374,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             letter-spacing: 0.5px !important;
         }
 
-        /* 스트릭 진행 바 배경 - 명확한 구분 */
+        /* 스트릭 진행 바 배경 - 은은한 구분 */
         [data-theme="dark"] .streak-display > div[style*="background: rgba(255, 255, 255, 0.1)"] {
-            background: #ccaa66 !important;
-            border: 1px solid #aa8844 !important;
+            background: #d9c5a0 !important;
+            border: 1px solid #b8860b !important;
             height: 16px !important;
             margin: 24px 0 !important;
             border-radius: 8px !important;
@@ -4957,7 +4969,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.6.6</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.6.7</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
