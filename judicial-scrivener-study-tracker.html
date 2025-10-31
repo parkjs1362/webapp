@@ -2,8 +2,39 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.6.8
-    Last Updated: 2025-10-30
+    Version: 3.6.9
+    Last Updated: 2025-10-31
+
+    Changes in v3.6.9 - STAGE 1 Critical Accessibility & UX Fixes:
+    - ACCESSIBILITY: Added aria-label attributes to ALL interactive elements
+      * Timer control buttons (start, pause, reset for both timers)
+      * Pomodoro quick time buttons (15분, 25분, 45분, 60분, 90분, 2시간)
+      * Rotation circles with status indication (completed/not completed)
+      * Modal close buttons (✕) with descriptive labels
+      * All action buttons (add, edit, delete, reset buttons)
+      * Form inputs (date, number, text, textarea, select inputs)
+      * Form submit/cancel buttons with clear action descriptions
+      * D-Day card clickable areas with role="button"
+      * Study mode selector buttons
+      * Data management buttons (export/import)
+      * Dynamically created buttons (time block edit/delete, score edit/delete, completion checkboxes)
+    - DARK MODE: Fixed gradient visibility issues for better contrast
+      * D-Day urgent card: Darker red gradient (#8B1A1A → #B91C1C) with red glow
+      * D-Day warning card: Darker orange gradient (#92400E → #C2410C) with orange glow
+      * D-Day normal card: Darker green gradient (#14532D → #15803D) with green glow
+      * Recommendation card: Brighter purple gradient (#7C3AED → #A855F7) with purple glow
+      * Data management card: Brighter purple gradient (#7C3AED → #A855F7) with purple glow
+      * All gradients now visible on #0a0a0a dark background with enhanced shadows
+    - TOUCH TARGETS: Increased all touch target sizes to 44x44px minimum (WCAG AAA)
+      * Rotation circles: 32px → 44px
+      * Time block action buttons: 20px → 44px
+      * Score action buttons: 24px → 44px
+      * Card action buttons: 36px → 44px
+      * Modal close buttons: 30px → 44px
+      * Modal footer buttons: 40px → 44px minimum height
+      * All buttons now meet mobile accessibility standards
+    - IMPROVED: Overall screen reader compatibility and keyboard navigation
+    - ENHANCED: Mobile user experience with larger, easier to tap targets
 
     Changes in v3.6.8 - Balanced & Subdued Streak Design for Learning Context:
     - REDESIGNED: Streak section to match learning app aesthetics
@@ -1502,12 +1533,28 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             color: #ff5545 !important;
         }
 
+        /* Dark Mode: Recommendation Card - Brighter gradient for visibility */
+        body.dark-mode .recommendation-card,
+        [data-theme="dark"] .recommendation-card {
+            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%) !important;
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(139, 92, 246, 0.3) !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .recommendation-card .recommendation-title,
+        [data-theme="dark"] .recommendation-card .recommendation-title {
+            color: #ffffff !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
         /* Dark Mode Data Management Section - Ultra Bright & Clear (v3.6.1) */
         /* 데이터 관리 카드 - 명확한 배경과 텍스트 */
+        body.dark-mode .data-management-card,
         [data-theme="dark"] .data-management-card {
-            background: linear-gradient(135deg, #2a2a3e 0%, #3d3d5c 100%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(102, 126, 234, 0.2) !important;
+            background: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%) !important;
+            border: 1px solid rgba(167, 139, 250, 0.3) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(139, 92, 246, 0.3) !important;
         }
 
         [data-theme="dark"] .data-management-card .card-title {
@@ -1884,8 +1931,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .action-btn {
-            width: 36px;
-            height: 36px;
+            width: 44px;
+            height: 44px;
             border: none;
             background: var(--bg-light);
             border-radius: 6px;
@@ -1894,10 +1941,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             align-items: center;
             justify-content: center;
             transition: all var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.9rem;
+            font-size: 1rem;
             padding: 0;
-            min-width: 36px;
-            min-height: 36px;
+            min-width: 44px;
+            min-height: 44px;
         }
 
         .action-btn:hover {
@@ -2009,14 +2056,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .time-block-btn {
-            width: 20px;
-            height: 20px;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
+            padding: 8px;
             border: none;
             background: rgba(255,255,255,0.8);
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.7rem;
+            font-size: 1rem;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .time-block-btn:hover {
@@ -2203,8 +2256,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         .rotation-circle {
-            width: 32px;
-            height: 32px;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
             border-radius: 50%;
             background: var(--bg-primary);
             border: 2px solid var(--border-color);
@@ -2514,16 +2569,22 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
 
         .score-action-btn {
-            width: 24px;
-            height: 24px;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
+            padding: 8px;
             border: none;
             background: var(--bg-secondary);
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 1rem;
             color: var(--text-primary);
             transition: all 0.3s;
             box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .score-action-btn:hover {
@@ -2604,13 +2665,18 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         }
         
         .modal-close {
-            width: 30px;
-            height: 30px;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
             border: none;
             background: var(--bg-light);
             border-radius: 50%;
             cursor: pointer;
             font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .modal-close:hover {
@@ -2714,7 +2780,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             font-size: var(--font-size-sm);
             cursor: pointer;
             transition: all var(--transition-base) cubic-bezier(0.4, 0, 0.2, 1);
-            min-height: 40px;
+            min-height: 44px;
+            min-width: 88px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -4591,11 +4658,32 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 255, 255, 0.03);
         }
 
+        /* Dark mode: D-Day Cards with Color States */
+        body.dark-mode .dday-card.urgent,
+        [data-theme="dark"] .dday-card.urgent {
+            background: linear-gradient(135deg, #8B1A1A 0%, #B91C1C 100%);
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7), 0 0 16px rgba(239, 68, 68, 0.2);
+        }
+
+        body.dark-mode .dday-card.warning,
+        [data-theme="dark"] .dday-card.warning {
+            background: linear-gradient(135deg, #92400E 0%, #C2410C 100%);
+            border-color: rgba(249, 115, 22, 0.4);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7), 0 0 16px rgba(249, 115, 22, 0.2);
+        }
+
+        body.dark-mode .dday-card.normal,
+        [data-theme="dark"] .dday-card.normal {
+            background: linear-gradient(135deg, #14532D 0%, #15803D 100%);
+            border-color: rgba(34, 197, 94, 0.4);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7), 0 0 16px rgba(34, 197, 94, 0.2);
+        }
+
         body.dark-mode .dday-card:hover,
         [data-theme="dark"] .dday-card:hover {
-            background: #1a1a1a;
-            border-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.8), 0 0 16px rgba(255, 255, 255, 0.05);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.8), 0 0 20px currentColor;
         }
 
         body.dark-mode .dday-label,
@@ -4974,7 +5062,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <body>
 
     <!-- Dark Mode Toggle -->
-    <button class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+    <button class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-label="Toggle dark mode">
         <span id="theme-icon">🌙</span>
     </button>
 
@@ -4982,28 +5070,28 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.6.8</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.6.9</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
             <div class="dday-container">
-                <div class="dday-card" id="dday-1st-card" onclick="editExamDate('1차')">
+                <div class="dday-card" id="dday-1st-card" onclick="editExamDate('1차')" role="button" tabindex="0" aria-label="Edit 1st exam date">
                     <div class="dday-label">📚 1차 시험</div>
                     <div class="dday-value" id="dday-1st-value">D-?</div>
                     <div class="dday-date" id="dday-1st-date">날짜 미설정</div>
-                    <button class="dday-edit-btn" onclick="event.stopPropagation(); editExamDate('1차')">날짜 설정</button>
+                    <button class="dday-edit-btn" onclick="event.stopPropagation(); editExamDate('1차')" aria-label="Set 1st exam date">날짜 설정</button>
                 </div>
-                <div class="dday-card" id="dday-2nd-card" onclick="editExamDate('2차')">
+                <div class="dday-card" id="dday-2nd-card" onclick="editExamDate('2차')" role="button" tabindex="0" aria-label="Edit 2nd exam date">
                     <div class="dday-label">✍️ 2차 시험</div>
                     <div class="dday-value" id="dday-2nd-value">D-?</div>
                     <div class="dday-date" id="dday-2nd-date">날짜 미설정</div>
-                    <button class="dday-edit-btn" onclick="event.stopPropagation(); editExamDate('2차')">날짜 설정</button>
+                    <button class="dday-edit-btn" onclick="event.stopPropagation(); editExamDate('2차')" aria-label="Set 2nd exam date">날짜 설정</button>
                 </div>
             </div>
 
             <div class="study-mode-selector">
-                <button class="mode-btn" onclick="setExamType('1차')">1차 시험</button>
-                <button class="mode-btn" onclick="setExamType('2차')">2차 시험</button>
+                <button class="mode-btn" onclick="setExamType('1차')" aria-label="Switch to 1st exam mode">1차 시험</button>
+                <button class="mode-btn" onclick="setExamType('2차')" aria-label="Switch to 2nd exam mode">2차 시험</button>
             </div>
         </div>
 
@@ -5050,7 +5138,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <div class="card-header">
                     <h2 class="card-title">🔥 학습 스트릭</h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="resetStreak()">🔄</button>
+                        <button class="action-btn" onclick="resetStreak()" aria-label="Reset learning streak">🔄</button>
                     </div>
                 </div>
                 <div class="streak-display">
@@ -5121,7 +5209,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <div class="card-header">
                     <h2 class="card-title">🔄 기출문제 회독 현황</h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="resetRotations()">🔄</button>
+                        <button class="action-btn" onclick="resetRotations()" aria-label="Reset rotation tracker">🔄</button>
                     </div>
                 </div>
                 <div class="rotation-tracker" id="rotation-tracker">
@@ -5140,9 +5228,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         <h3 style="font-size: 1rem; font-weight: 600; color: #495057; margin-bottom: 15px;">⏱️ 오늘의 학습 시간</h3>
                         <div class="timer-display" id="timer">00:00:00</div>
                         <div class="timer-controls">
-                            <button class="timer-btn start" onclick="startTimer()">시작</button>
-                            <button class="timer-btn pause" onclick="pauseTimer()">일시정지</button>
-                            <button class="timer-btn reset" onclick="resetTimer()">리셋</button>
+                            <button class="timer-btn start" onclick="startTimer()" aria-label="Start timer">시작</button>
+                            <button class="timer-btn pause" onclick="pauseTimer()" aria-label="Pause timer">일시정지</button>
+                            <button class="timer-btn reset" onclick="resetTimer()" aria-label="Reset timer">리셋</button>
                         </div>
                         <div class="weekly-stats" id="weekly-stats">
                             <!-- 동적으로 생성됩니다 -->
@@ -5160,20 +5248,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                             </div>
                         </div>
                         <div class="timer-controls">
-                            <button class="timer-btn start" id="pomodoro-start" onclick="startPomodoro()">시작</button>
-                            <button class="timer-btn pause" id="pomodoro-pause" onclick="pausePomodoro()" style="display:none;">일시정지</button>
-                            <button class="timer-btn reset" onclick="resetPomodoro()">리셋</button>
-                            <button class="timer-btn" onclick="showPomodoroSettings()" style="background: #6c757d;">⚙️ 시간 설정</button>
+                            <button class="timer-btn start" id="pomodoro-start" onclick="startPomodoro()" aria-label="Start pomodoro timer">시작</button>
+                            <button class="timer-btn pause" id="pomodoro-pause" onclick="pausePomodoro()" style="display:none;" aria-label="Pause pomodoro timer">일시정지</button>
+                            <button class="timer-btn reset" onclick="resetPomodoro()" aria-label="Reset pomodoro timer">리셋</button>
+                            <button class="timer-btn" onclick="showPomodoroSettings()" style="background: #6c757d;" aria-label="Pomodoro settings">⚙️ 시간 설정</button>
                         </div>
 
                         <!-- 빠른 시간 옵션 -->
                         <div class="pomodoro-quick-time">
-                            <button onclick="setPomodoroQuickTime(15)" class="quick-time-btn">15분</button>
-                            <button onclick="setPomodoroQuickTime(25)" class="quick-time-btn">25분</button>
-                            <button onclick="setPomodoroQuickTime(45)" class="quick-time-btn">45분</button>
-                            <button onclick="setPomodoroQuickTime(60)" class="quick-time-btn">1시간</button>
-                            <button onclick="setPomodoroQuickTime(90)" class="quick-time-btn">90분</button>
-                            <button onclick="setPomodoroQuickTime(120)" class="quick-time-btn">2시간</button>
+                            <button onclick="setPomodoroQuickTime(15)" class="quick-time-btn" aria-label="Set pomodoro to 15 minutes">15분</button>
+                            <button onclick="setPomodoroQuickTime(25)" class="quick-time-btn" aria-label="Set pomodoro to 25 minutes">25분</button>
+                            <button onclick="setPomodoroQuickTime(45)" class="quick-time-btn" aria-label="Set pomodoro to 45 minutes">45분</button>
+                            <button onclick="setPomodoroQuickTime(60)" class="quick-time-btn" aria-label="Set pomodoro to 1 hour">1시간</button>
+                            <button onclick="setPomodoroQuickTime(90)" class="quick-time-btn" aria-label="Set pomodoro to 90 minutes">90분</button>
+                            <button onclick="setPomodoroQuickTime(120)" class="quick-time-btn" aria-label="Set pomodoro to 2 hours">2시간</button>
                         </div>
                         <div class="quick-time-hint">
                             💡 작업 시간 빠른 선택
@@ -5200,7 +5288,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 <div class="card-header">
                     <h2 class="card-title">📝 모의고사 점수 추이</h2>
                     <div class="card-actions">
-                        <button class="action-btn" onclick="showScoreModal()" aria-label="모의고사 점수 추가">➕</button>
+                        <button class="action-btn" onclick="showScoreModal()" aria-label="Add mock exam score">➕</button>
                     </div>
                 </div>
                 <div class="mock-scores" id="mock-scores">
@@ -5236,15 +5324,15 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             <div class="data-management-section">
                 <p class="data-management-desc">학습 데이터를 안전하게 백업하고 다른 기기에서 불러올 수 있습니다</p>
                 <div class="data-management-actions">
-                    <button class="data-btn export-btn" onclick="exportData()">
+                    <button class="data-btn export-btn" onclick="exportData()" aria-label="Export study data">
                         <span class="btn-icon">⬇️</span>
                         <span class="btn-text">데이터 내보내기</span>
                     </button>
-                    <button class="data-btn import-btn" onclick="document.getElementById('importFileInput').click()">
+                    <button class="data-btn import-btn" onclick="document.getElementById('importFileInput').click()" aria-label="Import study data">
                         <span class="btn-icon">⬆️</span>
                         <span class="btn-text">데이터 가져오기</span>
                     </button>
-                    <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importData(event)">
+                    <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importData(event)" aria-label="Select data file to import">
                 </div>
                 <div class="data-management-info">
                     <small>내보내기: 모든 학습 데이터를 JSON 파일로 저장합니다</small><br>
@@ -5264,25 +5352,25 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">모의고사 점수 추가</h3>
-                <button class="modal-close" aria-label="닫기" onclick="closeModal('scoreModal')" aria-label="닫기">✕</button>
+                <button class="modal-close" onclick="closeModal('scoreModal')" aria-label="Close score modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">시험 날짜</label>
-                    <input type="date" class="form-input" id="scoreDate">
+                    <input type="date" class="form-input" id="scoreDate" aria-label="Exam date">
                 </div>
                 <div class="form-group">
                     <label class="form-label">점수</label>
-                    <input type="number" step="0.5" class="form-input" id="scoreValue" placeholder="예: 58.5">
+                    <input type="number" step="0.5" class="form-input" id="scoreValue" placeholder="예: 58.5" aria-label="Score">
                 </div>
                 <div class="form-group">
                     <label class="form-label">메모 (선택)</label>
-                    <input type="text" class="form-input" id="scoreMemo" placeholder="예: 3차 모의고사">
+                    <input type="text" class="form-input" id="scoreMemo" placeholder="예: 3차 모의고사" aria-label="Score memo">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('scoreModal')">취소</button>
-                <button class="modal-btn save" onclick="saveScore()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('scoreModal')" aria-label="Cancel score entry">취소</button>
+                <button class="modal-btn save" onclick="saveScore()" aria-label="Save score">저장</button>
             </div>
         </div>
     </div>
@@ -5291,20 +5379,20 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">학습 시간 블록 추가</h3>
-                <button class="modal-close" aria-label="닫기" onclick="closeModal('timeBlockModal')">✕</button>
+                <button class="modal-close" onclick="closeModal('timeBlockModal')" aria-label="Close time block modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">시작 시간</label>
-                    <input type="time" class="form-input" id="blockStartTime">
+                    <input type="time" class="form-input" id="blockStartTime" aria-label="Start time">
                 </div>
                 <div class="form-group">
                     <label class="form-label">끝 시간</label>
-                    <input type="time" class="form-input" id="blockEndTime">
+                    <input type="time" class="form-input" id="blockEndTime" aria-label="End time">
                 </div>
                 <div class="form-group">
                     <label class="form-label">과목</label>
-                    <select class="form-select" id="blockSubject" required>
+                    <select class="form-select" id="blockSubject" required aria-label="Select subject">
                         <option value="" disabled selected>과목을 선택하세요</option>
                         <optgroup label="1차 시험">
                             <option value="헌법">헌법</option>
@@ -5328,16 +5416,16 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
                 <div class="form-group">
                     <label class="form-label">예상 학습 시간 (시간)</label>
-                    <input type="number" class="form-input" id="blockHours" placeholder="예: 2" min="0.5" step="0.5" value="2">
+                    <input type="number" class="form-input" id="blockHours" placeholder="예: 2" min="0.5" step="0.5" value="2" aria-label="Study hours">
                 </div>
                 <div class="form-group">
                     <label class="form-label">학습 내용</label>
-                    <input type="text" class="form-input" id="blockDetail" placeholder="예: 기출문제 #201-250">
+                    <input type="text" class="form-input" id="blockDetail" placeholder="예: 기출문제 #201-250" aria-label="Study content">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('timeBlockModal')">취소</button>
-                <button class="modal-btn save" onclick="saveTimeBlock()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('timeBlockModal')" aria-label="Cancel time block">취소</button>
+                <button class="modal-btn save" onclick="saveTimeBlock()" aria-label="Save time block">저장</button>
             </div>
         </div>
     </div>
@@ -5347,21 +5435,21 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="examDateModalTitle">시험 날짜 설정</h3>
-                <button class="modal-close" aria-label="닫기" onclick="closeModal('examDateModal')">✕</button>
+                <button class="modal-close" onclick="closeModal('examDateModal')" aria-label="Close exam date modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">시험 날짜</label>
-                    <input type="date" class="form-input" id="examDateInput">
+                    <input type="date" class="form-input" id="examDateInput" aria-label="Exam date">
                 </div>
                 <div class="form-group">
                     <label class="form-label">메모 (선택)</label>
-                    <input type="text" class="form-input" id="examDateMemo" placeholder="예: 필기시험">
+                    <input type="text" class="form-input" id="examDateMemo" placeholder="예: 필기시험" aria-label="Exam memo">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('examDateModal')">취소</button>
-                <button class="modal-btn save" onclick="saveExamDate()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('examDateModal')" aria-label="Cancel exam date">취소</button>
+                <button class="modal-btn save" onclick="saveExamDate()" aria-label="Save exam date">저장</button>
             </div>
         </div>
     </div>
@@ -5371,7 +5459,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="subjectProgressModalTitle">과목 진도 수정</h3>
-                <button class="modal-close" aria-label="닫기" onclick="closeModal('subjectProgressModal')">✕</button>
+                <button class="modal-close" onclick="closeModal('subjectProgressModal')" aria-label="Close subject progress modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -5384,8 +5472,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('subjectProgressModal')">취소</button>
-                <button class="modal-btn save" onclick="saveSubjectProgress()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('subjectProgressModal')" aria-label="Cancel subject progress">취소</button>
+                <button class="modal-btn save" onclick="saveSubjectProgress()" aria-label="Save subject progress">저장</button>
             </div>
         </div>
     </div>
@@ -5395,17 +5483,17 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="weeklyHoursModalTitle">학습 시간 수정</h3>
-                <button class="modal-close" aria-label="닫기" onclick="closeModal('weeklyHoursModal')">✕</button>
+                <button class="modal-close" onclick="closeModal('weeklyHoursModal')" aria-label="Close weekly hours modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">학습 시간 (시간)</label>
-                    <input type="number" class="form-input" id="weeklyHoursInput" min="0" step="0.5">
+                    <input type="number" class="form-input" id="weeklyHoursInput" min="0" step="0.5" aria-label="Study hours">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('weeklyHoursModal')">취소</button>
-                <button class="modal-btn save" onclick="saveWeeklyHours()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('weeklyHoursModal')" aria-label="Cancel weekly hours">취소</button>
+                <button class="modal-btn save" onclick="saveWeeklyHours()" aria-label="Save weekly hours">저장</button>
             </div>
         </div>
     </div>
@@ -5415,23 +5503,23 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">⚙️ 포모도로 타이머 설정</h3>
-                <button class="modal-close" aria-label="닫기" onclick="closeModal('pomodoroSettingsModal')">✕</button>
+                <button class="modal-close" onclick="closeModal('pomodoroSettingsModal')" aria-label="Close pomodoro settings modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">작업 시간 (분)</label>
-                    <input type="number" class="form-input" id="pomodoroWorkMinutes" min="1" max="120" step="1" value="25">
+                    <input type="number" class="form-input" id="pomodoroWorkMinutes" min="1" max="120" step="1" value="25" aria-label="Work minutes">
                     <small style="color: #6c757d; font-size: 0.85rem; display: block; margin-top: 5px;">권장: 25분 (기본 포모도로)</small>
                 </div>
                 <div class="form-group" style="margin-top: 15px;">
                     <label class="form-label">휴식 시간 (분)</label>
-                    <input type="number" class="form-input" id="pomodoroBreakMinutes" min="1" max="30" step="1" value="5">
+                    <input type="number" class="form-input" id="pomodoroBreakMinutes" min="1" max="30" step="1" value="5" aria-label="Break minutes">
                     <small style="color: #6c757d; font-size: 0.85rem; display: block; margin-top: 5px;">권장: 5분</small>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('pomodoroSettingsModal')">취소</button>
-                <button class="modal-btn save" onclick="savePomodoroSettings()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('pomodoroSettingsModal')" aria-label="Cancel pomodoro settings">취소</button>
+                <button class="modal-btn save" onclick="savePomodoroSettings()" aria-label="Save pomodoro settings">저장</button>
             </div>
         </div>
     </div>
@@ -5441,14 +5529,14 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="confirmModalTitle">확인</h3>
-                <button class="modal-close" aria-label="닫기" onclick="closeModal('confirmModal')">✕</button>
+                <button class="modal-close" onclick="closeModal('confirmModal')" aria-label="Close confirm modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="confirm-message" id="confirmMessage">정말 실행하시겠습니까?</div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('confirmModal')">취소</button>
-                <button class="modal-btn save" id="confirmOkBtn">확인</button>
+                <button class="modal-btn cancel" onclick="closeModal('confirmModal')" aria-label="Cancel action">취소</button>
+                <button class="modal-btn save" id="confirmOkBtn" aria-label="Confirm action">확인</button>
             </div>
         </div>
     </div>
@@ -5458,25 +5546,25 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">틀린 문제 노트 추가</h3>
-                <button class="modal-close" aria-label="닫기" onclick="closeModal('wrongNoteModal')">✕</button>
+                <button class="modal-close" onclick="closeModal('wrongNoteModal')" aria-label="Close wrong note modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">과목명</label>
-                    <input type="text" class="form-input" id="wrongSubject" placeholder="예: 민법">
+                    <input type="text" class="form-input" id="wrongSubject" placeholder="예: 민법" aria-label="Subject name">
                 </div>
                 <div class="form-group">
                     <label class="form-label">틀린 문제 번호 또는 내용</label>
-                    <input type="text" class="form-input" id="wrongQuestion" placeholder="예: 2024년 1회 35번">
+                    <input type="text" class="form-input" id="wrongQuestion" placeholder="예: 2024년 1회 35번" aria-label="Question number">
                 </div>
                 <div class="form-group">
                     <label class="form-label">틀린 이유</label>
-                    <textarea class="form-input" id="wrongReason" rows="3" placeholder="이유를 입력하세요"></textarea>
+                    <textarea class="form-input" id="wrongReason" rows="3" placeholder="이유를 입력하세요" aria-label="Reason for mistake"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('wrongNoteModal')">취소</button>
-                <button class="modal-btn save" onclick="saveWrongNote()">저장</button>
+                <button class="modal-btn cancel" onclick="closeModal('wrongNoteModal')" aria-label="Cancel wrong note">취소</button>
+                <button class="modal-btn save" onclick="saveWrongNote()" aria-label="Save wrong note">저장</button>
             </div>
         </div>
     </div>
@@ -5486,7 +5574,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">데이터 가져오기 확인</h3>
-                <button class="modal-close" aria-label="닫기" onclick="closeModal('importConfirmModal')">✕</button>
+                <button class="modal-close" onclick="closeModal('importConfirmModal')" aria-label="Close import confirm modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="confirm-message" style="margin-bottom: 20px; color: var(--warning-dark); font-weight: 600;">
@@ -5498,8 +5586,8 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn cancel" onclick="closeModal('importConfirmModal')">취소</button>
-                <button class="modal-btn save" id="confirmImportBtn" style="background: var(--danger-color);">확인 및 가져오기</button>
+                <button class="modal-btn cancel" onclick="closeModal('importConfirmModal')" aria-label="Cancel import">취소</button>
+                <button class="modal-btn save" id="confirmImportBtn" style="background: var(--danger-color);" aria-label="Confirm and import data">확인 및 가져오기</button>
             </div>
         </div>
     </div>
@@ -5945,12 +6033,14 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const editBtn = document.createElement('button');
                 editBtn.className = 'time-block-btn';
                 editBtn.textContent = '✏️';
+                editBtn.setAttribute('aria-label', 'Edit time block');
                 editBtn.onclick = () => editTimeBlock(block);
 
                 // 삭제 버튼
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'time-block-btn';
                 deleteBtn.textContent = '🗑️';
+                deleteBtn.setAttribute('aria-label', 'Delete time block');
                 deleteBtn.onclick = () => deleteTimeBlock(block);
 
                 actionsDiv.appendChild(editBtn);
@@ -5976,6 +6066,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const checkBtn = document.createElement('button');
                 checkBtn.className = `check-btn ${block.completed ? 'checked' : ''}`;
                 checkBtn.textContent = block.completed ? '완료✓' : '완료';
+                checkBtn.setAttribute('aria-label', block.completed ? 'Mark as incomplete' : 'Mark as complete');
                 checkBtn.onclick = () => toggleTimeBlock(block.id);
 
                 // 모두 추가
@@ -6213,9 +6304,13 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 let circlesHtml = '';
                 subject.rotations.forEach((completed, i) => {
                     const isCurrentjsxjs = completed && !subject.rotations[i + 1];
+                    const status = completed ? 'completed' : 'not completed';
                     circlesHtml += `
-                        <div class="rotation-circle ${completed ? 'completed' : ''} ${isCurrentjsxjs ? 'current' : ''}" 
-                             onclick="toggleRotation(${idx}, ${i})">
+                        <div class="rotation-circle ${completed ? 'completed' : ''} ${isCurrentjsxjs ? 'current' : ''}"
+                             onclick="toggleRotation(${idx}, ${i})"
+                             role="button"
+                             tabindex="0"
+                             aria-label="Rotation ${i + 1} - ${status}">
                             ${i + 1}
                         </div>
                     `;
@@ -6603,12 +6698,14 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 const editBtn = document.createElement('button');
                 editBtn.className = 'score-action-btn';
                 editBtn.textContent = '✏️';
+                editBtn.setAttribute('aria-label', 'Edit score');
                 editBtn.onclick = () => editScore(score);
 
                 // 삭제 버튼
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'score-action-btn';
                 deleteBtn.textContent = '🗑️';
+                deleteBtn.setAttribute('aria-label', 'Delete score');
                 deleteBtn.onclick = () => deleteScore(score);
 
                 actionsDiv.appendChild(editBtn);
