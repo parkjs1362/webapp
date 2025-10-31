@@ -5,6 +5,18 @@
     Version: 3.6.4
     Last Updated: 2025-10-30
 
+    Changes in v3.6.5 - Streak Display Complete UX/UI Redesign for Dark Mode:
+    - Complete visual redesign with card-based layout for maximum visibility
+    - High-contrast solid background (#0a0a0a) instead of gradients
+    - Bright accent border (#00ff88) with animated glow effect
+    - Massive typography: 6rem streak number with bold weight
+    - Simplified color scheme: electric green (#00ff88) for main number
+    - Clean, modern layout with better spacing and hierarchy
+    - Removed all subtle shadow effects in favor of bold, solid design
+    - Enhanced stat cards with vibrant backgrounds and clear contrast
+    - Better visual separation between sections
+    - Optimized for immediate visibility in dark environments
+
     Changes in v3.6.4 - Streak Display Drag Selection Fix:
     - FIXED: Text selection highlighting during drag operations
       * Added user-select: none to streak-display container
@@ -850,7 +862,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v3.6.4</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v3.6.5</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -1248,34 +1260,52 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             background: linear-gradient(90deg, #3da1ff, #5cb3ff, #7dc5ff);
         }
 
-        /* Dark Mode Streak Enhancements - Ultra Bright & Clear (v3.6.2+) */
-        /* 스트릭 디스플레이 배경 오버라이드 - 다크모드에서 명확한 배경 */
+        /* Dark Mode Streak Complete Redesign - Maximum Visibility (v3.6.5) */
+        /* 스트릭 디스플레이 - 고대비 카드 디자인 */
         [data-theme="dark"] .streak-display {
-            background: linear-gradient(135deg, #1a1a1a 0%, #262626 100%) !important;
-            border: 2px solid rgba(255, 100, 100, 0.3);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8),
-                        0 0 30px rgba(255, 100, 100, 0.25),
-                        inset 0 0 20px rgba(255, 100, 100, 0.08);
-            padding: 24px !important;
+            background: #0a0a0a !important;
+            border: 3px solid #00ff88 !important;
+            border-radius: 16px !important;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.4),
+                        0 0 80px rgba(0, 255, 136, 0.2),
+                        inset 0 0 60px rgba(0, 255, 136, 0.05) !important;
+            padding: 40px 30px !important;
             user-select: none !important;
             -webkit-user-select: none !important;
             -moz-user-select: none !important;
             -ms-user-select: none !important;
+            animation: streakBorderGlow 3s ease-in-out infinite !important;
         }
 
-        /* 스트릭 메인 숫자 - 매우 밝은 빨강색 */
+        @keyframes streakBorderGlow {
+            0%, 100% {
+                border-color: #00ff88;
+                box-shadow: 0 0 40px rgba(0, 255, 136, 0.4),
+                            0 0 80px rgba(0, 255, 136, 0.2),
+                            inset 0 0 60px rgba(0, 255, 136, 0.05);
+            }
+            50% {
+                border-color: #00ffaa;
+                box-shadow: 0 0 60px rgba(0, 255, 136, 0.6),
+                            0 0 100px rgba(0, 255, 136, 0.3),
+                            inset 0 0 80px rgba(0, 255, 136, 0.08);
+            }
+        }
+
+        /* 스트릭 메인 숫자 - 초대형 전기 녹색 */
         [data-theme="dark"] .streak-number {
-            color: #ff5252 !important;
+            color: #00ff88 !important;
             font-weight: 900 !important;
-            font-size: 4.5rem !important;
-            text-shadow: 0 0 30px rgba(255, 82, 82, 0.8),
-                         0 0 20px rgba(255, 100, 100, 0.6),
-                         0 0 10px rgba(255, 150, 150, 0.4),
-                         0 4px 8px rgba(0, 0, 0, 0.7);
-            filter: none !important;
-            -webkit-text-fill-color: initial !important;
+            font-size: 6rem !important;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.8),
+                         0 0 40px rgba(0, 255, 136, 0.5) !important;
             background: none !important;
-            background-clip: unset !important;
+            -webkit-background-clip: initial !important;
+            -webkit-text-fill-color: initial !important;
+            background-clip: initial !important;
+            filter: none !important;
+            letter-spacing: -3px !important;
+            margin: 30px 0 !important;
             text-align: center;
             line-height: 1;
             user-select: none !important;
@@ -1284,79 +1314,98 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             -ms-user-select: none !important;
         }
 
-        /* 스트릭 라벨 - 매우 밝고 명확하게 */
+        /* 스트릭 라벨 - 명확한 흰색 */
         [data-theme="dark"] .streak-label {
             color: #ffffff !important;
-            font-weight: 700 !important;
-            font-size: 1rem !important;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
-                         0 2px 6px rgba(0, 0, 0, 0.7);
+            font-weight: 600 !important;
+            font-size: 1.1rem !important;
+            text-shadow: none !important;
             opacity: 1 !important;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px !important;
+            text-transform: uppercase !important;
         }
 
-        /* 스트릭 통계 아이템 - 밝은 배경 */
+        /* 스트릭 통계 아이템 - 고대비 카드 */
         [data-theme="dark"] .streak-stat-item {
-            background: #262626 !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%) !important;
+            border: 2px solid #00ff88 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8),
+                        0 0 20px rgba(0, 255, 136, 0.3) !important;
+            border-radius: 12px !important;
+            padding: 24px 20px !important;
         }
 
         [data-theme="dark"] .streak-stat-item:hover {
-            background: #2f2f2f !important;
-            border-color: var(--accent-light) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8),
-                        0 0 20px rgba(61, 161, 255, 0.4);
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%) !important;
+            border-color: #00ffaa !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.9),
+                        0 0 30px rgba(0, 255, 136, 0.5) !important;
+            transform: translateY(-4px) !important;
         }
 
-        /* 스트릭 통계 값 - 초강력 밝기 */
+        /* 스트릭 통계 값 - 밝은 사이안 */
         [data-theme="dark"] .streak-stat-value {
-            color: #66d9ff !important;
+            color: #00d9ff !important;
             font-weight: 800 !important;
-            font-size: 1.5rem !important;
-            text-shadow: 0 0 15px rgba(102, 217, 255, 0.7),
-                         0 0 8px rgba(102, 217, 255, 0.4),
-                         0 2px 4px rgba(0, 0, 0, 0.7);
+            font-size: 2rem !important;
+            text-shadow: 0 0 15px rgba(0, 217, 255, 0.6) !important;
             background: none !important;
-            background-clip: unset !important;
+            -webkit-background-clip: initial !important;
             -webkit-text-fill-color: initial !important;
+            background-clip: unset !important;
             filter: none !important;
         }
 
-        /* 스트릭 통계 라벨 - 매우 밝게 */
+        /* 스트릭 통계 라벨 - 밝은 회색 */
         [data-theme="dark"] .streak-stat-label {
-            color: #f0f0f0 !important;
-            font-weight: 500 !important;
+            color: #e0e0e0 !important;
+            font-weight: 600 !important;
             opacity: 1 !important;
+            font-size: 0.95rem !important;
+            letter-spacing: 0.5px !important;
         }
 
-        /* 스트릭 진행 바 배경 - 더 명확하게 */
+        /* 스트릭 진행 바 배경 - 명확한 구분 */
         [data-theme="dark"] .streak-display > div[style*="background: rgba(255, 255, 255, 0.1)"] {
-            background: rgba(255, 255, 255, 0.15) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: #1a1a1a !important;
+            border: 2px solid #333333 !important;
+            height: 12px !important;
+            margin: 24px 0 !important;
         }
 
         /* 스트릭 진행 바 - 생생한 그라디언트 */
         [data-theme="dark"] .streak-display > div > div[style*="background: linear-gradient"] {
-            background: linear-gradient(90deg, #ff7575, #ffaa66, #ffd93d) !important;
-            box-shadow: 0 0 16px rgba(255, 117, 117, 0.6), 0 0 8px rgba(255, 170, 102, 0.4);
+            background: linear-gradient(90deg, #00ff88, #00d9ff, #0088ff) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.6) !important;
         }
 
-        /* 스트릭 추가 정보 텍스트 - 매우 밝게 */
+        /* 스트릭 추가 정보 텍스트 - 명확한 흰색 */
         [data-theme="dark"] .streak-display > div:last-child {
-            color: #e8e8e8 !important;
+            color: #ffffff !important;
+            margin-top: 24px !important;
+            padding-top: 24px !important;
+            border-top: 2px solid #333333 !important;
         }
 
         [data-theme="dark"] .streak-display > div:last-child > div {
-            color: #e8e8e8 !important;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3),
-                         0 2px 4px rgba(0, 0, 0, 0.5);
+            color: #e0e0e0 !important;
+            text-shadow: none !important;
+            font-size: 1rem !important;
         }
 
         [data-theme="dark"] .streak-display span {
             color: #ffffff !important;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            text-shadow: none !important;
+            font-weight: 600 !important;
+        }
+
+        /* 스트릭 상태 배지 - 전기 녹색 강조 */
+        [data-theme="dark"] #streak-status {
+            background: rgba(0, 255, 136, 0.2) !important;
+            color: #00ff88 !important;
+            border: 2px solid #00ff88 !important;
+            font-weight: 700 !important;
+            padding: 6px 16px !important;
         }
 
         /* Dark Mode Progress Bar - Enhanced Contrast */
@@ -4909,7 +4958,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.6.4</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.6.5</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
