@@ -2,8 +2,15 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.6.3
+    Version: 3.6.4
     Last Updated: 2025-10-30
+
+    Changes in v3.6.4 - Streak Display Drag Selection Fix:
+    - FIXED: Text selection highlighting during drag operations
+      * Added user-select: none to streak-display container
+      * Added user-select: none to streak-number element
+      * Prevents unwanted text selection colors from appearing
+      * Ensures clean, uninterrupted visual appearance when interacting with streak section
 
     Changes in v3.6.3 - Dark Mode Streak Display Major Visibility Enhancement:
     - SIGNIFICANTLY IMPROVED: Streak number visibility
@@ -843,7 +850,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시험 전략적 학습 시스템 (1차/2차) v3.6.3</title>
+    <title>시험 전략적 학습 시스템 (1차/2차) v3.6.4</title>
     <!-- Favicon: Book with checkmark icon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='20' y='15' width='60' height='70' rx='3' fill='%233182CE'/%3E%3Cpath d='M25 20h50v60H25z' fill='%23fff'/%3E%3Cpath d='M30 30h40M30 40h35M30 50h40M30 60h30' stroke='%233182CE' stroke-width='2' fill='none'/%3E%3Ccircle cx='75' cy='75' r='18' fill='%2348BB78'/%3E%3Cpath d='M67 75l6 6 12-12' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
@@ -1250,6 +1257,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                         0 0 30px rgba(255, 100, 100, 0.25),
                         inset 0 0 20px rgba(255, 100, 100, 0.08);
             padding: 24px !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
         }
 
         /* 스트릭 메인 숫자 - 매우 밝은 빨강색 */
@@ -1267,6 +1278,10 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             background-clip: unset !important;
             text-align: center;
             line-height: 1;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
         }
 
         /* 스트릭 라벨 - 매우 밝고 명확하게 */
@@ -4894,7 +4909,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.6.3</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.6.4</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
