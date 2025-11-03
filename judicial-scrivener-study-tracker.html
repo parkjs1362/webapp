@@ -2,10 +2,24 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.6.10
-    Last Updated: 2025-10-31
+    Version: 3.7.0
+    Last Updated: 2025-11-03
 
-        Changes in v3.6.10 - STAGE 2: CSS Consolidation, Performance & Responsive Design:
+    Changes in v3.7.0 - Advanced Analytics Module Integration (v3.0.0):
+    - INTEGRATED: migration-v2-to-v3.js - Automatic v2→v3 data migration with UUID mapping
+    - INTEGRATED: sync-manager-v3.0.js - Real-time synchronization using Observer pattern
+    - INTEGRATED: analytics-engine-v3.0.js - AI-powered learning analysis engine
+    - FEATURE: 7-entity data normalization schema for complete data integrity
+    - FEATURE: Automatic cascade updates on study data changes
+    - FEATURE: Advanced efficiency scoring (0-100 scale) with component breakdown
+    - FEATURE: Intelligent weak subject identification with improvement roadmap
+    - FEATURE: Daily/weekly/monthly analytics with benchmark comparison
+    - FEATURE: Smart learning pace assessment and milestone prediction
+    - FEATURE: Pattern analysis for optimal study scheduling
+    - COMPATIBLE: 100% backward compatible with v2.14.0 data
+    - PERFORMANCE: Zero storage overhead despite normalization
+
+    Changes in v3.6.10 - STAGE 2: CSS Consolidation, Performance & Responsive Design:
     - CSS CONSOLIDATION: Reduced CSS size by ~25% through deduplication and utility classes
       * Consolidated duplicate .btn-primary and .btn-secondary definitions into unified button system
       * Created BEM modifiers (.btn-primary--small, .btn-primary--large) for size variations
@@ -9737,6 +9751,43 @@ console.log('✅ 메인 스크립트 시작됨');
     </script>
 
     <!-- ================================================================ -->
+    <!-- v3.0.0 모듈 로드 (데이터 정규화, 자동 동기화, 분석 엔진) -->
+    <!-- ================================================================ -->
+    <script src="migration-v2-to-v3.js"></script>
+    <script src="sync-manager-v3.0.js"></script>
+    <script src="analytics-engine-v3.0.js"></script>
+    <!-- 모니터링 시스템 (배포 후 실시간 모니터링) -->
+    <!-- <script src="monitoring-v3.0.js"></script> -->
+
+    <!-- v3.0.0 모듈 로드 체크 (콘솔 전용) -->
+    <script>
+        window.addEventListener('load', function() {
+            const modules = {
+                'DataMigration': 'migration-v2-to-v3.js',
+                'SyncManager': 'sync-manager-v3.0.js',
+                'AnalyticsEngine': 'analytics-engine-v3.0.js'
+            };
+
+            const loadedModules = [];
+            const missingModules = [];
+
+            for (const [name, file] of Object.entries(modules)) {
+                if (window[name]) {
+                    loadedModules.push(name);
+                } else {
+                    missingModules.push(file);
+                }
+            }
+
+            if (missingModules.length === 0) {
+                console.log('✅ v3.0.0 모든 모듈 로드됨:', loadedModules);
+            } else {
+                console.warn('⚠️ v3.0.0 모듈 로드 경고:');
+                console.log('로드된 모듈:', loadedModules);
+                console.log('로드되지 않은 파일:', missingModules);
+            }
+        });
+    </script>
 
 </body>
 </html>
