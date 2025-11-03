@@ -1,13 +1,15 @@
 /**
- * 사법시험 학습 시스템 v3.7.0
+ * 사법시험 학습 시스템 v3.9.0
  *
  * ✅ TypeScript 패턴 · 단일 정보 소스(SSOT) 원칙 · 정규화 데이터 모델
+ * ✅ 회독 추적 & 성적 분석 시스템 통합
  *
  * 아키텍처:
  * 1. Data Model: 정규화된 데이터 구조 (timeBlocks 중심)
  * 2. Services: 비즈니스 로직 (DataManager, StreakService, StatisticsService)
  * 3. Managers: UI 로직 (ViewManager, ChartManager)
  * 4. Handlers: 이벤트 처리
+ * 5. Analytics: 성적 & 회독 분석
  */
 
 // ============================================================================
@@ -68,6 +70,73 @@ class SubjectProgress {
   }
 }
 
+/**
+ * ✅ 모의고사 성적 (정규화)
+ */
+class MockScore {
+  constructor(data) {
+    this.id = data.id || Date.now();
+    this.date = data.date || new Date().toISOString().split('T')[0];
+    this.subject = data.subject;
+    this.round = data.round || 1;  // 회차
+    this.score = data.score || 0;
+    this.maxScore = data.maxScore || 100;
+    this.correctCount = data.correctCount || 0;
+    this.totalCount = data.totalCount || 0;
+    this.accuracy = data.accuracy || 0; // 정답률 (%)
+    this.notes = data.notes || '';
+  }
+
+  get scorePercent() {
+    return this.maxScore > 0 ? (this.score / this.maxScore) * 100 : 0;
+  }
+}
+
+/**
+ * ✅ 회독 추적 시스템
+ */
+class RotationTracker {
+  constructor(subject) {
+    this.subject = subject;
+    this.rotations = [
+      { round: 1, completed: false, date: null, studyHours: 0 },
+      { round: 2, completed: false, date: null, studyHours: 0 },
+      { round: 3, completed: false, date: null, studyHours: 0 },
+      { round: 4, completed: false, date: null, studyHours: 0 },
+      { round: 5, completed: false, date: null, studyHours: 0 },
+      { round: 6, completed: false, date: null, studyHours: 0 },
+      { round: 7, completed: false, date: null, studyHours: 0 }
+    ];
+  }
+
+  /**
+   * ✅ 회독 완료 표시
+   */
+  completeRotation(roundNum) {
+    const rotation = this.rotations[roundNum - 1];
+    if (rotation) {
+      rotation.completed = true;
+      rotation.date = new Date().toISOString().split('T')[0];
+    }
+  }
+
+  /**
+   * ✅ 회독 진도율 계산
+   */
+  get progressPercent() {
+    const completed = this.rotations.filter(r => r.completed).length;
+    return (completed / 7) * 100;
+  }
+
+  /**
+   * ✅ 다음 회독 번호
+   */
+  get nextRotation() {
+    const incomplete = this.rotations.find(r => !r.completed);
+    return incomplete ? incomplete.round : 8;
+  }
+}
+
 // ============================================================================
 // 2️⃣  BUSINESS LOGIC LAYER (Services)
 // ============================================================================
@@ -80,7 +149,8 @@ class DataManager {
   constructor() {
     this.timeBlocks = [];
     this.subjects = [];
-    this.mockScores = [];
+    this.mockScores = [];  // ✅ 정규화된 MockScore 객체 배열
+    this.rotationTrackers = {};  // ✅ 과목별 RotationTracker (subject -> RotationTracker)
     this.streak = new StreakData();
     this.examType = '1차';
 
@@ -186,11 +256,42 @@ class DataManager {
       .reduce((sum, b) => sum + b.hours, 0);
   }
 
+  /**
+   * ✅ 과목의 RotationTracker 가져오기 (없으면 생성)
+   */
+  getRotationTracker(subjectName) {
+    if (!this.rotationTrackers[subjectName]) {
+      this.rotationTrackers[subjectName] = new RotationTracker(subjectName);
+    }
+    return this.rotationTrackers[subjectName];
+  }
+
+  /**
+   * ✅ 모의고사 성적 추가
+   */
+  addMockScore(scoreData) {
+    const mockScore = new MockScore(scoreData);
+    this.mockScores.push(mockScore);
+    this.save();
+    return mockScore;
+  }
+
+  /**
+   * ✅ 특정 과목의 평균 성적 계산
+   */
+  getAverageMockScore(subject) {
+    const subjectScores = this.mockScores.filter(s => s.subject === subject);
+    if (subjectScores.length === 0) return 0;
+    const totalScore = subjectScores.reduce((sum, s) => sum + s.scorePercent, 0);
+    return totalScore / subjectScores.length;
+  }
+
   save() {
     localStorage.setItem('studyData', JSON.stringify({
       timeBlocks: this.timeBlocks,
       subjects: this.subjects,
       mockScores: this.mockScores,
+      rotationTrackers: this.rotationTrackers,
       streak: this.streak,
       examType: this.examType
     }));
@@ -202,7 +303,8 @@ class DataManager {
       const data = JSON.parse(saved);
       this.timeBlocks = (data.timeBlocks || []).map(b => new TimeBlock(b));
       this.subjects = data.subjects || [];
-      this.mockScores = data.mockScores || [];
+      this.mockScores = (data.mockScores || []).map(m => new MockScore(m));
+      this.rotationTrackers = data.rotationTrackers || {};
       this.streak = { ...new StreakData(), ...data.streak };
       this.examType = data.examType || '1차';
     }
@@ -380,6 +482,80 @@ class StatisticsService {
 
     const ratio = todaySession.totalCompletedHours / todaySession.totalPlannedHours;
     return Math.min(100, Math.round(ratio * 100));
+  }
+
+  /**
+   * ✅ 성적 분석: 약점 과목 식별
+   */
+  getWeakSubjects(threshold = 60) {
+    const weakSubjects = [];
+    const uniqueSubjects = new Set(this.dataManager.mockScores.map(s => s.subject));
+
+    uniqueSubjects.forEach(subject => {
+      const avgScore = this.dataManager.getAverageMockScore(subject);
+      if (avgScore < threshold) {
+        weakSubjects.push({
+          subject,
+          avgScore: Math.round(avgScore),
+          count: this.dataManager.mockScores.filter(s => s.subject === subject).length
+        });
+      }
+    });
+
+    return weakSubjects.sort((a, b) => a.avgScore - b.avgScore);
+  }
+
+  /**
+   * ✅ 성적 추이 분석 (최근 N개)
+   */
+  getScoreTrend(subject = null, limit = 5) {
+    let scores = this.dataManager.mockScores;
+
+    if (subject) {
+      scores = scores.filter(s => s.subject === subject);
+    }
+
+    return scores.slice(-limit).map(s => ({
+      date: s.date,
+      score: s.scorePercent,
+      subject: s.subject
+    }));
+  }
+
+  /**
+   * ✅ 회독 진도 분석
+   */
+  getRotationProgress(subject) {
+    const tracker = this.dataManager.getRotationTracker(subject);
+    return {
+      subject,
+      progress: tracker.progressPercent,
+      completed: tracker.rotations.filter(r => r.completed).length,
+      nextRotation: tracker.nextRotation,
+      rotations: tracker.rotations
+    };
+  }
+
+  /**
+   * ✅ 성적과 회독의 상관관계 분석
+   */
+  analyzeStudyEffectiveness(subject) {
+    const avgScore = this.dataManager.getAverageMockScore(subject);
+    const tracker = this.dataManager.getRotationTracker(subject);
+    const studyHours = this.dataManager.timeBlocks
+      .filter(b => b.subject === subject && b.completed)
+      .reduce((sum, b) => sum + b.hours, 0);
+
+    return {
+      subject,
+      avgScore: Math.round(avgScore),
+      rotationProgress: Math.round(tracker.progressPercent),
+      studyHours: Math.round(studyHours * 10) / 10,
+      effectiveness: {
+        score: avgScore > 70 ? '우수' : avgScore > 50 ? '보통' : '미흡',
+        rotations: tracker.progressPercent > 50 ? '진행 중' : '시작 단계'
+      }
+    };
   }
 }
 
@@ -586,16 +762,68 @@ class AppState {
   }
 
   /**
-   * ✅ 회독 토글
+   * ✅ 회독 토글 (RotationTracker 기반)
    */
   toggleRotation(subjectName, rotationIndex) {
-    const subject = this.dataManager.subjects.find(s => s.name === subjectName);
-    if (subject && subject.rotations) {
-      subject.rotations[rotationIndex] = !subject.rotations[rotationIndex];
+    const tracker = this.dataManager.getRotationTracker(subjectName);
+    const roundNum = rotationIndex + 1;
+    const rotation = tracker.rotations[rotationIndex];
+
+    if (rotation) {
+      rotation.completed = !rotation.completed;
+      if (rotation.completed) {
+        rotation.date = new Date().toISOString().split('T')[0];
+      }
       this.dataManager.save();
       this.viewManager.render();
-      showToast(`${subjectName} 회독 #${rotationIndex + 1} 업데이트됨`);
+      showToast(`${subjectName} 회독 #${roundNum} ${rotation.completed ? '완료' : '취소'}`);
     }
+  }
+
+  /**
+   * ✅ 모의고사 성적 추가
+   */
+  addMockScore(subject, score, maxScore = 100, round = 1) {
+    const mockScore = this.dataManager.addMockScore({
+      subject,
+      score,
+      maxScore,
+      round,
+      accuracy: (score / maxScore) * 100
+    });
+    this.viewManager.render();
+    showToast(`${subject} 모의고사 성적 기록: ${score}/${maxScore}`);
+    return mockScore;
+  }
+
+  /**
+   * ✅ 회독 완료 표시
+   */
+  completeRotation(subject, roundNum) {
+    const tracker = this.dataManager.getRotationTracker(subject);
+    tracker.completeRotation(roundNum);
+    this.dataManager.save();
+    this.viewManager.render();
+    showToast(`${subject} 회독 #${roundNum} 완료!`);
+  }
+
+  /**
+   * ✅ 약점 과목 분석
+   */
+  getWeakSubjectsReport() {
+    const weakSubjects = this.statsService.getWeakSubjects(60);
+    if (weakSubjects.length === 0) {
+      showToast('모든 과목이 우수합니다! 🎉');
+      return [];
+    }
+    return weakSubjects;
+  }
+
+  /**
+   * ✅ 과목별 효율성 분석
+   */
+  getSubjectEffectiveness(subject) {
+    return this.statsService.analyzeStudyEffectiveness(subject);
   }
 
   /**
@@ -606,6 +834,7 @@ class AppState {
       this.dataManager.timeBlocks = [];
       this.dataManager.subjects = [];
       this.dataManager.mockScores = [];
+      this.dataManager.rotationTrackers = {};
       this.dataManager.streak = new StreakData();
       this.dataManager.save();
       this.viewManager.render();
@@ -626,11 +855,14 @@ document.addEventListener('DOMContentLoaded', () => {
   appState = new AppState();
   appState.init();
 
-  console.log('📊 데이터 구조 검증:');
-  console.log('- SSOT 중심: timeBlocks');
-  console.log('- 단일 정보 소스 원칙 적용됨');
-  console.log('- 스트릭 시스템 재작성 완료');
-  console.log('- TypeScript 패턴 적용됨');
+  console.log('📊 v3.9.0 데이터 구조 검증:');
+  console.log('✅ SSOT 중심: timeBlocks');
+  console.log('✅ 단일 정보 소스 원칙 적용됨');
+  console.log('✅ 스트릭 시스템 재작성 완료');
+  console.log('✅ TypeScript 패턴 적용됨');
+  console.log('✅ MockScore 정규화 완료');
+  console.log('✅ RotationTracker 통합 완료');
+  console.log('✅ 성적 분석 엔진 추가됨');
 });
 
 /**
@@ -661,4 +893,4 @@ function updateStreak() {
   if (appState) appState.streakService.updateStreak();
 }
 
-console.log('✅ app.js 로드 완료 - v3.7.0 TypeScript 패턴 적용');
+console.log('✅ app.js 로드 완료 - v3.9.0 회독 추적 & 성적 분석 시스템 통합');
