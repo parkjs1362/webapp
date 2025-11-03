@@ -124,6 +124,18 @@ class DataManager {
     return false;
   }
 
+  /**
+   * ✅ 시간 블록 제거 (스트릭 재검증 포함)
+   */
+  removeTimeBlockWithValidation(id, streakService) {
+    if (this.removeTimeBlock(id)) {
+      // 스트릭 재검증 (마지막 완료 블록이 삭제되었을 수 있음)
+      streakService.validateStreakAfterChange();
+      return true;
+    }
+    return false;
+  }
+
   updateTimeBlock(id, updates) {
     const block = this.timeBlocks.find(b => b.id === id);
     if (block) {
@@ -266,6 +278,55 @@ class StreakService {
     const today = new Date().toISOString().split('T')[0];
     return this.dataManager.streak.lastStudyDate === today;
   }
+
+  /**
+   * ✅ 시간 블록 제거 시 스트릭 재계산
+   * 마지막 완료 블록이 제거되었을 수 있으므로 검증 필요
+   */
+  validateStreakAfterChange() {
+    const today = new Date().toISOString().split('T')[0];
+    const todaySession = this.dataManager.getSessionForDate(today);
+    const lastStudy = this.dataManager.streak.lastStudyDate;
+
+    // 오늘 공부가 없는데 lastStudyDate가 오늘이면, 이전 날로 변경
+    if (!todaySession.hasStudied && lastStudy === today) {
+      // 어제 데이터 확인
+      const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0];
+      const yesterdaySession = this.dataManager.getSessionForDate(yesterday);
+
+      if (yesterdaySession.hasStudied) {
+        this.dataManager.streak.lastStudyDate = yesterday;
+        console.log(`🔧 스트릭 수정: lastStudyDate를 어제로 변경`);
+      } else {
+        // 어제도 공부 안 했으면, 더 이전을 찾아야 함
+        this.findLastStudyDate();
+      }
+      this.dataManager.save();
+    }
+  }
+
+  /**
+   * ✅ 마지막 공부 날짜 재탐색
+   */
+  findLastStudyDate() {
+    let searchDate = new Date();
+
+    for (let i = 0; i < 365; i++) {
+      const dateStr = new Date(searchDate.setDate(searchDate.getDate() - 1)).toISOString().split('T')[0];
+      const session = this.dataManager.getSessionForDate(dateStr);
+
+      if (session.hasStudied) {
+        this.dataManager.streak.lastStudyDate = dateStr;
+        console.log(`🔍 마지막 공부 날짜 찾음: ${dateStr}`);
+        return dateStr;
+      }
+    }
+
+    // 365일 이내에 공부가 없으면 초기화
+    this.dataManager.streak.lastStudyDate = null;
+    this.dataManager.streak.current = 0;
+    console.log(`❌ 365일 이내 공부 기록 없음: 스트릭 초기화`);
+  }
 }
 
 /**
@@ -343,11 +404,12 @@ class ViewManager {
     this.renderTimeBlocks();
     this.renderStreak();
     this.renderWeeklyStats();
-    this.renderAnalytics();
+    this.renderSubjectProgress();
+    this.renderRotationTracker();
   }
 
   renderTimeBlocks() {
-    const container = document.getElementById('timeBlocksContainer');
+    const container = document.getElementById('time-blocks-container');
     if (!container) return;
 
     const today = new Date().toISOString().split('T')[0];
@@ -401,27 +463,59 @@ class ViewManager {
   renderWeeklyStats() {
     const stats = this.dataManager.getWeeklyStats();
     // ✅ UI 업데이트 (기존 DOM 활용)
-    const statsContainer = document.getElementById('weeklyStatsContainer');
+    const statsContainer = document.getElementById('weekly-stats');
     if (statsContainer) {
-      statsContainer.innerHTML = JSON.stringify(stats, null, 2);
+      const statsHtml = Object.entries(stats).map(([day, hours]) => `
+        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e9ecef;">
+          <span>${day}</span>
+          <strong>${hours.toFixed(1)}시간</strong>
+        </div>
+      `).join('');
+      statsContainer.innerHTML = statsHtml || '<p>주간 데이터가 없습니다</p>';
     }
   }
 
-  renderAnalytics() {
-    const totalHours = this.dataManager.getTotalStudyHours();
-    const efficiency = this.statsService.getEfficiencyScore();
-    const avgDaily = this.statsService.getAverageDailyHours();
+  renderSubjectProgress() {
+    const progressEl = document.getElementById('subject-progress');
+    if (progressEl) {
+      const progressHtml = this.dataManager.subjects.map(subject => {
+        const percent = subject.progressPercent || 0;
+        return `
+          <div style="margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <span style="font-weight: 600;">${subject.name}</span>
+              <span>${percent.toFixed(0)}%</span>
+            </div>
+            <div style="background: #e9ecef; border-radius: 8px; height: 20px; overflow: hidden;">
+              <div style="background: linear-gradient(90deg, #6366f1, #8b5cf6); height: 100%; width: ${percent}%; transition: width 0.3s;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      progressEl.innerHTML = progressHtml || '<p>과목이 없습니다</p>';
+    }
+  }
 
-    const analyticsEl = document.getElementById('analyticsContainer');
-    if (analyticsEl) {
-      analyticsEl.innerHTML = `
-        <div class="analytics-card">
-          <h3>학습 분석</h3>
-          <p>총 학습 시간: ${totalHours.toFixed(1)}시간</p>
-          <p>오늘 효율성: ${efficiency}%</p>
-          <p>일 평균: ${avgDaily.toFixed(1)}시간</p>
-        </div>
-      `;
+  renderRotationTracker() {
+    const trackerEl = document.getElementById('rotation-tracker');
+    if (trackerEl) {
+      const trackerHtml = this.dataManager.subjects.map(subject => {
+        const rotations = subject.rotations || [false, false, false, false, false, false, false];
+        const rotationDots = rotations.map((completed, idx) => `
+          <span style="display: inline-block; width: 24px; height: 24px; margin: 0 4px; background: ${completed ? '#34D399' : '#e9ecef'}; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; color: ${completed ? '#fff' : '#6c757d'}; cursor: pointer; transition: all 0.2s;"
+                onclick="appState.toggleRotation('${subject.name}', ${idx})">
+            ${idx + 1}
+          </span>
+        `).join('');
+
+        return `
+          <div style="margin-bottom: 15px;">
+            <div style="font-weight: 600; margin-bottom: 8px;">${subject.name}</div>
+            <div>${rotationDots}</div>
+          </div>
+        `;
+      }).join('');
+      trackerEl.innerHTML = trackerHtml || '<p>과목이 없습니다</p>';
     }
   }
 }
@@ -475,10 +569,33 @@ class AppState {
     showToast('학습 블록이 추가되었습니다');
   }
 
+  /**
+   * ✅ TimeBlock 제거 (스트릭 재검증)
+   */
+  removeBlock(id) {
+    if (this.dataManager.removeTimeBlockWithValidation(id, this.streakService)) {
+      this.viewManager.render();
+      showToast('학습 블록이 제거되었습니다');
+    }
+  }
+
   calculateHours(startTime, endTime) {
     const [startH, startM] = startTime.split(':').map(Number);
     const [endH, endM] = endTime.split(':').map(Number);
     return ((endH * 60 + endM) - (startH * 60 + startM)) / 60;
+  }
+
+  /**
+   * ✅ 회독 토글
+   */
+  toggleRotation(subjectName, rotationIndex) {
+    const subject = this.dataManager.subjects.find(s => s.name === subjectName);
+    if (subject && subject.rotations) {
+      subject.rotations[rotationIndex] = !subject.rotations[rotationIndex];
+      this.dataManager.save();
+      this.viewManager.render();
+      showToast(`${subjectName} 회독 #${rotationIndex + 1} 업데이트됨`);
+    }
   }
 
   /**
