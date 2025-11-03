@@ -26,14 +26,65 @@
 
 class TimeBlock {
   constructor(data) {
+    if (!data || typeof data !== 'object') {
+      throw new Error('TimeBlock: data must be an object');
+    }
+
     this.id = data.id || Date.now();
-    this.date = data.date || new Date().toISOString().split('T')[0];  // YYYY-MM-DD (필수!)
-    this.subject = data.subject;
-    this.startTime = data.startTime;
-    this.endTime = data.endTime;
-    this.hours = data.hours || 2;
-    this.completed = data.completed || false;
-    this.detail = data.detail || '';
+
+    // ✅ FIX: 로컬 시간대 기반 날짜 사용
+    this.date = this._validateDate(data.date || DataManager.getLocalDateString());
+    this.subject = this._validateString(data.subject, 'subject');
+    this.startTime = this._validateTime(data.startTime, 'startTime');
+    this.endTime = this._validateTime(data.endTime, 'endTime');
+    this.hours = this._validateHours(data.hours);
+    this.completed = data.completed === true;
+    this.detail = (data.detail || '').trim();
+
+    // ✅ startTime < endTime 검증
+    this._validateTimeRange();
+  }
+
+  _validateDate(dateStr) {
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regex.test(dateStr)) {
+      throw new Error(`TimeBlock: Invalid date format "${dateStr}" (expected YYYY-MM-DD)`);
+    }
+    return dateStr;
+  }
+
+  _validateString(value, fieldName) {
+    if (!value || typeof value !== 'string') {
+      throw new Error(`TimeBlock: ${fieldName} is required and must be a string`);
+    }
+    return value.trim();
+  }
+
+  _validateTime(timeStr, fieldName) {
+    const regex = /^\d{2}:\d{2}$/;
+    if (!regex.test(timeStr)) {
+      throw new Error(`TimeBlock: Invalid ${fieldName} format "${timeStr}" (expected HH:MM)`);
+    }
+    return timeStr;
+  }
+
+  _validateHours(hours) {
+    const h = Number(hours);
+    if (isNaN(h) || h <= 0 || h > 24) {
+      throw new Error(`TimeBlock: hours must be between 0 and 24, got ${hours}`);
+    }
+    return h;
+  }
+
+  _validateTimeRange() {
+    const [startH, startM] = this.startTime.split(':').map(Number);
+    const [endH, endM] = this.endTime.split(':').map(Number);
+    const startTotal = startH * 60 + startM;
+    const endTotal = endH * 60 + endM;
+
+    if (startTotal >= endTotal) {
+      throw new Error(`TimeBlock: startTime must be before endTime (${this.startTime} >= ${this.endTime})`);
+    }
   }
 }
 
@@ -78,16 +129,49 @@ class SubjectProgress {
  */
 class MockScore {
   constructor(data) {
+    if (!data || typeof data !== 'object') {
+      throw new Error('MockScore: data must be an object');
+    }
+
     this.id = data.id || Date.now();
-    this.date = data.date || new Date().toISOString().split('T')[0];
-    this.subject = data.subject;
-    this.round = data.round || 1;  // 회차
-    this.score = data.score || 0;
-    this.maxScore = data.maxScore || 100;
-    this.correctCount = data.correctCount || 0;
-    this.totalCount = data.totalCount || 0;
-    this.accuracy = data.accuracy || 0; // 정답률 (%)
-    this.notes = data.notes || '';
+    // ✅ FIX: 로컬 시간대 기반 날짜 사용
+    this.date = this._validateDate(data.date || DataManager.getLocalDateString());
+    this.subject = this._validateString(data.subject, 'subject');
+    this.round = this._validateNumber(data.round || 1, 'round', 1, 10);
+    this.score = this._validateNumber(data.score || 0, 'score', 0, 1000);
+    this.maxScore = this._validateNumber(data.maxScore || 100, 'maxScore', 1, 1000);
+    this.correctCount = this._validateNumber(data.correctCount || 0, 'correctCount', 0, 500);
+    this.totalCount = this._validateNumber(data.totalCount || 0, 'totalCount', 0, 500);
+    this.accuracy = this._validateNumber(data.accuracy || 0, 'accuracy', 0, 100);
+    this.notes = (data.notes || '').trim();
+
+    // ✅ score <= maxScore 검증
+    if (this.score > this.maxScore) {
+      throw new Error(`MockScore: score (${this.score}) cannot exceed maxScore (${this.maxScore})`);
+    }
+  }
+
+  _validateDate(dateStr) {
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regex.test(dateStr)) {
+      throw new Error(`MockScore: Invalid date format "${dateStr}" (expected YYYY-MM-DD)`);
+    }
+    return dateStr;
+  }
+
+  _validateString(value, fieldName) {
+    if (!value || typeof value !== 'string') {
+      throw new Error(`MockScore: ${fieldName} is required and must be a string`);
+    }
+    return value.trim();
+  }
+
+  _validateNumber(value, fieldName, min, max) {
+    const n = Number(value);
+    if (isNaN(n) || n < min || n > max) {
+      throw new Error(`MockScore: ${fieldName} must be between ${min} and ${max}, got ${value}`);
+    }
+    return n;
   }
 
   get scorePercent() {
@@ -119,7 +203,8 @@ class RotationTracker {
     const rotation = this.rotations[roundNum - 1];
     if (rotation) {
       rotation.completed = true;
-      rotation.date = new Date().toISOString().split('T')[0];
+      // ✅ FIX: 로컬 시간대 기반 날짜 사용
+      rotation.date = DataManager.getLocalDateString();
     }
   }
 
@@ -161,6 +246,21 @@ class DataManager {
   }
 
   /**
+   * ✅ FIX: 로컬 시간대 기반 날짜 문자열 반환
+   * ISO 문자열은 UTC 기반이므로 한국 시간과 다를 수 있음
+   * 예: 한국 23:00 = UTC 14:00 (다른 날짜!)
+   * @param {number} dayOffset - 일 오프셋 (기본: 0, 어제: -1)
+   */
+  static getLocalDateString(dayOffset = 0) {
+    const now = new Date();
+    now.setDate(now.getDate() + dayOffset);
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const date = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${date}`;
+  }
+
+  /**
    * ✅ 핵심: 모든 데이터는 timeBlocks에서 계산
    * studyHistory는 캐시일 뿐, 원본이 아님
    */
@@ -169,12 +269,20 @@ class DataManager {
   }
 
   addTimeBlock(block) {
-    // ✅ date 필드는 필수!
-    if (!block.date) {
-      block.date = new Date().toISOString().split('T')[0];
+    // ✅ FIX: 에러 처리 추가
+    try {
+      // date 필드는 필수!
+      if (!block.date) {
+        block.date = DataManager.getLocalDateString();
+      }
+      const timeBlock = new TimeBlock(block);
+      this.timeBlocks.push(timeBlock);
+      this.save();
+      return timeBlock;
+    } catch (error) {
+      console.error('❌ TimeBlock 생성 실패:', error.message);
+      throw error;
     }
-    this.timeBlocks.push(new TimeBlock(block));
-    this.save();
   }
 
   toggleTimeBlock(id) {
@@ -214,7 +322,7 @@ class DataManager {
     if (block) {
       Object.assign(block, updates);
       if (!block.date) {
-        block.date = new Date().toISOString().split('T')[0];
+        block.date = DataManager.getLocalDateString();
       }
       this.save();
       return true;
@@ -273,10 +381,16 @@ class DataManager {
    * ✅ 모의고사 성적 추가
    */
   addMockScore(scoreData) {
-    const mockScore = new MockScore(scoreData);
-    this.mockScores.push(mockScore);
-    this.save();
-    return mockScore;
+    // ✅ FIX: 에러 처리 추가
+    try {
+      const mockScore = new MockScore(scoreData);
+      this.mockScores.push(mockScore);
+      this.save();
+      return mockScore;
+    } catch (error) {
+      console.error('❌ MockScore 생성 실패:', error.message);
+      throw error;
+    }
   }
 
   /**
@@ -307,7 +421,21 @@ class DataManager {
       this.timeBlocks = (data.timeBlocks || []).map(b => new TimeBlock(b));
       this.subjects = data.subjects || [];
       this.mockScores = (data.mockScores || []).map(m => new MockScore(m));
-      this.rotationTrackers = data.rotationTrackers || {};
+
+      // ✅ FIX: RotationTracker 인스턴스로 올바르게 복원
+      this.rotationTrackers = {};
+      if (data.rotationTrackers) {
+        Object.keys(data.rotationTrackers).forEach(subject => {
+          const tracker = new RotationTracker(subject);
+          const saved = data.rotationTrackers[subject];
+          // 저장된 rotations 데이터로 복원
+          if (saved && saved.rotations && Array.isArray(saved.rotations)) {
+            tracker.rotations = saved.rotations;
+          }
+          this.rotationTrackers[subject] = tracker;
+        });
+      }
+
       this.streak = { ...new StreakData(), ...data.streak };
       this.examType = data.examType || '1차';
     }
@@ -327,7 +455,7 @@ class StreakService {
    * SSOT: StudySession.hasStudied 사용
    */
   updateStreak() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = DataManager.getLocalDateString();
     const todaySession = this.dataManager.getSessionForDate(today);
     const lastStudy = this.dataManager.streak.lastStudyDate;
 
@@ -371,7 +499,7 @@ class StreakService {
    * ✅ 오늘 공부 여부만 판정 (스트릭 업데이트 없음)
    */
   hasStudiedToday() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = DataManager.getLocalDateString();
     const todaySession = this.dataManager.getSessionForDate(today);
     return todaySession.hasStudied;
   }
@@ -380,7 +508,7 @@ class StreakService {
    * ✅ 마지막 학습이 오늘인지 확인
    */
   isLastStudyToday() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = DataManager.getLocalDateString();
     return this.dataManager.streak.lastStudyDate === today;
   }
 
@@ -389,14 +517,14 @@ class StreakService {
    * 마지막 완료 블록이 제거되었을 수 있으므로 검증 필요
    */
   validateStreakAfterChange() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = DataManager.getLocalDateString();
     const todaySession = this.dataManager.getSessionForDate(today);
     const lastStudy = this.dataManager.streak.lastStudyDate;
 
     // 오늘 공부가 없는데 lastStudyDate가 오늘이면, 이전 날로 변경
     if (!todaySession.hasStudied && lastStudy === today) {
-      // 어제 데이터 확인
-      const yesterday = new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0];
+      // ✅ FIX: 어제 데이터 확인 (로컬 시간대 사용)
+      const yesterday = DataManager.getLocalDateString(-1);
       const yesterdaySession = this.dataManager.getSessionForDate(yesterday);
 
       if (yesterdaySession.hasStudied) {
@@ -478,7 +606,7 @@ class StatisticsService {
    * ✅ 학습 효율성 점수 (0-100)
    */
   getEfficiencyScore() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = DataManager.getLocalDateString();
     const todaySession = this.dataManager.getSessionForDate(today);
 
     if (todaySession.totalPlannedHours === 0) return 0;
@@ -591,7 +719,7 @@ class ViewManager {
     const container = document.getElementById('time-blocks-container');
     if (!container) return;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = DataManager.getLocalDateString();
     const todayBlocks = this.dataManager.timeBlocks.filter(b => b.date === today);
 
     if (todayBlocks.length === 0) {
@@ -786,7 +914,7 @@ class ViewManager {
    * ✅ 메트릭 카드 렌더링
    */
   renderMetricCards() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = DataManager.getLocalDateString();
     const todaySession = this.dataManager.getSessionForDate(today);
     const totalHours = this.dataManager.getTotalStudyHours();
     const efficiency = this.statsService.getEfficiencyScore();
@@ -946,7 +1074,7 @@ class AppState {
   addBlock(subject, startTime, endTime, detail) {
     const hours = this.calculateHours(startTime, endTime);
     this.dataManager.addTimeBlock({
-      date: new Date().toISOString().split('T')[0],
+      date: DataManager.getLocalDateString(),
       subject,
       startTime,
       endTime,
@@ -985,7 +1113,7 @@ class AppState {
     if (rotation) {
       rotation.completed = !rotation.completed;
       if (rotation.completed) {
-        rotation.date = new Date().toISOString().split('T')[0];
+        rotation.date = DataManager.getLocalDateString();
       }
       this.dataManager.save();
       this.viewManager.render();
@@ -1059,7 +1187,7 @@ class AppState {
    * ✅ v3.11.0: 메트릭 모달 표시
    */
   showMetricModal(metricType) {
-    const today = new Date().toISOString().split('T')[0];
+    const today = DataManager.getLocalDateString();
     const todaySession = this.dataManager.getSessionForDate(today);
     const totalHours = this.dataManager.getTotalStudyHours();
     const weakSubjects = this.statsService.getWeakSubjects(60);
@@ -1181,8 +1309,9 @@ class AppState {
    * ✅ 모달 표시 (일반 용도)
    */
   showModal(title, content) {
-    // 모달이 없으면 생성
     let modal = document.getElementById('metric-detail-modal');
+
+    // ✅ FIX: 모달 생성 및 이벤트 리스너 한 번만 등록
     if (!modal) {
       modal = document.createElement('div');
       modal.id = 'metric-detail-modal';
@@ -1191,31 +1320,44 @@ class AppState {
         <div class="modal-content" style="max-width: 400px;">
           <div class="modal-header">
             <h2 id="modal-title"></h2>
-            <button onclick="document.getElementById('metric-detail-modal').style.display='none'" class="modal-close">✕</button>
+            <button class="modal-close">✕</button>
           </div>
           <div class="modal-body" id="modal-body"></div>
         </div>
       `;
       document.body.appendChild(modal);
 
-      // 모달 외부 클릭 시 닫기
-      modal.onclick = (e) => {
+      // ✅ FIX: 클릭 핸들러 저장 (나중에 제거 가능하도록)
+      modal._closeClickHandler = (e) => {
         if (e.target === modal) {
           modal.style.display = 'none';
         }
       };
+      modal.addEventListener('click', modal._closeClickHandler);
 
-      // ESC 키 시 닫기
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal) {
+      // ✅ FIX: 닫기 버튼 핸들러
+      const closeBtn = modal.querySelector('.modal-close');
+      closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+
+      // ✅ FIX: ESC 키 핸들러 저장 (나중에 제거 가능하도록)
+      modal._escapeKeyHandler = (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
           modal.style.display = 'none';
         }
-      });
+      };
+      document.addEventListener('keydown', modal._escapeKeyHandler);
+
+      // ✅ 초기화 플래그
+      modal._initialized = true;
     }
 
     // 모달 내용 업데이트
-    document.getElementById('modal-title').textContent = title;
-    document.getElementById('modal-body').innerHTML = content;
+    const titleEl = document.getElementById('modal-title');
+    const bodyEl = document.getElementById('modal-body');
+    if (titleEl) titleEl.textContent = title;
+    if (bodyEl) bodyEl.innerHTML = content;
 
     // 모달 표시
     modal.style.display = 'flex';
