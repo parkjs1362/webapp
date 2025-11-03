@@ -1,15 +1,17 @@
 /**
- * 사법시험 학습 시스템 v3.9.0
+ * 사법시험 학습 시스템 v3.10.0
  *
  * ✅ TypeScript 패턴 · 단일 정보 소스(SSOT) 원칙 · 정규화 데이터 모델
  * ✅ 회독 추적 & 성적 분석 시스템 통합
+ * ✅ 고급 UI/UX 디자인 · SVG 차트 · 애니메이션 · 인터렉션
  *
  * 아키텍처:
  * 1. Data Model: 정규화된 데이터 구조 (timeBlocks 중심)
  * 2. Services: 비즈니스 로직 (DataManager, StreakService, StatisticsService)
- * 3. Managers: UI 로직 (ViewManager, ChartManager)
+ * 3. Managers: UI 로직 (ViewManager, 향상된 렌더링)
  * 4. Handlers: 이벤트 처리
  * 5. Analytics: 성적 & 회독 분석
+ * 6. Design System: 메트릭 카드, SVG 차트, 애니메이션
  */
 
 // ============================================================================
@@ -694,6 +696,206 @@ class ViewManager {
       trackerEl.innerHTML = trackerHtml || '<p>과목이 없습니다</p>';
     }
   }
+
+  /**
+   * ✅ v3.10.0: 향상된 성적 분석 대시보드
+   */
+  renderAnalyticsDashboard() {
+    const weakSubjects = this.statsService.getWeakSubjects(60);
+
+    // 약점 과목 경고
+    const alertsContainer = document.getElementById('analytics-alerts');
+    if (alertsContainer && weakSubjects.length > 0) {
+      const alerts = weakSubjects.map(s => `
+        <div class="alert alert--warning">
+          <span>⚠️</span>
+          <span><strong>${s.subject}</strong>: 평균 ${s.scorePercent}% (${s.count}회)</span>
+        </div>
+      `).join('');
+      alertsContainer.innerHTML = alerts;
+    }
+
+    // 성적 추이 차트
+    this.renderScoreTrendChart();
+  }
+
+  /**
+   * ✅ 성적 추이 차트 (SVG 막대 그래프)
+   */
+  renderScoreTrendChart() {
+    const chartEl = document.getElementById('score-trend-chart');
+    if (!chartEl) return;
+
+    const trend = this.statsService.getScoreTrend(null, 5);
+    if (trend.length === 0) {
+      chartEl.innerHTML = '<p style="text-align: center; color: #9ca3af;">성적 데이터가 없습니다</p>';
+      return;
+    }
+
+    const maxScore = Math.max(...trend.map(t => t.score), 100);
+    const barWidth = 40;
+    const gap = 15;
+    const svgWidth = trend.length * (barWidth + gap) + 20;
+    const svgHeight = 250;
+
+    const bars = trend.map((item, idx) => {
+      const height = (item.score / maxScore) * 180;
+      const x = 10 + idx * (barWidth + gap);
+      const y = 200 - height;
+
+      return `
+        <g>
+          <rect x="${x}" y="${y}" width="${barWidth}" height="${height}"
+                fill="url(#barGradient)" rx="4" class="bar"
+                style="cursor: pointer; transition: filter 0.3s;">
+            <title>${item.subject}: ${item.score.toFixed(0)}%</title>
+          </rect>
+          <text x="${x + barWidth/2}" y="${y - 5}" text-anchor="middle"
+                font-weight="700" font-size="12" fill="#1f2937">
+            ${item.score.toFixed(0)}%
+          </text>
+          <text x="${x + barWidth/2}" y="${svgHeight - 5}" text-anchor="middle"
+                font-size="11" fill="#6b7280">
+            ${item.date.slice(5)}
+          </text>
+        </g>
+      `;
+    }).join('');
+
+    const svg = `
+      <svg width="${svgWidth}" height="${svgHeight}" style="max-width: 100%; height: auto;">
+        <defs>
+          <linearGradient id="barGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <!-- X축 -->
+        <line x1="0" y1="200" x2="${svgWidth}" y2="200" stroke="#e5e7eb" stroke-width="2"/>
+        <!-- Y축 -->
+        <line x1="0" y1="0" x2="0" y2="200" stroke="#e5e7eb" stroke-width="2"/>
+        ${bars}
+      </svg>
+    `;
+
+    chartEl.innerHTML = svg;
+  }
+
+  /**
+   * ✅ 메트릭 카드 렌더링
+   */
+  renderMetricCards() {
+    const today = new Date().toISOString().split('T')[0];
+    const todaySession = this.dataManager.getSessionForDate(today);
+    const totalHours = this.dataManager.getTotalStudyHours();
+    const efficiency = this.statsService.getEfficiencyScore();
+
+    const metricsEl = document.getElementById('metrics-cards-container');
+    if (!metricsEl) return;
+
+    const metricsHtml = `
+      <div class="metric-card animate-fade-in-up">
+        <span class="metric-icon">🔥</span>
+        <div>
+          <div style="font-size: 0.9rem; opacity: 0.9;">현재 스트릭</div>
+          <div class="metric-value">${this.dataManager.streak.current}일</div>
+          <div style="font-size: 0.8rem; opacity: 0.8;">최장: ${this.dataManager.streak.longest}일</div>
+        </div>
+      </div>
+
+      <div class="metric-card metric-card--success animate-fade-in-up" style="animation-delay: 0.1s;">
+        <span class="metric-icon">⏱️</span>
+        <div>
+          <div style="font-size: 0.9rem; opacity: 0.9;">총 학습 시간</div>
+          <div class="metric-value">${totalHours.toFixed(1)}h</div>
+          <div style="font-size: 0.8rem; opacity: 0.8;">오늘: ${todaySession.totalCompletedHours.toFixed(1)}h</div>
+        </div>
+      </div>
+
+      <div class="metric-card metric-card--accent animate-fade-in-up" style="animation-delay: 0.2s;">
+        <span class="metric-icon">📊</span>
+        <div>
+          <div style="font-size: 0.9rem; opacity: 0.9;">효율성</div>
+          <div class="metric-value">${efficiency}%</div>
+          <div style="font-size: 0.8rem; opacity: 0.8;">계획 대비</div>
+        </div>
+      </div>
+    `;
+
+    metricsEl.innerHTML = metricsHtml;
+  }
+
+  /**
+   * ✅ 주간 차트 렌더링 (막대 그래프)
+   */
+  renderWeeklyChart() {
+    const chartEl = document.getElementById('weekly-chart');
+    if (!chartEl) return;
+
+    const stats = this.dataManager.getWeeklyStats();
+    const days = Object.entries(stats);
+    const maxHours = Math.max(...days.map(d => d[1]), 5);
+
+    const bars = days.map(([day, hours], idx) => {
+      const percent = (hours / maxHours) * 100;
+      return `
+        <div style="flex: 1; text-align: center;">
+          <div class="bar" style="height: ${percent * 2}px;">
+            <div class="bar-value">${hours.toFixed(1)}h</div>
+          </div>
+          <div class="bar-label">${day}</div>
+        </div>
+      `;
+    }).join('');
+
+    const chartHtml = `
+      <div class="chart-container">
+        <div class="chart-bar">
+          ${bars}
+        </div>
+      </div>
+    `;
+
+    chartEl.innerHTML = chartHtml;
+  }
+
+  /**
+   * ✅ 회독 진도 원형 차트 (SVG)
+   */
+  renderRotationProgressCircle(subject) {
+    const tracker = this.dataManager.getRotationTracker(subject);
+    const progress = tracker.progressPercent;
+    const radius = 50;
+    const circumference = 2 * Math.PI * radius;
+    const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+    const svg = `
+      <div class="rotation-ring">
+        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="60" r="${radius}" fill="none"
+                  stroke="#e5e7eb" stroke-width="8"/>
+          <circle cx="60" cy="60" r="${radius}" fill="none"
+                  stroke="url(#rotationGradient)" stroke-width="8"
+                  stroke-dasharray="${circumference}"
+                  stroke-dashoffset="${strokeDashoffset}"
+                  stroke-linecap="round"
+                  transform="rotate(-90 60 60)"/>
+          <defs>
+            <linearGradient id="rotationGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <text x="60" y="60" text-anchor="middle" dy="0.3em"
+                font-weight="700" font-size="20" fill="#1f2937">
+            ${Math.round(progress)}%
+          </text>
+        </svg>
+      </div>
+    `;
+
+    return svg;
+  }
 }
 
 // ============================================================================
@@ -712,8 +914,15 @@ class AppState {
   }
 
   init() {
+    // 기본 렌더링
     this.viewManager.render();
-    console.log('✅ 애플리케이션 초기화 완료');
+
+    // v3.10.0 향상된 UI 렌더링
+    this.viewManager.renderMetricCards();
+    this.viewManager.renderWeeklyChart();
+    this.viewManager.renderAnalyticsDashboard();
+
+    console.log('✅ 애플리케이션 초기화 완료 (v3.10.0 UI 개선사항 포함)');
   }
 
   /**
@@ -723,6 +932,9 @@ class AppState {
     if (this.dataManager.toggleTimeBlock(id)) {
       this.streakService.updateStreak();
       this.viewManager.render();
+      // v3.10.0 향상된 UI 업데이트
+      this.viewManager.renderMetricCards();
+      this.viewManager.renderWeeklyChart();
       showToast('학습 상태가 업데이트되었습니다');
     }
   }
@@ -893,4 +1105,4 @@ function updateStreak() {
   if (appState) appState.streakService.updateStreak();
 }
 
-console.log('✅ app.js 로드 완료 - v3.9.0 회독 추적 & 성적 분석 시스템 통합');
+console.log('✅ app.js 로드 완료 - v3.10.0 UI/UX 디자인 & 인터렉션 개선');
