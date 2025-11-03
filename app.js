@@ -109,18 +109,63 @@ class StreakData {
   }
 }
 
-class SubjectProgress {
-  constructor(name) {
+/**
+ * ✅ v3.12.0: 과목 요약 DTO (Data Transfer Object)
+ * SSOT 원칙: 모든 데이터는 RotationTracker와 MockScore에서 계산
+ */
+class SubjectSummary {
+  constructor(name, tracker, scores) {
     this.name = name;
-    this.totalProblems = 0;
-    this.completedProblems = 0;
-    this.rotations = [false, false, false, false, false, false, false];
-    this.avgMockScore = 0;
-    this.lastScore = null;
+    this.tracker = tracker;  // RotationTracker 참조
+    this.scores = scores;    // MockScore[] 참조
   }
 
-  get progressPercent() {
-    return this.totalProblems > 0 ? (this.completedProblems / this.totalProblems) * 100 : 0;
+  /**
+   * 회독 진행률 (RotationTracker 기반)
+   */
+  get rotationProgress() {
+    return this.tracker.progressPercent;
+  }
+
+  /**
+   * 완료된 회독 수
+   */
+  get completedRotations() {
+    return this.tracker.rotations.filter(r => r.completed).length;
+  }
+
+  /**
+   * 다음 회독 번호
+   */
+  get nextRotation() {
+    return this.tracker.nextRotation;
+  }
+
+  /**
+   * 평균 성적 (MockScore 기반)
+   */
+  get avgMockScore() {
+    if (this.scores.length === 0) return 0;
+    return this.scores.reduce((sum, s) => sum + s.scorePercent, 0) / this.scores.length;
+  }
+
+  /**
+   * 최근 성적
+   */
+  get lastScore() {
+    return this.scores.length > 0 ? this.scores[this.scores.length - 1].scorePercent : null;
+  }
+
+  /**
+   * 성적 추이
+   */
+  get scoreTrend() {
+    if (this.scores.length < 2) return null;
+    const recent = this.scores.slice(-5);
+    const avg = recent.reduce((sum, s) => sum + s.scorePercent, 0) / recent.length;
+    const oldest = recent[0].scorePercent;
+    if (Math.abs(avg - oldest) < 5) return 'stable';
+    return avg > oldest ? 'up' : 'down';
   }
 }
 
@@ -235,14 +280,32 @@ class RotationTracker {
  */
 class DataManager {
   constructor() {
+    // ✅ SSOT 원본 데이터
     this.timeBlocks = [];
-    this.subjects = [];
     this.mockScores = [];  // ✅ 정규화된 MockScore 객체 배열
-    this.rotationTrackers = {};  // ✅ 과목별 RotationTracker (subject -> RotationTracker)
+    this.rotationTrackers = {};  // ✅ 과목별 RotationTracker (SSOT)
     this.streak = new StreakData();
     this.examType = '1차';
 
+    // ✅ NEW: 인덱스 시스템 (파생 데이터)
+    this.indexes = {
+      blocksByDate: new Map(),        // date -> TimeBlock[]
+      blocksBySubject: new Map(),     // subject -> TimeBlock[]
+      scoresBySubject: new Map(),     // subject -> MockScore[]
+      completedDates: new Set(),      // Set<date>
+    };
+
+    // ✅ NEW: 계산 캐시
+    this.cache = {
+      totalStudyHours: null,
+      averageDailyHours: null,
+      subjectSummaries: null,
+      lastUpdated: null,
+      invalidated: true
+    };
+
     this.loadFromStorage();
+    this.updateIndexes();  // ✅ 인덱스 초기화
   }
 
   /**
@@ -277,6 +340,7 @@ class DataManager {
       }
       const timeBlock = new TimeBlock(block);
       this.timeBlocks.push(timeBlock);
+      this.updateIndexes();  // ✅ 자동 인덱스 업데이트
       this.save();
       return timeBlock;
     } catch (error) {
@@ -289,6 +353,7 @@ class DataManager {
     const block = this.timeBlocks.find(b => b.id === id);
     if (block) {
       block.completed = !block.completed;
+      this.updateIndexes();  // ✅ 자동 인덱스 업데이트
       this.save();
       return true;
     }
@@ -299,6 +364,7 @@ class DataManager {
     const index = this.timeBlocks.findIndex(b => b.id === id);
     if (index !== -1) {
       this.timeBlocks.splice(index, 1);
+      this.updateIndexes();  // ✅ 자동 인덱스 업데이트
       this.save();
       return true;
     }
@@ -385,6 +451,7 @@ class DataManager {
     try {
       const mockScore = new MockScore(scoreData);
       this.mockScores.push(mockScore);
+      this.updateIndexes();  // ✅ 자동 인덱스 업데이트
       this.save();
       return mockScore;
     } catch (error) {
@@ -404,41 +471,193 @@ class DataManager {
   }
 
   save() {
+    // ✅ FIX: subjects 제거, version 추가
     localStorage.setItem('studyData', JSON.stringify({
+      version: '3.12.0',  // ✅ 버전 추가
       timeBlocks: this.timeBlocks,
-      subjects: this.subjects,
       mockScores: this.mockScores,
       rotationTrackers: this.rotationTrackers,
       streak: this.streak,
       examType: this.examType
+      // ✅ subjects 필드 제거
     }));
   }
 
   loadFromStorage() {
-    const saved = localStorage.getItem('studyData');
-    if (saved) {
-      const data = JSON.parse(saved);
-      this.timeBlocks = (data.timeBlocks || []).map(b => new TimeBlock(b));
-      this.subjects = data.subjects || [];
-      this.mockScores = (data.mockScores || []).map(m => new MockScore(m));
+    const saved = localStorage.getItem('studyData');  // ✅ FIX: getItem 사용
+    if (!saved) return;
 
-      // ✅ FIX: RotationTracker 인스턴스로 올바르게 복원
-      this.rotationTrackers = {};
-      if (data.rotationTrackers) {
-        Object.keys(data.rotationTrackers).forEach(subject => {
-          const tracker = new RotationTracker(subject);
-          const saved = data.rotationTrackers[subject];
-          // 저장된 rotations 데이터로 복원
-          if (saved && saved.rotations && Array.isArray(saved.rotations)) {
-            tracker.rotations = saved.rotations;
+    const data = JSON.parse(saved);
+    const dataVersion = data.version || '3.11.0';  // ✅ 기존 데이터는 v3.11.0으로 간주
+
+    // ✅ NEW: 마이그레이션 로직
+    if (dataVersion === '3.11.0' || dataVersion === '3.10.0' || dataVersion === '3.9.0') {
+      console.warn(`⚠️ v${dataVersion} 데이터 감지 - v3.12.0으로 마이그레이션`);
+
+      // 1️⃣ subjects → rotationTrackers 변환 (구버전 호환)
+      if (data.subjects && Array.isArray(data.subjects)) {
+        if (!data.rotationTrackers) data.rotationTrackers = {};
+
+        data.subjects.forEach(subject => {
+          if (!data.rotationTrackers[subject.name]) {
+            const tracker = new RotationTracker(subject.name);
+            // boolean[] 형식의 기존 회독 데이터를 새 형식으로 변환
+            if (subject.rotations && Array.isArray(subject.rotations)) {
+              subject.rotations.forEach((completed, idx) => {
+                if (idx < tracker.rotations.length) {
+                  tracker.rotations[idx].completed = !!completed;
+                }
+              });
+            }
+            data.rotationTrackers[subject.name] = tracker;
           }
-          this.rotationTrackers[subject] = tracker;
         });
+
+        console.log(`✅ ${data.subjects.length}개 과목이 RotationTracker로 변환됨`);
       }
 
-      this.streak = { ...new StreakData(), ...data.streak };
-      this.examType = data.examType || '1차';
+      // 2️⃣ 버전 업데이트
+      data.version = '3.12.0';
+      localStorage.setItem('studyData', JSON.stringify(data));
+      console.log('✅ v3.12.0 마이그레이션 완료');
     }
+
+    // ✅ 정상 데이터 로드
+    this.timeBlocks = (data.timeBlocks || []).map(b => new TimeBlock(b));
+    this.mockScores = (data.mockScores || []).map(m => new MockScore(m));
+
+    // ✅ RotationTracker 인스턴스로 복원
+    this.rotationTrackers = {};
+    if (data.rotationTrackers) {
+      Object.keys(data.rotationTrackers).forEach(subject => {
+        const tracker = new RotationTracker(subject);
+        const saved = data.rotationTrackers[subject];
+        // 저장된 rotations 데이터로 복원
+        if (saved && saved.rotations && Array.isArray(saved.rotations)) {
+          tracker.rotations = saved.rotations;
+        }
+        this.rotationTrackers[subject] = tracker;
+      });
+    }
+
+    this.streak = { ...new StreakData(), ...data.streak };
+    this.examType = data.examType || '1차';
+  }
+
+  /**
+   * ✅ NEW: 인덱스 시스템 재구축
+   * 타이밍: 데이터 변경 시 자동 호출
+   */
+  updateIndexes() {
+    // ✅ 초기화
+    this.indexes.blocksByDate.clear();
+    this.indexes.blocksBySubject.clear();
+    this.indexes.scoresBySubject.clear();
+    this.indexes.completedDates.clear();
+
+    // ✅ TimeBlock 인덱싱
+    this.timeBlocks.forEach(block => {
+      // 날짜별 인덱스
+      if (!this.indexes.blocksByDate.has(block.date)) {
+        this.indexes.blocksByDate.set(block.date, []);
+      }
+      this.indexes.blocksByDate.get(block.date).push(block);
+
+      // 과목별 인덱스
+      if (!this.indexes.blocksBySubject.has(block.subject)) {
+        this.indexes.blocksBySubject.set(block.subject, []);
+      }
+      this.indexes.blocksBySubject.get(block.subject).push(block);
+
+      // 완료 날짜 Set
+      if (block.completed) {
+        this.indexes.completedDates.add(block.date);
+      }
+    });
+
+    // ✅ MockScore 인덱싱
+    this.mockScores.forEach(score => {
+      if (!this.indexes.scoresBySubject.has(score.subject)) {
+        this.indexes.scoresBySubject.set(score.subject, []);
+      }
+      this.indexes.scoresBySubject.get(score.subject).push(score);
+    });
+
+    // ✅ 캐시 무효화
+    this.invalidateCache();
+  }
+
+  /**
+   * ✅ NEW: 캐시 무효화
+   */
+  invalidateCache() {
+    this.cache.invalidated = true;
+    this.cache.subjectSummaries = null;
+    this.cache.totalStudyHours = null;
+    this.cache.averageDailyHours = null;
+  }
+
+  /**
+   * ✅ NEW: 과목 목록 조회 (RotationTracker 기반)
+   */
+  getSubjects() {
+    return Object.keys(this.rotationTrackers);
+  }
+
+  /**
+   * ✅ NEW: 과목 요약 정보 조회 (캐시 활용)
+   */
+  getSubjectSummaries() {
+    // ✅ 캐시 활용
+    if (!this.cache.invalidated && this.cache.subjectSummaries) {
+      return this.cache.subjectSummaries;
+    }
+
+    // ✅ 캐시 미스 시 재계산
+    const summaries = this.getSubjects().map(name => {
+      const tracker = this.rotationTrackers[name];
+      const scores = this.indexes.scoresBySubject.get(name) || [];
+      return new SubjectSummary(name, tracker, scores);
+    });
+
+    this.cache.subjectSummaries = summaries;
+    this.cache.invalidated = false;
+    return summaries;
+  }
+
+  /**
+   * ✅ NEW: 특정 과목의 RotationTracker 조회
+   */
+  getRotationTracker(subject) {
+    return this.rotationTrackers[subject];
+  }
+
+  /**
+   * ✅ NEW: 특정 날짜의 TimeBlock 조회 (인덱스 기반, O(1))
+   */
+  getBlocksForDate(date) {
+    return this.indexes.blocksByDate.get(date) || [];
+  }
+
+  /**
+   * ✅ NEW: 특정 과목의 TimeBlock 조회 (인덱스 기반, O(1))
+   */
+  getBlocksForSubject(subject) {
+    return this.indexes.blocksBySubject.get(subject) || [];
+  }
+
+  /**
+   * ✅ NEW: 특정 과목의 MockScore 조회 (인덱스 기반, O(1))
+   */
+  getScoresForSubject(subject) {
+    return this.indexes.scoresBySubject.get(subject) || [];
+  }
+
+  /**
+   * ✅ NEW: 특정 날짜의 완료 블록 조회
+   */
+  getCompletedBlocksForDate(date) {
+    return this.getBlocksForDate(date).filter(b => b.completed);
   }
 }
 
@@ -782,48 +1001,87 @@ class ViewManager {
     }
   }
 
+  /**
+   * ✅ v3.12.0: 과목 진도 렌더링 (SubjectSummary 기반)
+   */
   renderSubjectProgress() {
     const progressEl = document.getElementById('subject-progress');
-    if (progressEl) {
-      const progressHtml = this.dataManager.subjects.map(subject => {
-        const percent = subject.progressPercent || 0;
-        return `
-          <div style="margin-bottom: 15px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-              <span style="font-weight: 600;">${subject.name}</span>
-              <span>${percent.toFixed(0)}%</span>
-            </div>
-            <div style="background: #e9ecef; border-radius: 8px; height: 20px; overflow: hidden;">
-              <div style="background: linear-gradient(90deg, #6366f1, #8b5cf6); height: 100%; width: ${percent}%; transition: width 0.3s;"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
-      progressEl.innerHTML = progressHtml || '<p>과목이 없습니다</p>';
+    if (!progressEl) return;
+
+    const summaries = this.dataManager.getSubjectSummaries();  // ✅ SSOT
+
+    if (summaries.length === 0) {
+      progressEl.innerHTML = '<p>과목이 없습니다</p>';
+      return;
     }
+
+    const progressHtml = summaries.map(summary => {
+      const percent = summary.rotationProgress;  // ✅ RotationTracker 기반
+      const trendEmoji = summary.scoreTrend === 'up' ? '📈' : summary.scoreTrend === 'down' ? '📉' : '';
+
+      return `
+        <div style="margin-bottom: 15px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="font-weight: 600;">${summary.name}</span>
+            <span>${percent.toFixed(0)}% ${trendEmoji}</span>
+          </div>
+          <div style="background: #e9ecef; border-radius: 8px; height: 20px; overflow: hidden;">
+            <div style="background: linear-gradient(90deg, #6366f1, #8b5cf6); height: 100%; width: ${percent}%; transition: width 0.3s;"></div>
+          </div>
+          <div style="font-size: 0.85rem; color: #6b7280; margin-top: 4px;">
+            평균 성적: ${summary.avgMockScore.toFixed(1)}% · 회독: ${summary.completedRotations}/7
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    progressEl.innerHTML = progressHtml;
   }
 
+  /**
+   * ✅ v3.12.0: 회독 추적 렌더링 (RotationTracker 직접 참조)
+   */
   renderRotationTracker() {
     const trackerEl = document.getElementById('rotation-tracker');
-    if (trackerEl) {
-      const trackerHtml = this.dataManager.subjects.map(subject => {
-        const rotations = subject.rotations || [false, false, false, false, false, false, false];
-        const rotationDots = rotations.map((completed, idx) => `
-          <span style="display: inline-block; width: 24px; height: 24px; margin: 0 4px; background: ${completed ? '#34D399' : '#e9ecef'}; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; color: ${completed ? '#fff' : '#6c757d'}; cursor: pointer; transition: all 0.2s;"
-                onclick="appState.toggleRotation('${subject.name}', ${idx})">
-            ${idx + 1}
-          </span>
-        `).join('');
+    if (!trackerEl) return;
 
-        return `
-          <div style="margin-bottom: 15px;">
-            <div style="font-weight: 600; margin-bottom: 8px;">${subject.name}</div>
-            <div>${rotationDots}</div>
-          </div>
-        `;
-      }).join('');
-      trackerEl.innerHTML = trackerHtml || '<p>과목이 없습니다</p>';
+    const subjects = this.dataManager.getSubjects();  // ✅ SSOT
+
+    if (subjects.length === 0) {
+      trackerEl.innerHTML = '<p>과목이 없습니다</p>';
+      return;
     }
+
+    const trackerHtml = subjects.map(subjectName => {
+      const tracker = this.dataManager.getRotationTracker(subjectName);  // ✅ SSOT
+      const rotations = tracker.rotations;  // ✅ RotationData[]
+
+      const rotationDots = rotations.map((rotation, idx) => `
+        <span style="display: inline-block; width: 24px; height: 24px; margin: 0 4px;
+                     background: ${rotation.completed ? '#34D399' : '#e9ecef'};
+                     border-radius: 50%; text-align: center; line-height: 24px;
+                     font-size: 12px; color: ${rotation.completed ? '#fff' : '#6c757d'};
+                     cursor: pointer; transition: all 0.2s;"
+              onclick="appState.toggleRotation('${subjectName}', ${idx})"
+              title="${rotation.completed ? `완료: ${rotation.date}` : '미완료'}">
+          ${idx + 1}
+        </span>
+      `).join('');
+
+      return `
+        <div style="margin-bottom: 15px;">
+          <div style="font-weight: 600; margin-bottom: 8px;">
+            ${subjectName}
+            <span style="color: #6b7280; font-size: 0.9rem; font-weight: 400;">
+              (${tracker.progressPercent.toFixed(0)}% · 다음: ${tracker.nextRotation}회독)
+            </span>
+          </div>
+          <div>${rotationDots}</div>
+        </div>
+      `;
+    }).join('');
+
+    trackerEl.innerHTML = trackerHtml;
   }
 
   /**
