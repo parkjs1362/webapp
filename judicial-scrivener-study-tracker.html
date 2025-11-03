@@ -6162,6 +6162,32 @@ console.log('✅ 메인 스크립트 시작됨');
                     studyData.subjects1st = studyData.subjects;
                 }
 
+                // ✅ CRITICAL FIX: 모든 timeBlock에 date 필드 정규화
+                // 오래된 데이터(date 필드 없음)를 감지하고 스마트하게 처리
+                if (studyData.timeBlocks && studyData.timeBlocks.length > 0) {
+                    studyData.timeBlocks.forEach(block => {
+                        // date가 없으면 먼저 studyHistory에서 찾기
+                        if (!block.date && studyData.studyHistory) {
+                            const historyEntry = studyData.studyHistory.find(h =>
+                                h.completedBlocks && h.completedBlocks.some(cb =>
+                                    cb.subject === block.subject && cb.time === block.time
+                                )
+                            );
+                            if (historyEntry) {
+                                block.date = historyEntry.date;
+                            }
+                        }
+
+                        // 여전히 없으면 최근 과거 날짜로 설정 (보수적으로)
+                        // 미래의 계획된 블록이라면 이것이 문제가 될 수 있지만,
+                        // 현재 가장 안전한 접근은 매우 과거 날짜를 할당하는 것입니다
+                        if (!block.date) {
+                            // 2년 전 날짜 할당 (이렇게 하면 오늘과 명백히 다르므로 스트릭에 영향 없음)
+                            block.date = new Date(Date.now() - 730 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                        }
+                    });
+                }
+
                 // Ensure sample data is preserved if empty
                 if (!studyData.timeBlocks || studyData.timeBlocks.length === 0) {
                     studyData.timeBlocks = [
@@ -6187,12 +6213,8 @@ console.log('✅ 메인 스크립트 시작됨');
             // 시험 타입에 따라 과목 설정
             updateSubjectsByExamType();
 
-            // 오늘 타이머 데이터 로드
-            const today = new Date().toISOString().split('T')[0];
-            const todayTimer = localStorage.getItem(`timer_${today}`);
-            if (todayTimer) {
-                studyData.timer.seconds = parseInt(todayTimer);
-            }
+            // ✅ REMOVED: timer 기반 로드 (스트릭 버그의 원인!)
+            // 대신 실제 studyHistory와 timeBlocks를 기반으로 계산
         }
 
         // 시험 타입에 따라 과목 설정
@@ -6545,6 +6567,11 @@ console.log('✅ 메인 스크립트 시작됨');
                 const hours = block.hours || 2; // Default to 2 hours if not set (legacy compatibility)
                 const seconds = hours * 3600;
                 const today = new Date().toISOString().split('T')[0];
+
+                // ✅ FIX: 항상 block.date를 설정 (date 필드가 없으면 추가)
+                if (!block.date) {
+                    block.date = today;
+                }
 
                 if (block.completed) {
                     studyData.timer.seconds += seconds;
@@ -7512,20 +7539,39 @@ console.log('✅ 메인 스크립트 시작됨');
         setInterval(rotateMotivation, 300000);
 
         // ===== 새로운 기능: 스트릭 트래커 =====
+        /**
+         * ✅ COMPLETELY REWRITTEN: updateStreak() 함수
+         *
+         * 버그 원인:
+         * 1. timer.seconds에만 의존 → 타이머 시간이 남아있으면 오늘 공부 완료로 표시됨
+         * 2. timeBlock.date 필드 없음 → 필터링 실패
+         *
+         * 해결책:
+         * - studyHistory를 기반으로 실제 학습 기록 확인 (단일 정보 소스)
+         * - timeBlocks의 date 필드 기반 검증
+         * - 논리를 완전히 단순화
+         */
         function updateStreak() {
             const today = new Date().toISOString().split('T')[0];
-            const lastStudy = studyData.streak.lastStudyDate;
 
             // 초기화
             if (!studyData.streak) {
                 studyData.streak = { current: 0, longest: 0, lastStudyDate: null, totalDays: 0 };
             }
 
-            // 오늘 학습 기록이 있는지 확인 (타이머 시간 or 완료된 타임블록 from TODAY)
-            const todayCompletedBlocks = studyData.timeBlocks.filter(b => b.date === today && b.completed);
-            const hasStudiedToday = studyData.timer.seconds > 0 ||
-                                   todayCompletedBlocks.length > 0;
+            // ✅ 핵심 수정: studyHistory를 단일 정보 소스로 사용
+            // studyHistory는 실제 완료된 블록을 기록한 것이므로 가장 신뢰할 수 있음
+            const studyHistory = studyData.studyHistory || [];
 
+            // 오늘 학습 기록이 있는지 확인 (타이머 X, studyHistory 기반 O)
+            const todayHistory = studyHistory.find(h => h.date === today);
+            const hasStudiedToday = todayHistory && todayHistory.completedBlocks && todayHistory.completedBlocks.length > 0;
+
+            console.log(`📊 Streak Debug: today=${today}, hasStudiedToday=${hasStudiedToday}, lastStudyDate=${studyData.streak.lastStudyDate}`);
+
+            const lastStudy = studyData.streak.lastStudyDate;
+
+            // ✅ 중요: 오늘 공부한 경우만 스트릭 업데이트
             if (hasStudiedToday && lastStudy !== today) {
                 if (lastStudy) {
                     const lastDate = new Date(lastStudy);
@@ -7535,13 +7581,16 @@ console.log('✅ 메인 스크립트 시작됨');
                     if (diffDays === 1) {
                         // 연속 학습
                         studyData.streak.current++;
+                        console.log(`🔥 Streak continued: ${studyData.streak.current}일`);
                     } else if (diffDays > 1) {
                         // 스트릭 끊김
                         studyData.streak.current = 1;
+                        console.log(`⚠️ Streak broken: 리셋 후 1일부터 시작`);
                     }
                 } else {
                     // 첫 학습
                     studyData.streak.current = 1;
+                    console.log(`🌱 First streak: 1일 시작`);
                 }
 
                 studyData.streak.lastStudyDate = today;
@@ -7552,7 +7601,15 @@ console.log('✅ 메인 스크립트 시작됨');
                     studyData.streak.longest = studyData.streak.current;
                 }
 
+                console.log(`✅ Streak saved: current=${studyData.streak.current}, longest=${studyData.streak.longest}`);
                 saveData();
+            }
+
+            // ✅ 오늘 공부하지 않은 경우 명시적으로 처리
+            if (!hasStudiedToday && lastStudy === today) {
+                // 오늘 이미 마지막 학습으로 기록됨 (but now undone)
+                // studyHistory에서 제거됨 → 스트릭 업데이트 필요 없음 (이미 어제로 리셋됨)
+                console.log(`🔄 Today's study removed: Streak not updated`);
             }
 
             // UI 업데이트
@@ -7571,9 +7628,9 @@ console.log('✅ 메인 스크립트 시작됨');
             // 마지막 학습 날짜 표시
             const lastStudyEl = document.getElementById('last-study-date');
             if (lastStudyEl && studyData.streak.lastStudyDate) {
-                const lastDate = new Date(studyData.streak.lastStudyDate);
-                const today = new Date();
-                const daysDiff = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+                const lastDate = new Date(studyData.streak.lastStudyDate + 'T00:00:00');
+                const todayDate = new Date(today + 'T00:00:00');
+                const daysDiff = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
 
                 if (daysDiff === 0) {
                     lastStudyEl.textContent = '오늘 🎯';
@@ -7590,11 +7647,10 @@ console.log('✅ 메인 스크립트 시작됨');
             // 스트릭 상태 표시
             const streakStatus = document.getElementById('streak-status');
             if (streakStatus) {
-                const lastDate = studyData.streak.lastStudyDate ? new Date(studyData.streak.lastStudyDate) : null;
-                const today = new Date().toISOString().split('T')[0];
-                const lastStudyToday = lastDate && lastDate.toISOString().split('T')[0] === today;
+                // ✅ 중요: lastStudyDate가 오늘인지 확인 (timer X)
+                const isStudyingToday = studyData.streak.lastStudyDate === today;
 
-                if (lastStudyToday) {
+                if (isStudyingToday) {
                     streakStatus.innerHTML = '✅ 오늘 학습 완료!';
                     streakStatus.style.background = 'rgba(52, 211, 153, 0.2)';
                     streakStatus.style.color = '#34D399';
