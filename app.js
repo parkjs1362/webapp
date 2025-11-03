@@ -1053,6 +1053,172 @@ class AppState {
       showToast('데이터가 초기화되었습니다');
     }
   }
+
+  /**
+   * ✅ v3.11.0: 메트릭 모달 표시
+   */
+  showMetricModal(metricType) {
+    const today = new Date().toISOString().split('T')[0];
+    const todaySession = this.dataManager.getSessionForDate(today);
+    const totalHours = this.dataManager.getTotalStudyHours();
+    const weakSubjects = this.statsService.getWeakSubjects(60);
+
+    let title = '';
+    let content = '';
+
+    switch(metricType) {
+      case 'overall-progress':
+        const completedDates = new Set();
+        this.dataManager.timeBlocks.forEach(block => {
+          if (block.completed) completedDates.add(block.date);
+        });
+
+        title = '📊 전체 학습 진도';
+        content = `
+          <div class="modal-metric-content">
+            <div class="metric-stat">
+              <span class="stat-label">총 학습 시간</span>
+              <span class="stat-value">${totalHours.toFixed(1)}시간</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">학습한 날짜</span>
+              <span class="stat-value">${completedDates.size}일</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">계획 블록</span>
+              <span class="stat-value">${this.dataManager.timeBlocks.length}개</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">완료 블록</span>
+              <span class="stat-value">${this.dataManager.timeBlocks.filter(b => b.completed).length}개</span>
+            </div>
+          </div>
+        `;
+        break;
+
+      case 'streak':
+        title = '🔥 연속 학습 통계';
+        content = `
+          <div class="modal-metric-content">
+            <div class="metric-stat">
+              <span class="stat-label">현재 스트릭</span>
+              <span class="stat-value" style="color: #ff6b6b; font-size: 2rem;">${this.dataManager.streak.current}일</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">최장 스트릭</span>
+              <span class="stat-value" style="color: #667eea; font-size: 2rem;">${this.dataManager.streak.longest}일</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">마지막 학습</span>
+              <span class="stat-value">${this.dataManager.streak.lastStudyDate || '없음'}</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">누적 학습일</span>
+              <span class="stat-value">${this.dataManager.streak.totalDays}일</span>
+            </div>
+          </div>
+        `;
+        break;
+
+      case 'today-completed':
+        title = '✅ 오늘 완료 현황';
+        content = `
+          <div class="modal-metric-content">
+            <div class="metric-stat">
+              <span class="stat-label">계획한 블록</span>
+              <span class="stat-value">${this.dataManager.timeBlocks.filter(b => b.date === today).length}개</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">완료한 블록</span>
+              <span class="stat-value">${todaySession.completedBlocks.length}개</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">완료율</span>
+              <span class="stat-value">${this.dataManager.timeBlocks.filter(b => b.date === today).length > 0 ? Math.round((todaySession.completedBlocks.length / this.dataManager.timeBlocks.filter(b => b.date === today).length) * 100) : 0}%</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">오늘 공부함</span>
+              <span class="stat-value">${todaySession.hasStudied ? '✅ 네' : '❌ 아니오'}</span>
+            </div>
+          </div>
+        `;
+        break;
+
+      case 'today-hours':
+        title = '⏱️ 오늘 학습 시간';
+        content = `
+          <div class="modal-metric-content">
+            <div class="metric-stat">
+              <span class="stat-label">계획 시간</span>
+              <span class="stat-value">${todaySession.totalPlannedHours.toFixed(1)}시간</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">완료 시간</span>
+              <span class="stat-value">${todaySession.totalCompletedHours.toFixed(1)}시간</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">효율성</span>
+              <span class="stat-value">${this.statsService.getEfficiencyScore()}%</span>
+            </div>
+            <div class="metric-stat">
+              <span class="stat-label">남은 시간</span>
+              <span class="stat-value">${Math.max(0, todaySession.totalPlannedHours - todaySession.totalCompletedHours).toFixed(1)}시간</span>
+            </div>
+          </div>
+        `;
+        break;
+
+      default:
+        return;
+    }
+
+    // 모달 표시
+    this.showModal(title, content);
+  }
+
+  /**
+   * ✅ 모달 표시 (일반 용도)
+   */
+  showModal(title, content) {
+    // 모달이 없으면 생성
+    let modal = document.getElementById('metric-detail-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'metric-detail-modal';
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <div class="modal-content" style="max-width: 400px;">
+          <div class="modal-header">
+            <h2 id="modal-title"></h2>
+            <button onclick="document.getElementById('metric-detail-modal').style.display='none'" class="modal-close">✕</button>
+          </div>
+          <div class="modal-body" id="modal-body"></div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      // 모달 외부 클릭 시 닫기
+      modal.onclick = (e) => {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      };
+
+      // ESC 키 시 닫기
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal) {
+          modal.style.display = 'none';
+        }
+      });
+    }
+
+    // 모달 내용 업데이트
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').innerHTML = content;
+
+    // 모달 표시
+    modal.style.display = 'flex';
+  }
 }
 
 // ============================================================================
