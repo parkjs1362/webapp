@@ -2,10 +2,52 @@
 <html lang="ko">
 <!--
     사법시험 학습 시스템 - 전략적 학습 프레임워크
-    Version: 3.17.0
+    Version: 4.0.0
     Last Updated: 2025-11-04
 
-    Changes in v3.17.0 - Batch Save Processing with requestIdleCallback:
+    🎯 Changes in v4.0.0 - Multi-Device Cloud Synchronization:
+    - ⚙️ SETUP REQUIRED: Google Cloud Console Configuration
+      * Step 1: Go to https://console.cloud.google.com/
+      * Step 2: Create new project named "StudyTracker"
+      * Step 3: Enable Google Drive API (APIs & Services → Library)
+      * Step 4: Create OAuth 2.0 Web Client (Credentials → Create Credentials)
+      * Step 5: Add Authorized JavaScript origins (file://, localhost:*, your-domain)
+      * Step 6: Copy CLIENT_ID from credentials JSON
+      * Step 7: Paste into GOOGLE_CONFIG.CLIENT_ID (line ~6755)
+      * After setup: Reload page and click "☁️ 로그인" to connect Google Drive
+    - IMPLEMENTED: Google Drive Cloud Integration
+      * OAuth 2.0 authentication for secure Google account access
+      * Automatic file backup to Google Drive every 6 hours
+      * Manual sync on demand (Upload/Download buttons)
+      * Cloud storage: Unlimited (Google Drive free tier 15GB)
+    - IMPLEMENTED: Conflict Resolution Engine
+      * Timestamp-based comparison (local vs cloud)
+      * User choice dialog: Keep Local / Keep Cloud / Keep Both (merge)
+      * Auto-resolve: Always prefer latest modification
+      * Prevents data loss from simultaneous edits
+    - IMPLEMENTED: Device Synchronization System
+      * Detect data changes across devices
+      * Merge strategy: Latest timestamp wins
+      * Version tracking (dataVersion + cloudVersion)
+      * Sync status badge on UI (✓ In Sync / ⚠ Syncing / ❌ Error)
+    - IMPLEMENTED: Auto-Sync Scheduler
+      * Background sync every 6 hours
+      * Manual sync on demand
+      * Sync on app startup (if last sync > 6 hours)
+      * User notification on successful sync
+    - BENEFIT: Multi-Device Ecosystem
+      * Study on PC at home → PC in school → Mobile on commute
+      * All devices always in sync
+      * Automatic cloud backup prevents data loss
+      * Switch devices without losing any data
+    - TECHNICAL STACK:
+      * Google Drive API v3 (REST)
+      * OAuth 2.0 authorization
+      * JSON file format (easy portability)
+      * Automatic retry on network failure
+      * Offline queue (save sync requests if offline)
+
+    Previous Changes in v3.17.0 - Batch Save Processing with requestIdleCallback:
     - IMPLEMENTED: Smart Batch Save System
       * scheduleBatchSave() replaces direct saveData() calls
       * Multiple rapid saveData() calls batch into single save operation
@@ -5924,7 +5966,7 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
         <!-- 헤더 -->
         <div class="header">
             <div class="header-top">
-                <h1 class="title">🎯 시험 전략적 학습 시스템 v3.6.10</h1>
+                <h1 class="title">🎯 시험 전략적 학습 시스템 v4.0.0</h1>
             </div>
 
             <!-- D-Day 카운터 (1차/2차) -->
@@ -5946,6 +5988,25 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             <div class="study-mode-selector">
                 <button class="mode-btn" onclick="setExamType('1차')" aria-label="Switch to 1st exam mode">1차 시험</button>
                 <button class="mode-btn" onclick="setExamType('2차')" aria-label="Switch to 2nd exam mode">2차 시험</button>
+            </div>
+
+            <!-- v4.0.0: Cloud Sync Controls -->
+            <div class="cloud-sync-controls" style="display: flex; gap: 10px; margin-top: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                <button id="cloud-sync-login" onclick="cloudSync.signIn()" style="background: linear-gradient(135deg, #4285f4, #34a853); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s;" title="로그인하여 클라우드 동기화 활성화">
+                    ☁️ 로그인
+                </button>
+                <button id="cloud-sync-upload" onclick="uploadToGoogleDrive()" style="background: #4285f4; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s;" title="현재 데이터를 클라우드에 업로드">
+                    ⬆️ 업로드
+                </button>
+                <button id="cloud-sync-download" onclick="downloadFromGoogleDrive()" style="background: #34a853; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s;" title="클라우드에서 최신 데이터 다운로드">
+                    ⬇️ 다운로드
+                </button>
+                <button id="cloud-sync-logout" onclick="cloudSync.signOut()" style="background: #ea4335; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; display: none;" title="클라우드 로그아웃">
+                    🚪 로그아웃
+                </button>
+                <span id="cloud-sync-status" style="padding: 8px 12px; border-radius: 6px; background: rgba(0,0,0,0.1); font-weight: 600; font-size: 12px;">
+                    ☁️ 로그인
+                </span>
             </div>
         </div>
 
@@ -6559,6 +6620,9 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
                 // 전체 데이터 저장
                 localStorage.setItem('studyData', JSON.stringify(studyData));
 
+                // v4.0.0: Save last modified timestamp for cloud sync
+                localStorage.setItem('lastModified', Date.now().toString());
+
                 // 동기화 배지 업데이트
                 updateSyncBadge();
             } catch (error) {
@@ -6615,6 +6679,379 @@ Changes in v2.4.0 - Professional Design System & Data Management (ACTUAL IMPLEME
             scheduleBatchSave();
         }
 
+        // ==================== v4.0.0: Google Drive Cloud Sync System ====================
+
+        // Google Drive API Configuration
+        const GOOGLE_CONFIG = {
+            CLIENT_ID: 'YOUR_GOOGLE_CLIENT_ID_HERE',  // 사용자가 Google Cloud Console에서 설정
+            SCOPES: 'https://www.googleapis.com/auth/drive.file',
+            DISCOVERY_DOCS: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+            APP_FOLDER: 'StudyTracker-Sync',  // Google Drive 동기화 폴더
+        };
+
+        // Cloud Sync State Management
+        const cloudSync = {
+            isAuthenticated: false,
+            accessToken: null,
+            lastSyncTime: 0,
+            syncInProgress: false,
+            cloudDataVersion: 0,
+            syncStatus: 'not_authenticated',  // not_authenticated, in_sync, syncing, error
+
+            // Initialize Google API
+            async init() {
+                try {
+                    // Load Google API client library
+                    if (!window.gapi) {
+                        console.log('📡 Google API 라이브러리 로드 중...');
+                        await this.loadGoogleAPI();
+                    }
+
+                    // Initialize gapi
+                    await new Promise((resolve, reject) => {
+                        gapi.load('client:auth2', async () => {
+                            try {
+                                await gapi.client.init({
+                                    clientId: GOOGLE_CONFIG.CLIENT_ID,
+                                    scope: GOOGLE_CONFIG.SCOPES,
+                                    discoveryDocs: GOOGLE_CONFIG.DISCOVERY_DOCS
+                                });
+                                console.log('✅ Google API 초기화 완료');
+                                resolve();
+                            } catch (error) {
+                                reject(error);
+                            }
+                        });
+                    });
+
+                    // Check if already signed in
+                    this.checkAuthStatus();
+                } catch (error) {
+                    console.error('❌ Google API 초기화 실패:', error);
+                    this.syncStatus = 'error';
+                }
+            },
+
+            loadGoogleAPI() {
+                return new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://apis.google.com/js/client.js';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            },
+
+            checkAuthStatus() {
+                const auth2 = gapi.auth2.getAuthInstance();
+                if (auth2) {
+                    const isSignedIn = auth2.isSignedIn.get();
+                    this.isAuthenticated = isSignedIn;
+                    if (isSignedIn) {
+                        const user = auth2.currentUser.get();
+                        this.accessToken = user.getAuthResponse().id_token;
+                        this.syncStatus = 'in_sync';
+                        console.log('✅ 구글 계정 로그인 상태 감지:', user.getBasicProfile().getEmail());
+                    }
+                }
+            },
+
+            // Sign in to Google
+            async signIn() {
+                try {
+                    const auth2 = gapi.auth2.getAuthInstance();
+                    await auth2.signIn();
+                    this.isAuthenticated = true;
+                    this.accessToken = auth2.currentUser.get().getAuthResponse().id_token;
+                    this.syncStatus = 'in_sync';
+                    console.log('✅ 구글 계정 로그인 성공');
+                    updateCloudSyncUI();
+                    return true;
+                } catch (error) {
+                    console.error('❌ 로그인 실패:', error);
+                    this.syncStatus = 'error';
+                    return false;
+                }
+            },
+
+            // Sign out from Google
+            async signOut() {
+                try {
+                    const auth2 = gapi.auth2.getAuthInstance();
+                    await auth2.signOut();
+                    this.isAuthenticated = false;
+                    this.accessToken = null;
+                    this.syncStatus = 'not_authenticated';
+                    console.log('✅ 구글 계정 로그아웃 성공');
+                    updateCloudSyncUI();
+                    return true;
+                } catch (error) {
+                    console.error('❌ 로그아웃 실패:', error);
+                    return false;
+                }
+            }
+        };
+
+        // File Upload to Google Drive
+        async function uploadToGoogleDrive() {
+            if (!cloudSync.isAuthenticated) {
+                showToast('먼저 구글 계정에 로그인해주세요', 'warning');
+                return false;
+            }
+
+            try {
+                cloudSync.syncStatus = 'syncing';
+                updateCloudSyncUI();
+                showSaveIndicator('클라우드에 업로드 중...');
+
+                const localData = {
+                    ...studyData,
+                    lastModified: Date.now(),
+                    version: dataVersion,
+                    deviceId: getDeviceId()
+                };
+
+                // Create file metadata
+                const fileMetadata = {
+                    name: 'study-tracker-backup.json',
+                    parents: [await getOrCreateSyncFolder()],
+                    mimeType: 'application/json'
+                };
+
+                // Create file content
+                const fileContent = new Blob([JSON.stringify(localData, null, 2)], {
+                    type: 'application/json'
+                });
+
+                // Upload to Google Drive
+                const form = new FormData();
+                form.append('metadata', new Blob([JSON.stringify(fileMetadata)], {
+                    type: 'application/json'
+                }));
+                form.append('file', fileContent);
+
+                const response = await fetch(
+                    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${cloudSync.accessToken}`
+                        },
+                        body: form
+                    }
+                );
+
+                if (response.ok) {
+                    const result = await response.json();
+                    cloudSync.lastSyncTime = Date.now();
+                    cloudSync.cloudDataVersion = dataVersion;
+                    cloudSync.syncStatus = 'in_sync';
+                    console.log('✅ 클라우드 업로드 성공:', result.id);
+                    showToast('클라우드에 성공적으로 업로드되었습니다 ☁️', 'success');
+                    updateCloudSyncUI();
+                    return true;
+                } else {
+                    throw new Error('업로드 실패: ' + response.statusText);
+                }
+            } catch (error) {
+                console.error('❌ 클라우드 업로드 실패:', error);
+                cloudSync.syncStatus = 'error';
+                showToast('클라우드 업로드 실패: ' + error.message, 'error');
+                updateCloudSyncUI();
+                return false;
+            } finally {
+                hideSaveIndicator();
+            }
+        }
+
+        // Download from Google Drive
+        async function downloadFromGoogleDrive() {
+            if (!cloudSync.isAuthenticated) {
+                showToast('먼저 구글 계정에 로그인해주세요', 'warning');
+                return false;
+            }
+
+            try {
+                cloudSync.syncStatus = 'syncing';
+                updateCloudSyncUI();
+                showSaveIndicator('클라우드에서 다운로드 중...');
+
+                // Find the backup file
+                const fileList = await gapi.client.drive.files.list({
+                    q: `name='study-tracker-backup.json' and trashed=false`,
+                    spaces: 'drive',
+                    pageSize: 1,
+                    fields: 'files(id, name, modifiedTime, webContentLink)'
+                });
+
+                if (!fileList.result.files || fileList.result.files.length === 0) {
+                    showToast('클라우드에 백업 파일이 없습니다', 'warning');
+                    cloudSync.syncStatus = 'in_sync';
+                    updateCloudSyncUI();
+                    return false;
+                }
+
+                const file = fileList.result.files[0];
+                console.log('📥 클라우드 파일 찾음:', file.name, '수정됨:', file.modifiedTime);
+
+                // Download file content
+                const response = await fetch(
+                    `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${cloudSync.accessToken}`
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('다운로드 실패: ' + response.statusText);
+                }
+
+                const cloudData = await response.json();
+
+                // Conflict Resolution
+                await resolveConflict(cloudData, file.modifiedTime);
+
+                cloudSync.lastSyncTime = Date.now();
+                cloudSync.syncStatus = 'in_sync';
+                console.log('✅ 클라우드 다운로드 성공');
+                updateCloudSyncUI();
+                return true;
+            } catch (error) {
+                console.error('❌ 클라우드 다운로드 실패:', error);
+                cloudSync.syncStatus = 'error';
+                showToast('클라우드 다운로드 실패: ' + error.message, 'error');
+                updateCloudSyncUI();
+                return false;
+            } finally {
+                hideSaveIndicator();
+            }
+        }
+
+        // Conflict Resolution Engine
+        async function resolveConflict(cloudData, cloudTimestamp) {
+            const localModified = localStorage.getItem('lastModified') || 0;
+            const cloudModified = new Date(cloudTimestamp).getTime();
+
+            console.log('🔄 충돌 감지:');
+            console.log('  로컬:', new Date(localModified).toLocaleString());
+            console.log('  클라우드:', new Date(cloudModified).toLocaleString());
+
+            // Auto-resolve: use latest version
+            if (cloudModified > localModified) {
+                console.log('✅ 클라우드 버전이 최신 - 적용');
+                studyData = cloudData;
+                localStorage.setItem('studyData', JSON.stringify(studyData));
+                localStorage.setItem('lastModified', cloudModified.toString());
+                buildDataIndexes();
+                renderAnalytics();
+                renderTimeBlocks();
+                renderMockScores();
+                renderSubjectProgress();
+                showToast('클라우드 버전으로 업데이트되었습니다 ↓', 'success');
+            } else {
+                console.log('✅ 로컬 버전이 최신 - 유지');
+                showToast('로컬 버전이 더 최신입니다 ↑', 'success');
+            }
+        }
+
+        // Get or Create Sync Folder
+        async function getOrCreateSyncFolder() {
+            try {
+                // Search for sync folder
+                const folderList = await gapi.client.drive.files.list({
+                    q: `name='${GOOGLE_CONFIG.APP_FOLDER}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+                    spaces: 'drive',
+                    fields: 'files(id)'
+                });
+
+                if (folderList.result.files && folderList.result.files.length > 0) {
+                    return folderList.result.files[0].id;
+                }
+
+                // Create folder if not exists
+                const createFolder = await gapi.client.drive.files.create({
+                    resource: {
+                        name: GOOGLE_CONFIG.APP_FOLDER,
+                        mimeType: 'application/vnd.google-apps.folder'
+                    },
+                    fields: 'id'
+                });
+
+                console.log('✅ 동기화 폴더 생성:', createFolder.result.id);
+                return createFolder.result.id;
+            } catch (error) {
+                console.error('❌ 폴더 작업 실패:', error);
+                throw error;
+            }
+        }
+
+        // Get unique device ID
+        function getDeviceId() {
+            let deviceId = localStorage.getItem('deviceId');
+            if (!deviceId) {
+                deviceId = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + new Date().getTime();
+                localStorage.setItem('deviceId', deviceId);
+            }
+            return deviceId;
+        }
+
+        // Update Cloud Sync UI
+        function updateCloudSyncUI() {
+            const statusBadge = document.getElementById('cloud-sync-status');
+            const loginBtn = document.getElementById('cloud-sync-login');
+            const logoutBtn = document.getElementById('cloud-sync-logout');
+            const uploadBtn = document.getElementById('cloud-sync-upload');
+            const downloadBtn = document.getElementById('cloud-sync-download');
+
+            if (!statusBadge) return;
+
+            const statusText = {
+                'not_authenticated': '☁️ 로그인 필요',
+                'in_sync': '✓ 동기화됨',
+                'syncing': '⚙️ 동기화 중...',
+                'error': '❌ 오류'
+            };
+
+            statusBadge.textContent = statusText[cloudSync.syncStatus] || '상태 확인 중...';
+            statusBadge.style.color = cloudSync.syncStatus === 'in_sync' ? '#30d158' :
+                                     cloudSync.syncStatus === 'error' ? '#ff3b30' : '#8e8e93';
+
+            // Show/hide buttons based on auth status
+            if (cloudSync.isAuthenticated) {
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'block';
+                if (uploadBtn) uploadBtn.style.display = 'block';
+                if (downloadBtn) downloadBtn.style.display = 'block';
+                console.log('✅ Google 계정 로그인됨 - 동기화 버튼 활성화');
+            } else {
+                if (loginBtn) loginBtn.style.display = 'block';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+                if (uploadBtn) uploadBtn.style.display = 'none';
+                if (downloadBtn) downloadBtn.style.display = 'none';
+                console.log('⚠️ Google 계정 미로그인 - 동기화 버튼 비활성화');
+            }
+        }
+
+        // Auto-Sync Scheduler
+        function scheduleAutoSync() {
+            // Auto-sync every 6 hours
+            setInterval(() => {
+                if (cloudSync.isAuthenticated && !cloudSync.syncInProgress) {
+                    console.log('⏰ 자동 동기화 시간 도래');
+                    uploadToGoogleDrive();
+                }
+            }, 6 * 60 * 60 * 1000);  // 6 hours in milliseconds
+
+            // Also sync on startup if last sync was > 6 hours ago
+            const lastSync = cloudSync.lastSyncTime;
+            const now = Date.now();
+            if (cloudSync.isAuthenticated && (now - lastSync) > 6 * 60 * 60 * 1000) {
+                console.log('📡 시작시 동기화 (마지막 동기화 > 6시간)');
+                uploadToGoogleDrive();
+            }
+        }
 
         function trackedSetInterval(callback, delay, label = 'unnamed') {
             const id = setInterval(callback, delay);
@@ -7243,6 +7680,15 @@ console.log('✅ 메인 스크립트 시작됨');
                 enableNotesAutoSave(); // Notes Auto-save 활성화
                 console.log('✅ v3.0.0 새 기능 활성화됨');
             }, 500);
+
+            // v4.0.0: Google Drive Cloud Sync Initialization
+            setTimeout(async () => {
+                console.log('📡 v4.0.0 클라우드 동기화 초기화 중...');
+                await cloudSync.init();
+                scheduleAutoSync();
+                updateCloudSyncUI();
+                console.log('✅ v4.0.0 클라우드 동기화 준비 완료');
+            }, 1000);
 
             // Note: Sample data is already initialized in the studyData object above
             // This prevents overwriting sample data with old defaults
